@@ -1,10 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { createContext } from 'react';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Home from './pages/Home';
-import { useAuth } from './hooks/useAuth';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createContext } from "react";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import { useAuth } from "./hooks/useAuth";
+import "./App.css";
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -21,11 +21,11 @@ function App() {
         </div>
       );
     }
-    
+
     if (!auth.isAuthenticated) {
       return <Navigate to="/login" />;
     }
-    
+
     return children;
   };
 
@@ -33,13 +33,13 @@ function App() {
     <AuthContext.Provider value={auth}>
       <BrowserRouter>
         <Routes>
-          <Route 
-            path="/login" 
-            element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />} 
+          <Route
+            path="/login"
+            element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />}
           />
-          <Route 
-            path="/register" 
-            element={auth.isAuthenticated ? <Navigate to="/" /> : <Register />} 
+          <Route
+            path="/register"
+            element={auth.isAuthenticated ? <Navigate to="/" /> : <Register />}
           />
           <Route
             path="/"
