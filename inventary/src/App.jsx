@@ -3,6 +3,7 @@ import { createContext } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./hooks/useAuth";
 import "./App.css";
 
@@ -45,7 +46,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Home />
+                <Dashboard></Dashboard>
               </ProtectedRoute>
             }
           />
