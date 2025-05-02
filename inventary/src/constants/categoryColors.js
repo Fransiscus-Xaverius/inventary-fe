@@ -37,7 +37,11 @@ export const categoryColors = {
 	baju: "#34495e", // dark blue
 	sepatu: "#d35400", // burnt orange
 	celana: "#95a5a6", // gray
-	// Add more as needed
+
+	// Status
+	active: "#2ecc71", // green
+	inactive: "#e74c3c", // red
+	discontinued: "#95a5a6", // gray
 };
 
 // Default fallback color

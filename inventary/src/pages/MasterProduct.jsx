@@ -1,39 +1,82 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
-import { debounce } from "lodash";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+	CircularProgress,
+	Typography,
+	TextField,
+	InputAdornment,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { DataGrid, GridLogicOperator } from "@mui/x-data-grid";
+import { PRODUCT_FILTER_FIELDS } from "../constants/filterFields";
 import useApiRequest from "../hooks/useApiRequest";
+import useProductFilters from "../hooks/useProductFilters";
+import useProductPagination from "../hooks/useProductPagination";
+import useProductSearch from "../hooks/useProductSearch";
+import { createProductColumns } from "../components/product/ProductColumns";
 import SidebarDashboard from "../components/SidebarDashboard";
-import { DataGrid } from "@mui/x-data-grid";
-import { CircularProgress, Typography } from "@mui/material";
-import { formatCurrency, formatDate } from "../utils/formatters";
-import { CategoryCell } from "../components/CategoryChip";
+import { debounce } from "lodash";
 
 export default function MasterProduct() {
-	// Get URL parameters
-	const [searchParams, setSearchParams] = useSearchParams();
-	const offsetParam = Number(searchParams.get("offset")) || 0;
-	const limitParam = Number(searchParams.get("limit")) || 10;
-	const searchParam = searchParams.get("q") || "";
-
 	// Track initial load vs subsequent loads
 	const [initialLoad, setInitialLoad] = useState(true);
+	const [searchInputValue, setSearchInputValue] = useState("");
 
-	// Local state for pagination
-	const [paginationModel, setPaginationModel] = useState({
-		page: Math.floor(offsetParam / limitParam),
-		pageSize: limitParam,
+	// Use custom hooks for pagination, filtering, and search
+	const {
+		paginationModel,
+		handlePaginationModelChange,
+		offsetParam,
+		limitParam,
+	} = useProductPagination();
+
+	const { filterModel, handleFilterModelChange, buildFilterQueryString } =
+		useProductFilters(PRODUCT_FILTER_FIELDS);
+
+	const { searchParam, handleSearchChange } = useProductSearch();
+
+	// Fetch available filter options
+	const { data: filterOptions } = useApiRequest({
+		url: "/api/filters",
+		queryKey: ["filterOptions"],
 	});
 
-	// API request with URL parameters using a stable URL reference
-	const searchUrl = useMemo(
-		() =>
-			`/api/products?q=${searchParam}&offset=${offsetParam}&limit=${limitParam}`,
-		[searchParam, offsetParam, limitParam]
+	// Initialize search input from URL parameter
+	useEffect(() => {
+		setSearchInputValue(searchParam);
+	}, [searchParam]);
+
+	// Create debounced search function
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const debouncedSearch = useMemo(
+		() => debounce((value) => handleSearchChange(value), 300),
+		[handleSearchChange]
 	);
+
+	// Handle search input change with debounce
+	const handleSearchInputChange = (e) => {
+		const value = e.target.value;
+		setSearchInputValue(value);
+		debouncedSearch(value);
+	};
+
+	// API request with URL parameters using a stable URL reference
+	const searchUrl = useMemo(() => {
+		const filterParams = buildFilterQueryString();
+		const searchQuery = searchParam
+			? `q=${encodeURIComponent(searchParam)}`
+			: "";
+		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
+
+		// Construct URL with proper handling of empty search
+		if (searchQuery) {
+			return `/api/products?${searchQuery}&${baseParams}${filterParams}`;
+		}
+		return `/api/products?${baseParams}${filterParams}`;
+	}, [searchParam, offsetParam, limitParam, buildFilterQueryString]);
 
 	const { data, isLoading, error } = useApiRequest({
 		url: searchUrl,
-		queryKey: ["products", searchParam, offsetParam, limitParam],
+		queryKey: ["products", searchParam, offsetParam, limitParam, filterModel],
 	});
 
 	// Mark initial load as complete after first data fetch
@@ -43,105 +86,10 @@ export default function MasterProduct() {
 		}
 	}, [data, initialLoad]);
 
-	// Debounced search handler
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const handleSearchChange = useCallback(
-		debounce((value) => {
-			setSearchParams(
-				(prev) => {
-					const newParams = new URLSearchParams(prev);
-					newParams.set("q", value);
-					newParams.set("offset", "0"); // Reset to first page on search
-					return newParams;
-				},
-				{ replace: true }
-			);
-		}, 500),
-		[setSearchParams]
-	);
-
-	// Handle pagination change
-	const handlePaginationModelChange = useCallback(
-		(model) => {
-			setPaginationModel(model);
-			setSearchParams(
-				(prev) => {
-					const newParams = new URLSearchParams(prev);
-					newParams.set("offset", String(model.page * model.pageSize));
-					newParams.set("limit", String(model.pageSize));
-					return newParams;
-				},
-				{ replace: true }
-			);
-		},
-		[setSearchParams]
-	);
-
-	// Memoize columns definition
+	// Get column definitions from the extracted component
 	const columns = useMemo(
-		() => [
-			{ field: "no", headerName: "ID", width: 90 },
-			{ field: "artikel", headerName: "Artikel", width: 150 },
-			{ field: "warna", headerName: "Warna", width: 120 },
-			{ field: "size", headerName: "Size", width: 80 },
-			{ field: "grup", headerName: "Grup", width: 120 },
-			{ field: "unit", headerName: "Unit", width: 120 },
-			// Using individual category chips - separate columns approach
-			{
-				field: "kat",
-				headerName: "Kategori",
-				width: 120,
-				renderCell: (params) => <CategoryCell params={params} />,
-				sortable: true,
-				filterable: true,
-			},
-			{ field: "model", headerName: "Model", width: 100 },
-			{
-				field: "gender",
-				headerName: "Gender",
-				width: 100,
-				renderCell: (params) => <CategoryCell params={params} />,
-				sortable: true,
-				filterable: true,
-			},
-			{
-				field: "tipe",
-				headerName: "Tipe",
-				width: 120,
-				renderCell: (params) => <CategoryCell params={params} />,
-				sortable: true,
-				filterable: true,
-			},
-			{
-				field: "harga",
-				headerName: "Harga",
-				width: 150,
-				valueGetter: (value) => formatCurrency(value),
-			},
-			{
-				field: "tanggal_produk",
-				headerName: "Tanggal Produk",
-				width: 200,
-				valueGetter: (value) => formatDate(value),
-			},
-			{
-				field: "tanggal_terima",
-				headerName: "Tanggal Terima",
-				width: 200,
-				valueGetter: (value) => formatDate(value),
-			},
-			{ field: "usia", headerName: "Usia", width: 100 },
-			{ field: "status", headerName: "Status", width: 120 },
-			{ field: "supplier", headerName: "Supplier", width: 150 },
-			{ field: "diupdate_oleh", headerName: "Di-update Oleh", width: 150 },
-			{
-				field: "tanggal_update",
-				headerName: "Terakhir Di-update",
-				width: 200,
-				valueGetter: (value) => formatDate(value, true),
-			},
-		],
-		[]
+		() => createProductColumns(filterOptions),
+		[filterOptions]
 	);
 
 	// Prepare rows data with useMemo
@@ -155,14 +103,6 @@ export default function MasterProduct() {
 		() => (data?.total_page || 0) * paginationModel.pageSize,
 		[data, paginationModel.pageSize]
 	);
-
-	// Sync pagination model with URL params if changed externally
-	useEffect(() => {
-		setPaginationModel({
-			page: Math.floor(offsetParam / limitParam),
-			pageSize: limitParam,
-		});
-	}, [offsetParam, limitParam]);
 
 	// Only show full page loading on initial load
 	if (isLoading && initialLoad) {
@@ -188,11 +128,53 @@ export default function MasterProduct() {
 			<SidebarDashboard />
 
 			<div className='flex flex-col flex-grow h-full p-4 overflow-hidden'>
-				<Typography variant='h4' gutterBottom fontWeight={600}>
-					Master Product
-				</Typography>
+				<div className='flex justify-between mb-4'>
+					<Typography variant='h4' gutterBottom fontWeight={600}>
+						Master Product
+					</Typography>
 
-				<div className='flex-grow w-full'>
+					{/* Custom search field */}
+					<div className='w-full max-w-md h-full flex content-center mt-4'>
+						<TextField
+							label='Search Products'
+							variant='outlined'
+							fullWidth
+							size='small'
+							value={searchInputValue}
+							onChange={handleSearchInputChange}
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position='start'>
+										<SearchIcon />
+									</InputAdornment>
+								),
+							}}
+							placeholder='Search by any field...'
+						/>
+					</div>
+				</div>
+
+				{/* Active filters display */}
+				{filterModel.items.length > 0 && (
+					<div className='flex flex-wrap gap-2 mb-3'>
+						<Typography variant='subtitle2' className='mr-2'>
+							Active Filters:
+						</Typography>
+						{filterModel.items.map(
+							(filter, index) =>
+								filter.value && (
+									<span
+										key={`${filter.field}-${index}`}
+										className='bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded'
+									>
+										{filter.field}: {filter.value} ({filter.operator})
+									</span>
+								)
+						)}
+					</div>
+				)}
+
+				<div className='flex-grow w-full overflow-auto'>
 					<DataGrid
 						rows={rows}
 						columns={columns}
@@ -203,6 +185,12 @@ export default function MasterProduct() {
 							pagination: {
 								paginationModel,
 							},
+							filter: {
+								filterModel: {
+									...filterModel,
+									logicOperator: GridLogicOperator.And, // Set initial logic operator to AND
+								},
+							},
 						}}
 						// Pagination settings
 						pagination
@@ -210,31 +198,12 @@ export default function MasterProduct() {
 						paginationModel={paginationModel}
 						onPaginationModelChange={handlePaginationModelChange}
 						pageSizeOptions={[10, 25, 50, 100]}
-						// Updated toolbar configuration using slots API
-						showToolbar
-						slotProps={{
-							toolbar: {
-								showQuickFilter: true,
-								quickFilterProps: {
-									debounceMs: 200,
-								},
-							},
-						}}
-						// Connect the filter value to the URL search parameter
+						// Filter settings
 						filterMode='server'
-						disableColumnFilter={false}
-						onFilterModelChange={(filterModel) => {
-							// When the quick filter text changes
-							if (
-								filterModel.quickFilterValues &&
-								filterModel.quickFilterValues.length > 0
-							) {
-								handleSearchChange(filterModel.quickFilterValues.join(" "));
-							} else {
-								handleSearchChange("");
-							}
-						}}
-						// Stylings
+						filterModel={filterModel}
+						onFilterModelChange={handleFilterModelChange}
+						// Removed deprecated GridToolbar
+						// Styling
 						sx={{
 							boxShadow: 1,
 							border: 1,
