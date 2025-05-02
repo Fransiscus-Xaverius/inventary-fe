@@ -5,6 +5,7 @@ import useApiRequest from "../hooks/useApiRequest";
 import SidebarDashboard from "../components/SidebarDashboard";
 import { DataGrid } from "@mui/x-data-grid";
 import { CircularProgress, Typography } from "@mui/material";
+import { formatCurrency, formatDate } from "../utils/formatters";
 
 export default function MasterProduct() {
 	// Get URL parameters
@@ -88,14 +89,34 @@ export default function MasterProduct() {
 			{ field: "model", headerName: "Model", width: 120 },
 			{ field: "gender", headerName: "Gender", width: 100 },
 			{ field: "tipe", headerName: "Tipe", width: 120 },
-			{ field: "harga", headerName: "Harga", width: 120, type: "number" },
-			{ field: "tanggal_produk", headerName: "Tanggal Produk", width: 150 },
-			{ field: "tanggal_terima", headerName: "Tanggal Terima", width: 150 },
+			{
+				field: "harga",
+				headerName: "Harga",
+				width: 150,
+				valueGetter: (value) => formatCurrency(value),
+			},
+			{
+				field: "tanggal_produk",
+				headerName: "Tanggal Produk",
+				width: 200,
+				valueGetter: (value) => formatDate(value),
+			},
+			{
+				field: "tanggal_terima",
+				headerName: "Tanggal Terima",
+				width: 200,
+				valueGetter: (value) => formatDate(value),
+			},
 			{ field: "usia", headerName: "Usia", width: 100 },
 			{ field: "status", headerName: "Status", width: 120 },
 			{ field: "supplier", headerName: "Supplier", width: 150 },
-			{ field: "diupdate_oleh", headerName: "Diupdate Oleh", width: 150 },
-			{ field: "tanggal_update", headerName: "Tanggal Update", width: 150 },
+			{ field: "diupdate_oleh", headerName: "Di-update Oleh", width: 150 },
+			{
+				field: "tanggal_update",
+				headerName: "Terakhir Di-update",
+				width: 200,
+				valueGetter: (value) => formatDate(value, true),
+			},
 		],
 		[]
 	);
