@@ -6,7 +6,7 @@ export default function SidebarDashboard() {
 			<h2 className='text-xl font-semibold mb-6'>Dashboard</h2>
 			<ul className='space-y-2'>
 				<li className='hover:bg-gray-700 p-2 rounded cursor-pointer'>
-					<NavLink to='/dashboard' className='text-white w-full'>
+					<NavLink to='/' className='text-white w-full'>
 						Dashboard
 					</NavLink>
 				</li>

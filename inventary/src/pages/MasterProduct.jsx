@@ -12,6 +12,7 @@ import useApiRequest from "../hooks/useApiRequest";
 import useProductFilters from "../hooks/useProductFilters";
 import useProductPagination from "../hooks/useProductPagination";
 import useProductSearch from "../hooks/useProductSearch";
+import useProductSorting from "../hooks/useProductSorting";
 import { createProductColumns } from "../components/product/ProductColumns";
 import SidebarDashboard from "../components/SidebarDashboard";
 import { debounce } from "lodash";
@@ -21,7 +22,7 @@ export default function MasterProduct() {
 	const [initialLoad, setInitialLoad] = useState(true);
 	const [searchInputValue, setSearchInputValue] = useState("");
 
-	// Use custom hooks for pagination, filtering, and search
+	// Use custom hooks for pagination, filtering, search, and sorting
 	const {
 		paginationModel,
 		handlePaginationModelChange,
@@ -33,6 +34,9 @@ export default function MasterProduct() {
 		useProductFilters(PRODUCT_FILTER_FIELDS);
 
 	const { searchParam, handleSearchChange } = useProductSearch();
+
+	const { sortModel, handleSortModelChange, buildSortQueryString } =
+		useProductSorting();
 
 	// Fetch available filter options
 	const { data: filterOptions } = useApiRequest({
@@ -62,21 +66,41 @@ export default function MasterProduct() {
 	// API request with URL parameters using a stable URL reference
 	const searchUrl = useMemo(() => {
 		const filterParams = buildFilterQueryString();
+		const sortParams = buildSortQueryString();
 		const searchQuery = searchParam
 			? `q=${encodeURIComponent(searchParam)}`
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		// Construct URL with proper handling of empty search
+		// Construct URL with all parameters
+		let url = `/api/products?${baseParams}`;
+
 		if (searchQuery) {
-			return `/api/products?${searchQuery}&${baseParams}${filterParams}`;
+			url += `&${searchQuery}`;
 		}
-		return `/api/products?${baseParams}${filterParams}`;
-	}, [searchParam, offsetParam, limitParam, buildFilterQueryString]);
+
+		url += filterParams;
+		url += sortParams;
+
+		return url;
+	}, [
+		searchParam,
+		offsetParam,
+		limitParam,
+		buildFilterQueryString,
+		buildSortQueryString,
+	]);
 
 	const { data, isLoading, error } = useApiRequest({
 		url: searchUrl,
-		queryKey: ["products", searchParam, offsetParam, limitParam, filterModel],
+		queryKey: [
+			"products",
+			searchParam,
+			offsetParam,
+			limitParam,
+			filterModel,
+			sortModel,
+		],
 	});
 
 	// Mark initial load as complete after first data fetch
@@ -128,13 +152,49 @@ export default function MasterProduct() {
 			<SidebarDashboard />
 
 			<div className='flex flex-col flex-grow h-full p-4 overflow-hidden'>
-				<div className='flex justify-between mb-4'>
+				<div className='flex mb-4'>
 					<Typography variant='h4' gutterBottom fontWeight={600}>
 						Master Product
 					</Typography>
+				</div>
+
+				<div className='flex justify-between mb-4'>
+					<div className='flex flex-col'>
+						{/* Active filters display */}
+						{filterModel.items.length > 0 && (
+							<div className='flex flex-wrap gap-2 mb-3'>
+								<Typography variant='subtitle2' className='mr-2'>
+									Active Filters:
+								</Typography>
+								{filterModel.items.map(
+									(filter, index) =>
+										filter.value && (
+											<span
+												key={`${filter.field}-${index}`}
+												className='bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded'
+											>
+												{filter.field}: {filter.value} ({filter.operator})
+											</span>
+										)
+								)}
+							</div>
+						)}
+
+						{/* Active sort display */}
+						{sortModel.length > 0 && (
+							<div className='flex flex-wrap gap-2'>
+								<Typography variant='subtitle2' className='mr-2'>
+									Sorting:
+								</Typography>
+								<span className='bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded'>
+									{sortModel[0].field} ({sortModel[0].sort})
+								</span>
+							</div>
+						)}
+					</div>
 
 					{/* Custom search field */}
-					<div className='w-full max-w-md h-full flex content-center mt-4'>
+					<div className='w-full max-w-md mt-4'>
 						<TextField
 							label='Search Products'
 							variant='outlined'
@@ -154,26 +214,6 @@ export default function MasterProduct() {
 					</div>
 				</div>
 
-				{/* Active filters display */}
-				{filterModel.items.length > 0 && (
-					<div className='flex flex-wrap gap-2 mb-3'>
-						<Typography variant='subtitle2' className='mr-2'>
-							Active Filters:
-						</Typography>
-						{filterModel.items.map(
-							(filter, index) =>
-								filter.value && (
-									<span
-										key={`${filter.field}-${index}`}
-										className='bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded'
-									>
-										{filter.field}: {filter.value} ({filter.operator})
-									</span>
-								)
-						)}
-					</div>
-				)}
-
 				<div className='flex-grow w-full overflow-auto'>
 					<DataGrid
 						rows={rows}
@@ -188,8 +228,11 @@ export default function MasterProduct() {
 							filter: {
 								filterModel: {
 									...filterModel,
-									logicOperator: GridLogicOperator.And, // Set initial logic operator to AND
+									logicOperator: GridLogicOperator.And,
 								},
+							},
+							sorting: {
+								sortModel,
 							},
 						}}
 						// Pagination settings
@@ -202,7 +245,10 @@ export default function MasterProduct() {
 						filterMode='server'
 						filterModel={filterModel}
 						onFilterModelChange={handleFilterModelChange}
-						// Removed deprecated GridToolbar
+						// Sorting settings
+						sortingMode='server'
+						sortModel={sortModel}
+						onSortModelChange={handleSortModelChange}
 						// Styling
 						sx={{
 							boxShadow: 1,
