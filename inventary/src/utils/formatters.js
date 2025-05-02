@@ -5,7 +5,7 @@
 /**
  * Formats a number as Indonesian Rupiah (IDR)
  * @param {number|string} value - The value to format
- * @returns {string} - Formatted currency string or "-" for invalid values
+ * @returns {string} Formatted currency string or "-" for invalid values
  */
 export const formatCurrency = (value) => {
 	// Check if value is a valid number
@@ -27,7 +27,7 @@ export const formatCurrency = (value) => {
  * Formats a date with Indonesian locale
  * @param {Date|string} value - The date to format
  * @param {boolean} withTime - Whether to include time in the format
- * @returns {string} - Formatted date string or "-" for invalid dates
+ * @returns {string} Formatted date string or "-" for invalid dates
  */
 export const formatDate = (value, withTime = false) => {
 	if (!value) return "-";

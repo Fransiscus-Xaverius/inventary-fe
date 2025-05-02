@@ -6,6 +6,7 @@ import SidebarDashboard from "../components/SidebarDashboard";
 import { DataGrid } from "@mui/x-data-grid";
 import { CircularProgress, Typography } from "@mui/material";
 import { formatCurrency, formatDate } from "../utils/formatters";
+import { CategoryCell } from "../components/CategoryChip";
 
 export default function MasterProduct() {
 	// Get URL parameters
@@ -85,10 +86,32 @@ export default function MasterProduct() {
 			{ field: "size", headerName: "Size", width: 80 },
 			{ field: "grup", headerName: "Grup", width: 120 },
 			{ field: "unit", headerName: "Unit", width: 120 },
-			{ field: "kat", headerName: "Kategori", width: 150 },
-			{ field: "model", headerName: "Model", width: 120 },
-			{ field: "gender", headerName: "Gender", width: 100 },
-			{ field: "tipe", headerName: "Tipe", width: 120 },
+			// Using individual category chips - separate columns approach
+			{
+				field: "kat",
+				headerName: "Kategori",
+				width: 120,
+				renderCell: (params) => <CategoryCell params={params} />,
+				sortable: true,
+				filterable: true,
+			},
+			{ field: "model", headerName: "Model", width: 100 },
+			{
+				field: "gender",
+				headerName: "Gender",
+				width: 100,
+				renderCell: (params) => <CategoryCell params={params} />,
+				sortable: true,
+				filterable: true,
+			},
+			{
+				field: "tipe",
+				headerName: "Tipe",
+				width: 120,
+				renderCell: (params) => <CategoryCell params={params} />,
+				sortable: true,
+				filterable: true,
+			},
 			{
 				field: "harga",
 				headerName: "Harga",
