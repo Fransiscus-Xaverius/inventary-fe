@@ -4,8 +4,20 @@ import {
   Typography,
   TextField,
   InputAdornment,
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Chip,
+  IconButton,
+  Button,
+  Divider,
+  Paper,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ClearIcon from "@mui/icons-material/Clear";
 import { DataGrid, GridLogicOperator } from "@mui/x-data-grid";
 import { PRODUCT_FILTER_FIELDS } from "../constants/filterFields";
 import useApiRequest from "../hooks/useApiRequest";
@@ -21,6 +33,9 @@ export default function MasterProduct() {
   const [initialLoad, setInitialLoad] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
 
+  // State for tracking filter dropdown values
+  const [filterValues, setFilterValues] = useState({});
+
   // Use custom hooks for pagination, filtering, search, and sorting
   const {
     paginationModel,
@@ -29,8 +44,12 @@ export default function MasterProduct() {
     limitParam,
   } = useProductPagination();
 
-  const { filterModel, handleFilterModelChange, buildFilterQueryString } =
-    useProductFilters(PRODUCT_FILTER_FIELDS);
+  const {
+    filterModel,
+    handleFilterModelChange,
+    buildFilterQueryString,
+    addFilter,
+  } = useProductFilters(PRODUCT_FILTER_FIELDS);
 
   const { searchParam, handleSearchChange } = useProductSearch();
 
@@ -120,6 +139,61 @@ export default function MasterProduct() {
     [data, paginationModel.pageSize]
   );
 
+  // Get filterable columns
+  const filterableColumns = useMemo(() => {
+    if (!columns) return [];
+    return columns.filter((col) => col.filterable !== false);
+  }, [columns]);
+
+  // Handle filter change for dropdown
+  const handleFilterChange = (field, value) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (value) {
+      addFilter(field, value);
+    } else {
+      // Remove filter if value is empty
+      const updatedModel = {
+        ...filterModel,
+        items: filterModel.items.filter((item) => item.field !== field),
+      };
+      handleFilterModelChange(updatedModel);
+    }
+  };
+
+  // Handle removing a filter
+  const handleRemoveFilter = (field) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+
+    // Update filter model to remove the filter
+    const updatedModel = {
+      ...filterModel,
+      items: filterModel.items.filter((item) => item.field !== field),
+    };
+    handleFilterModelChange(updatedModel);
+  };
+
+  // Clear all filters
+  const handleClearAllFilters = () => {
+    setFilterValues({});
+    handleFilterModelChange({
+      items: [],
+      logicOperator: GridLogicOperator.And,
+    });
+  };
+
+  // Get available filter options for a specific field
+  const getFilterOptionsForField = (field) => {
+    if (!filterOptions?.fields?.[field]?.values) return [];
+    return filterOptions.fields[field].values;
+  };
+
   // Only show full page loading on initial load
   if (isLoading && initialLoad) {
     return (
@@ -143,119 +217,250 @@ export default function MasterProduct() {
     <div className="h-screen w-screen flex">
       <SidebarDashboard />
 
-      <div className="flex flex-col flex-grow h-full p-4 overflow-hidden">
-        <div className="flex mb-4">
-          <Typography variant="h4" gutterBottom fontWeight={600}>
-            Master Product
-          </Typography>
-        </div>
-
-        <div className="flex justify-between mb-4">
-          <div className="flex flex-col">
-            {/* Active filters display */}
+      {/* Main content with sidebar filter */}
+      <div className="flex flex-grow h-full overflow-hidden">
+        {/* Left Filter Sidebar */}
+        <Box
+          component={Paper}
+          elevation={2}
+          sx={{
+            width: "450px",
+            height: "100%",
+            borderRight: "1px solid #e0e0e0",
+            overflow: "auto",
+            p: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            gutterBottom
+            sx={{ display: "flex", alignItems: "center" }}
+          >
+            <FilterListIcon sx={{ mr: 1 }} />
+            Filters
             {filterModel.items.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Typography variant="subtitle2" className="mr-2">
-                  Active Filters:
-                </Typography>
-                {filterModel.items.map(
-                  (filter, index) =>
-                    filter.value && (
-                      <span
-                        key={`${filter.field}-${index}`}
-                        className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded"
-                      >
-                        {filter.field}: {filter.value} ({filter.operator})
-                      </span>
-                    )
-                )}
-              </div>
+              <Chip
+                label={filterModel.items.length}
+                size="small"
+                color="primary"
+                sx={{ ml: 1 }}
+              />
             )}
+          </Typography>
 
-            {/* Active sort display */}
-            {sortModel.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                <Typography variant="subtitle2" className="mr-2">
-                  Sorting:
-                </Typography>
-                <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded">
-                  {sortModel[0].field} ({sortModel[0].sort})
-                </span>
-              </div>
-            )}
+          <Divider sx={{ my: 2 }} />
+
+          {/* Filter dropdowns stacked vertically */}
+          {filterableColumns.map((column) => (
+            <FormControl
+              fullWidth
+              variant="outlined"
+              size="small"
+              key={column.field}
+              sx={{ mb: 2 }}
+            >
+              <InputLabel id={`filter-label-${column.field}`}>
+                {column.headerName || column.field}
+              </InputLabel>
+              <Select
+                labelId={`filter-label-${column.field}`}
+                id={`filter-${column.field}`}
+                value={filterValues[column.field] || ""}
+                onChange={(e) =>
+                  handleFilterChange(column.field, e.target.value)
+                }
+                label={column.headerName || column.field}
+                endAdornment={
+                  filterValues[column.field] ? (
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFilter(column.field);
+                      }}
+                      sx={{ marginRight: 1 }}
+                    >
+                      <ClearIcon fontSize="small" />
+                    </IconButton>
+                  ) : null
+                }
+              >
+                <MenuItem value="">
+                  <em>All</em>
+                </MenuItem>
+                {getFilterOptionsForField(column.field).map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ))}
+
+          {filterModel.items.length > 0 && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleClearAllFilters}
+              sx={{ mt: 1 }}
+              fullWidth
+              startIcon={<ClearIcon />}
+            >
+              Clear All Filters
+            </Button>
+          )}
+        </Box>
+
+        {/* Main Content Area */}
+        <div className="flex flex-col flex-grow h-full p-4 overflow-hidden">
+          <div className="flex mb-4">
+            <Typography variant="h4" gutterBottom fontWeight={600}>
+              Master Product
+            </Typography>
           </div>
 
-          {/* Custom search field */}
-          <div className="w-full max-w-md mt-4">
-            <TextField
-              label="Search Products"
-              variant="outlined"
-              fullWidth
-              size="small"
-              value={searchInputValue}
-              onChange={(e) => setSearchInputValue(e.target.value)}
-              onKeyDown={handleSearchKeyDown} // Trigger search on Enter key
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
+          <div className="flex justify-between mb-4">
+            <div className="flex flex-col">
+              {/* Active filters display */}
+              {filterModel.items.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Typography variant="subtitle2" className="mr-2">
+                    Active Filters:
+                  </Typography>
+                  {filterModel.items.map(
+                    (filter, index) =>
+                      filter.value && (
+                        <Chip
+                          key={`${filter.field}-${index}`}
+                          label={`${
+                            columns.find((col) => col.field === filter.field)
+                              ?.headerName || filter.field
+                          }: ${filter.value}`}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                          onDelete={() => handleRemoveFilter(filter.field)}
+                        />
+                      )
+                  )}
+                </div>
+              )}
+
+              {/* Active sort display */}
+              {sortModel.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  <Typography variant="subtitle2" className="mr-2">
+                    Sorting:
+                  </Typography>
+                  <Chip
+                    label={`${
+                      columns.find((col) => col.field === sortModel[0].field)
+                        ?.headerName || sortModel[0].field
+                    }: ${sortModel[0].sort}`}
+                    size="small"
+                    color="success"
+                    variant="outlined"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Custom search field - unchanged */}
+            <div className="w-full max-w-md mt-4">
+              <TextField
+                label="Search Products"
+                variant="outlined"
+                fullWidth
+                size="small"
+                value={searchInputValue}
+                onChange={(e) => setSearchInputValue(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+                placeholder="Search by any field..."
+              />
+            </div>
+          </div>
+
+          {/* DataGrid - unchanged structure */}
+          <div className="flex-grow w-full overflow-auto">
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              rowCount={rowCount}
+              getRowId={(p) => p.no}
+              loading={isLoading}
+              initialState={{
+                pagination: {
+                  paginationModel,
+                },
+                filter: {
+                  filterModel: {
+                    ...filterModel,
+                    logicOperator: GridLogicOperator.And,
+                  },
+                },
+                sorting: {
+                  sortModel,
+                },
               }}
-              placeholder="Search by any field..."
+              // Pagination settings - unchanged
+              pagination
+              paginationMode="server"
+              paginationModel={paginationModel}
+              onPaginationModelChange={handlePaginationModelChange}
+              pageSizeOptions={[10, 25, 50, 100]}
+              // Filter settings
+              disableColumnFilter // Disable default column filters since we're using custom sidebar
+              filterMode="server"
+              filterModel={filterModel}
+              onFilterModelChange={handleFilterModelChange}
+              // Sorting settings - unchanged
+              sortingMode="server"
+              sortModel={sortModel}
+              onSortModelChange={handleSortModelChange}
+              // Styling
+              sx={{
+                boxShadow: 1,
+                border: 1,
+                borderColor: "divider",
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "#f5f5f5",
+                  fontWeight: "bold",
+                },
+                "& .MuiDataGrid-cell": {
+                  fontSize: "0.9rem",
+                },
+                // Enable horizontal scrolling for the grid
+                "& .MuiDataGrid-main": {
+                  overflow: "auto",
+                },
+                "& .MuiDataGrid-virtualScroller": {
+                  overflow: "auto",
+                  // Customize scrollbars
+                  "&::-webkit-scrollbar": {
+                    width: "8px",
+                    height: "8px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    backgroundColor: "#f1f1f1",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    backgroundColor: "#888",
+                    borderRadius: "4px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    backgroundColor: "#555",
+                  },
+                },
+              }}
             />
           </div>
-        </div>
-
-        <div className="flex-grow w-full overflow-auto">
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            rowCount={rowCount}
-            getRowId={(p) => p.no}
-            loading={isLoading}
-            initialState={{
-              pagination: {
-                paginationModel,
-              },
-              filter: {
-                filterModel: {
-                  ...filterModel,
-                  logicOperator: GridLogicOperator.And,
-                },
-              },
-              sorting: {
-                sortModel,
-              },
-            }}
-            // Pagination settings
-            pagination
-            paginationMode="server"
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationModelChange}
-            pageSizeOptions={[10, 25, 50, 100]}
-            // Filter settings
-            filterMode="server"
-            filterModel={filterModel}
-            onFilterModelChange={handleFilterModelChange}
-            // Sorting settings
-            sortingMode="server"
-            sortModel={sortModel}
-            onSortModelChange={handleSortModelChange}
-            // Styling
-            sx={{
-              boxShadow: 1,
-              border: 1,
-              borderColor: "divider",
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "#f5f5f5",
-                fontWeight: "bold",
-              },
-              "& .MuiDataGrid-cell": {
-                fontSize: "0.9rem",
-              },
-            }}
-          />
         </div>
       </div>
     </div>
