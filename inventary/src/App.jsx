@@ -83,6 +83,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/addEdit-product/:artikel"
+              element={
+                <ProtectedRoute>
+                  <AddEditProduct />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </AuthContext.Provider>

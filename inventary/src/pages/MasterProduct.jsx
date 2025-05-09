@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ReactDOM from "react-dom/client";
 import {
   CircularProgress,
   Typography,
@@ -18,6 +19,8 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import ClearIcon from "@mui/icons-material/Clear";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 import { DataGrid, GridLogicOperator } from "@mui/x-data-grid";
 import { PRODUCT_FILTER_FIELDS } from "../constants/filterFields";
 import useApiRequest from "../hooks/useApiRequest";
@@ -29,11 +32,119 @@ import { createProductColumns } from "../components/product/ProductColumns";
 import SidebarDashboard from "../components/SidebarDashboard";
 import { useNavigate } from "react-router-dom";
 
+export function DeleteConfirmationDialog({ show, onConfirm, onCancel }) {
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      {/* Dark overlay background */}
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50"
+        onClick={onCancel}
+      ></div>
+
+      {/* White confirmation box */}
+      <div className="bg-white rounded-lg p-6 w-80 shadow-xl z-10 flex flex-col items-center">
+        <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
+          Are you sure to delete this data?
+        </h3>
+
+        <div className="flex space-x-4 mt-4">
+          {/* Checkmark button */}
+          <button
+            onClick={onConfirm}
+            className="flex items-center justify-center p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+          >
+            <CheckCircleIcon />
+          </button>
+
+          {/* X button */}
+          <button
+            onClick={onCancel}
+            className="flex items-center justify-center p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+          >
+            <CancelIcon />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Add new showDeleteConfirmation function to be exported
+export function showDeleteConfirmation(productData, callback) {
+  // Create a div element to mount the dialog
+  const dialogContainer = document.createElement("div");
+  document.body.appendChild(dialogContainer);
+
+  // Render function to handle dialog state
+  const renderDialog = (isVisible = true) => {
+    const handleConfirm = () => {
+      if (callback) callback(productData);
+      cleanup();
+    };
+
+    const handleCancel = () => {
+      cleanup();
+    };
+
+    const cleanup = () => {
+      // Unmount and remove the container
+      document.body.removeChild(dialogContainer);
+    };
+
+    // Use React to render the dialog
+    const root = ReactDOM.createRoot(dialogContainer);
+    root.render(
+      <DeleteConfirmationDialog
+        show={isVisible}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+      />
+    );
+  };
+
+  // Show the dialog
+  renderDialog();
+
+  // Return a function to hide the dialog
+  return () => {
+    renderDialog(false);
+  };
+}
+
 export default function MasterProduct() {
   // Track initial load vs subsequent loads
   const [initialLoad, setInitialLoad] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
   const navigate = useNavigate();
+
+  // State for delete confirmation dialog
+  const [deleteConfirmation, setDeleteConfirmation] = useState({
+    isOpen: false,
+    productData: null,
+  });
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = () => {
+    if (deleteConfirmation.productData) {
+      console.log("Deleting product:", deleteConfirmation.productData);
+      // Perform API call to delete product here
+      // After successful deletion, you may want to refresh the data
+    }
+    // Close the dialog
+    //   setDeleteConfirmation({ isOpen: false, productData: null });
+    // };
+
+    // Handle delete cancel
+    // const handleDeleteCancel = () => {
+    //   setDeleteConfirmation({ isOpen: false, productData: null });
+    // };
+
+    // Function to open the delete confirmation dialog
+    // const openDeleteConfirmation = (productData) => {
+    //   setDeleteConfirmation({ isOpen: true, productData });
+  };
 
   // State for tracking filter dropdown values
   const [filterValues, setFilterValues] = useState({});

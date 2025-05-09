@@ -1,10 +1,13 @@
-import React from "react";
+// import React, { useState } from "react";
 import { formatCurrency, formatDate } from "../../utils/formatters";
 import { CategoryCell } from "../../components/CategoryChip";
 import { IconButton, Tooltip, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useNavigate } from "react-router-dom";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { showDeleteConfirmation } from "../../pages/MasterProduct";
 
 /**
  * Creates DataGrid column definitions for product table with filter options
@@ -125,20 +128,14 @@ export const createProductColumns = (filterOptions) => {
           const navigate = useNavigate();
 
           const handleEdit = () => {
-            navigate(`/addEdit-product?id=${params.row.no}`);
+            navigate(`/addEdit-product/${params.row.artikel}`);
           };
 
-          const handleDelete = () => {
-            // This would typically show a confirmation dialog
-            // and then call an API to delete the item
-            if (
-              window.confirm(
-                `Are you sure you want to delete product ${params.row.artikel}?`
-              )
-            ) {
-              console.log("Delete product:", params.row);
+          const handleDeleteClick = () => {
+            showDeleteConfirmation(params.row, (productData) => {
+              console.log("Delete product:", productData);
               // API call would go here
-            }
+            });
           };
 
           return (
@@ -166,7 +163,7 @@ export const createProductColumns = (filterOptions) => {
               </Tooltip>
               <Tooltip title="Delete Product">
                 <IconButton
-                  onClick={handleDelete}
+                  onClick={handleDeleteClick}
                   size="small"
                   color="error"
                   sx={{
