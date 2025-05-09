@@ -27,11 +27,13 @@ import useProductSearch from "../hooks/useProductSearch";
 import useProductSorting from "../hooks/useProductSorting";
 import { createProductColumns } from "../components/product/ProductColumns";
 import SidebarDashboard from "../components/SidebarDashboard";
+import { useNavigate } from "react-router-dom";
 
 export default function MasterProduct() {
   // Track initial load vs subsequent loads
   const [initialLoad, setInitialLoad] = useState(true);
   const [searchInputValue, setSearchInputValue] = useState("");
+  const navigate = useNavigate();
 
   // State for tracking filter dropdown values
   const [filterValues, setFilterValues] = useState({});
@@ -229,6 +231,7 @@ export default function MasterProduct() {
             borderRight: "1px solid #e0e0e0",
             overflow: "auto",
             p: 2,
+            display: "none",
           }}
         >
           <Typography
@@ -317,6 +320,16 @@ export default function MasterProduct() {
             <Typography variant="h4" gutterBottom fontWeight={600}>
               Master Product
             </Typography>
+          </div>
+
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
+              onClick={() => navigate("/addEdit-product")}
+            >
+              Add Product
+            </button>
           </div>
 
           <div className="flex justify-between mb-4">
