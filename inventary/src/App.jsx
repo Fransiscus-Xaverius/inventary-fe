@@ -15,7 +15,6 @@ import NotificationContainer from './components/NotificationSystem/NotificationC
 
 // Lazy load components
 const MasterColor = lazy(() => import("./pages/MasterColor")); 
-const AddEditColor = lazy(() => import("./pages/MasterColor/AddEditColor"));
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -112,26 +111,6 @@ function App() {
                   <ProtectedRoute>
                     <Suspense fallback={<LoadingFallback />}>
                       <MasterColor />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/addEdit-color"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<LoadingFallback />}>
-                      <AddEditColor />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/addEdit-color/:id"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<LoadingFallback />}>
-                      <AddEditColor />
                     </Suspense>
                   </ProtectedRoute>
                 }
