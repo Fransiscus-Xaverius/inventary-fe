@@ -15,6 +15,11 @@ export default function SidebarDashboard() {
             Master Products
           </NavLink>
         </li>
+        <li className="hover:bg-gray-700 p-2 rounded cursor-pointer">
+          <NavLink to="/master-color" className="text-white w-full">
+            Master Color
+          </NavLink>
+        </li>
       </ul>
     </div>
   );
