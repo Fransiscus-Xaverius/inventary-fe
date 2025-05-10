@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext } from "react";
+import { createContext, Suspense, lazy } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -9,6 +9,13 @@ import MasterProduct from "./pages/MasterProduct";
 import AddEditProduct from "./pages/AddEditProduct";
 import { useAuth } from "./hooks/useAuth";
 import "./App.css";
+import { CircularProgress } from "@mui/material";
+import { NotificationProvider } from './contexts/NotificationContext';
+import NotificationContainer from './components/NotificationSystem/NotificationContainer';
+
+// Lazy load components
+const MasterColor = lazy(() => import("./pages/MasterColor")); 
+const AddEditColor = lazy(() => import("./pages/MasterColor/AddEditColor"));
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -23,6 +30,13 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center h-screen w-screen">
+    <CircularProgress />
+  </div>
+);
 
 function App() {
   const auth = useAuth();
@@ -47,52 +61,85 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={auth}>
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/login"
-              element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />}
-            />
-            <Route
-              path="/register"
-              element={
-                auth.isAuthenticated ? <Navigate to="/" /> : <Register />
-              }
-            />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/master-product"
-              element={
-                <ProtectedRoute>
-                  <MasterProduct />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/addEdit-product"
-              element={
-                <ProtectedRoute>
-                  <AddEditProduct />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/addEdit-product/:artikel"
-              element={
-                <ProtectedRoute>
-                  <AddEditProduct />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </BrowserRouter>
+        <NotificationProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/login"
+                element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />}
+              />
+              <Route
+                path="/register"
+                element={
+                  auth.isAuthenticated ? <Navigate to="/" /> : <Register />
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-product"
+                element={
+                  <ProtectedRoute>
+                    <MasterProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-product"
+                element={
+                  <ProtectedRoute>
+                    <AddEditProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-product/:artikel"
+                element={
+                  <ProtectedRoute>
+                    <AddEditProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-color"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <MasterColor />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-color"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <AddEditColor />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-color/:id"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <AddEditColor />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+          <NotificationContainer />
+        </NotificationProvider>
       </AuthContext.Provider>
     </QueryClientProvider>
   );
