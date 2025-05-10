@@ -21,6 +21,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 import { useNotification } from "../../contexts/NotificationContext";
+import AddEditColorModal from "./AddEditColorModal";
 
 const columns = [
   {
@@ -31,62 +32,60 @@ const columns = [
     filterable: false,
     disableColumnMenu: true,
     renderCell: (params) => {
-const ActionButtons = () => {
-      const navigate = useNavigate();
+      const ActionButtons = () => {
+        const handleEdit = () => {
+          params.row.onEdit(params.row.id);
+        };
 
-      const handleEdit = () => {
-        navigate(`/addEdit-color/${params.row.id}`);
+        const handleDeleteClick = () => {
+          params.row.onDelete(params.row);
+        };
+
+        return (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 1,
+            }}
+          >
+            <Tooltip title="Edit Color">
+              <IconButton
+                onClick={handleEdit}
+                onMouseDown={(e) => e.stopPropagation()}
+                size="small"
+                color="primary"
+                sx={{
+                  backgroundColor: "rgba(25, 118, 210, 0.12)",
+                  "&:hover": {
+                    backgroundColor: "rgba(25, 118, 210, 0.25)",
+                  },
+                  pointerEvents: 'auto'
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete Color">
+              <IconButton
+                onClick={handleDeleteClick}
+                onMouseDown={(e) => e.stopPropagation()}
+                size="small"
+                color="error"
+                sx={{
+                  backgroundColor: "rgba(211, 47, 47, 0.12)",
+                  "&:hover": {
+                    backgroundColor: "rgba(211, 47, 47, 0.25)",
+                  },
+                  pointerEvents: 'auto'
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        );
       };
-
-      const handleDeleteClick = () => {
-        params.row.onDelete(params.row);
-      };
-
-      return (
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 1,
-          }}
-        >
-          <Tooltip title="Edit Product">
-            <IconButton
-              onClick={handleEdit}
-              onMouseDown={(e) => e.stopPropagation()}
-              size="small"
-              color="primary"
-              sx={{
-                backgroundColor: "rgba(25, 118, 210, 0.12)",
-                "&:hover": {
-                  backgroundColor: "rgba(25, 118, 210, 0.25)",
-                },
-                pointerEvents: 'auto'
-              }}
-            >
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete Product">
-            <IconButton
-              onClick={handleDeleteClick}
-              onMouseDown={(e) => e.stopPropagation()}
-              size="small"
-              color="error"
-              sx={{
-                backgroundColor: "rgba(211, 47, 47, 0.12)",
-                "&:hover": {
-                  backgroundColor: "rgba(211, 47, 47, 0.25)",
-                },
-                pointerEvents: 'auto'
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      );
-};
 
       return <ActionButtons />;
     },
@@ -116,6 +115,12 @@ export default function MasterColor() {
   });
   const [isDeleting, setIsDeleting] = useState(false);
   const { showSuccess, showError } = useNotification();
+  
+  // State for the add/edit color modal
+  const [colorModal, setColorModal] = useState({
+    open: false,
+    colorId: null
+  });
 
   const {
     paginationModel,
@@ -150,6 +155,30 @@ export default function MasterColor() {
     setDeleteDialog({
       open: false,
       item: null,
+    });
+  };
+  
+  // Function to open edit modal
+  const handleEditColor = (colorId) => {
+    setColorModal({
+      open: true,
+      colorId
+    });
+  };
+  
+  // Function to open add modal
+  const handleAddColor = () => {
+    setColorModal({
+      open: true,
+      colorId: null
+    });
+  };
+  
+  // Function to close modal
+  const handleCloseColorModal = () => {
+    setColorModal({
+      open: false,
+      colorId: null
     });
   };
 
@@ -200,12 +229,18 @@ export default function MasterColor() {
       }
     });
   };
+  
+  // Handle color save success
+  const handleColorSaveSuccess = () => {
+    refetch(); // Refresh the colors data
+  };
 
   const rows = useMemo(() => {
     const colors = data?.colors || [];
     return colors.map((color) => ({
       ...color,
       onDelete: openDeleteDialog,
+      onEdit: handleEditColor,
     }));
   }, [data]);
 
@@ -238,7 +273,7 @@ export default function MasterColor() {
         <Box className="mb-4">
           <button
             className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
-            onClick={() => navigate("/addEdit-color")}
+            onClick={handleAddColor}
           >
             Add Color
           </button>
@@ -288,6 +323,7 @@ export default function MasterColor() {
           />
         </Box>
 
+        {/* Delete confirmation modal */}
         <DeleteConfirmationModal
           open={deleteDialog.open}
           onClose={closeDeleteDialog}
@@ -296,6 +332,14 @@ export default function MasterColor() {
           message="Are you sure you want to delete this color?"
           itemName={deleteDialog.item?.nama}
           isLoading={isDeleting || isDeleteLoading}
+        />
+        
+        {/* Add/Edit color modal */}
+        <AddEditColorModal 
+          open={colorModal.open}
+          onClose={handleCloseColorModal}
+          colorId={colorModal.colorId}
+          onSuccess={handleColorSaveSuccess}
         />
       </Box>
     </Box>
