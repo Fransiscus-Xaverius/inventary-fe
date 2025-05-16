@@ -15,7 +15,7 @@ import NotificationContainer from "./components/NotificationSystem/NotificationC
 const MasterColor = lazy(() => import("./pages/MasterColor"));
 const MasterProduct = lazy(() => import("./pages/MasterProduct"));
 const AddEditProduct = lazy(() =>
-	import("./pages/MasterProduct/AddEditProduct")
+  import("./pages/MasterProduct/AddEditProduct")
 );
 const MasterGrup = lazy(() => import("./pages/MasterGrup"));
 const MasterKat = lazy(() => import("./pages/MasterKat"));
@@ -28,147 +28,139 @@ export const AuthContext = createContext(null);
 
 // Create a query client
 const queryClient = new QueryClient({
-	defaultOptions: {
-		queries: {
-			staleTime: 5 * 60 * 1000, // 5 minutes
-			cacheTime: 10 * 60 * 1000, // 10 minutes
-			refetchOnWindowFocus: false,
-		},
-	},
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 // Loading fallback component
 const LoadingFallback = () => (
-	<div className='flex justify-center items-center h-screen w-screen'>
-		<CircularProgress />
-	</div>
+  <div className="flex justify-center items-center h-screen w-screen">
+    <CircularProgress />
+  </div>
 );
 
 function App() {
-	const auth = useAuth();
+  const auth = useAuth();
 
-	// Protected route component
-	const ProtectedRoute = ({ children }) => {
-		if (auth.isLoading) {
-			return (
-				<div className='flex flex-col items-center justify-center min-h-screen'>
-					<p>Loading...</p>
-				</div>
-			);
-		}
+  // Protected route component
+  const ProtectedRoute = ({ children }) => {
+    if (auth.isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <p>Loading...</p>
+        </div>
+      );
+    }
 
-		if (!auth.isAuthenticated) {
-			return <Navigate to='/login' />;
-		}
+    if (!auth.isAuthenticated) {
+      return <Navigate to="/login" />;
+    }
 
-		return children;
-	};
+    return children;
+  };
 
-	return (
-		<QueryClientProvider client={queryClient}>
-			<AuthContext.Provider value={auth}>
-				<NotificationProvider>
-					<BrowserRouter>
-						<Routes>
-							<Route
-								path='/login'
-								element={auth.isAuthenticated ? <Navigate to='/' /> : <Login />}
-							/>
-							<Route
-								path='/register'
-								element={
-									auth.isAuthenticated ? <Navigate to='/' /> : <Register />
-								}
-							/>
-							<Route
-								path='/'
-								element={
-									<ProtectedRoute>
-										<Dashboard />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-product'
-								element={
-									<ProtectedRoute>
-										<MasterProduct />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/addEdit-product'
-								element={
-									<ProtectedRoute>
-										<AddEditProduct />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/addEdit-product/:artikel'
-								element={
-									<ProtectedRoute>
-										<AddEditProduct />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-color'
-								element={
-									<ProtectedRoute>
-										<Suspense fallback={<LoadingFallback />}>
-											<MasterColor />
-										</Suspense>
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-grup'
-								element={
-									<ProtectedRoute>
-										<MasterGrup />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-kat'
-								element={
-									<ProtectedRoute>
-										<MasterKat />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-unit'
-								element={
-									<ProtectedRoute>
-										<MasterUnit />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-gender'
-								element={
-									<ProtectedRoute>
-										<MasterGender />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path='/master-tipe'
-								element={
-									<ProtectedRoute>
-										<MasterTipe />
-									</ProtectedRoute>
-								}
-							/>
-						</Routes>
-					</BrowserRouter>
-					<NotificationContainer />
-				</NotificationProvider>
-			</AuthContext.Provider>
-		</QueryClientProvider>
-	);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={auth}>
+        <NotificationProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="/login"
+                element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />}
+              />
+              <Route
+                path="/register"
+                element={
+                  auth.isAuthenticated ? <Navigate to="/" /> : <Register />
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-product"
+                element={
+                  <ProtectedRoute>
+                    <MasterProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-product"
+                element={
+                  <ProtectedRoute>
+                    <AddEditProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/addEdit-product/:artikel"
+                element={
+                  <ProtectedRoute>
+                    <AddEditProduct />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-color"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <MasterColor />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-grup"
+                element={
+                  <ProtectedRoute>
+                    <MasterGrup />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-kat"
+                element={
+                  <ProtectedRoute>
+                    <MasterKat />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-unit"
+                element={
+                  <ProtectedRoute>
+                    <MasterUnit />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/master-tipe"
+                element={
+                  <ProtectedRoute>
+                    <MasterTipe />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </BrowserRouter>
+          <NotificationContainer />
+        </NotificationProvider>
+      </AuthContext.Provider>
+    </QueryClientProvider>
+  );
 }
 
 export default App;
