@@ -20,7 +20,6 @@ const AddEditProduct = lazy(() =>
 const MasterGrup = lazy(() => import("./pages/MasterGrup"));
 const MasterKat = lazy(() => import("./pages/MasterKat"));
 const MasterUnit = lazy(() => import("./pages/MasterUnit"));
-const MasterGender = lazy(() => import("./pages/MasterGender"));
 const MasterTipe = lazy(() => import("./pages/MasterTipe"));
 
 // Create auth context
