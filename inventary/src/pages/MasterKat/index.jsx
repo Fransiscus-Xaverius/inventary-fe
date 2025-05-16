@@ -16,12 +16,11 @@ import SidebarDashboard from "../../components/SidebarDashboard";
 import { useNavigate } from "react-router-dom";
 import DataGridComponent from "../../components/ui/DataGrid";
 import { formatDate } from "../../utils/formatters";
-import AutoColoredChip from "../../components/ui/AutoColoredChip";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 import { useNotification } from "../../contexts/NotificationContext";
-import AddEditColorModal from "./AddEditColorModal";
+import AddEditKatModal from "./AddEditKatModal";
 
 const columns = [
 	{
@@ -49,7 +48,7 @@ const columns = [
 							gap: 1,
 						}}
 					>
-						<Tooltip title='Edit Color'>
+						<Tooltip title='Edit Kategori'>
 							<IconButton
 								onClick={handleEdit}
 								onMouseDown={(e) => e.stopPropagation()}
@@ -66,7 +65,7 @@ const columns = [
 								<EditIcon fontSize='small' />
 							</IconButton>
 						</Tooltip>
-						<Tooltip title='Delete Color'>
+						<Tooltip title='Delete Kategori'>
 							<IconButton
 								onClick={handleDeleteClick}
 								onMouseDown={(e) => e.stopPropagation()}
@@ -91,13 +90,7 @@ const columns = [
 		},
 	},
 	{ field: "id", headerName: "ID", width: 90 },
-	{ field: "nama", headerName: "Color Name", flex: 1 },
-	{
-		field: "hex",
-		headerName: "Hex Code",
-		flex: 1,
-		renderCell: (params) => <AutoColoredChip value={params.value} />,
-	},
+	{ field: "value", headerName: "Name", flex: 1 },
 	{
 		field: "tanggal_update",
 		headerName: "Terakhir Di-update",
@@ -106,7 +99,7 @@ const columns = [
 	},
 ];
 
-export default function MasterColor() {
+export default function MasterKat() {
 	const [searchInputValue, setSearchInputValue] = useState("");
 	const navigate = useNavigate();
 	const [deleteDialog, setDeleteDialog] = useState({
@@ -116,10 +109,10 @@ export default function MasterColor() {
 	const [isDeleting, setIsDeleting] = useState(false);
 	const { showSuccess, showError } = useNotification();
 
-	// State for the add/edit color modal
-	const [colorModal, setColorModal] = useState({
+	// State for the add/edit kategori modal
+	const [katModal, setKatModal] = useState({
 		open: false,
-		colorId: null,
+		katId: null,
 	});
 
 	const {
@@ -159,26 +152,26 @@ export default function MasterColor() {
 	};
 
 	// Function to open edit modal
-	const handleEditColor = (colorId) => {
-		setColorModal({
+	const handleEditKat = (katId) => {
+		setKatModal({
 			open: true,
-			colorId,
+			katId,
 		});
 	};
 
 	// Function to open add modal
-	const handleAddColor = () => {
-		setColorModal({
+	const handleAddKat = () => {
+		setKatModal({
 			open: true,
-			colorId: null,
+			katId: null,
 		});
 	};
 
 	// Function to close modal
-	const handleCloseColorModal = () => {
-		setColorModal({
+	const handleCloseKatModal = () => {
+		setKatModal({
 			open: false,
-			colorId: null,
+			katId: null,
 		});
 	};
 
@@ -189,7 +182,7 @@ export default function MasterColor() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/colors?${baseParams}`;
+		let url = `/api/kats?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;
@@ -201,17 +194,17 @@ export default function MasterColor() {
 	}, [searchParam, offsetParam, limitParam, buildSortQueryString]);
 
 	const {
-		response: colorResponse,
+		response: katResponse,
 		isLoading,
 		error,
 		refetch,
 	} = useApiRequest({
 		url: searchUrl,
-		queryKey: ["colors", searchParam, offsetParam, limitParam, sortModel],
+		queryKey: ["kats", searchParam, offsetParam, limitParam, sortModel],
 	});
 
-	const { mutate: deleteColor, isLoading: isDeleteLoading } = useApiRequest({
-		url: deleteDialog.item ? `/api/colors/${deleteDialog.item.id}` : "",
+	const { mutate: deleteKat, isLoading: isDeleteLoading } = useApiRequest({
+		url: deleteDialog.item ? `/api/kats/${deleteDialog.item.id}` : "",
 		method: "DELETE",
 	});
 
@@ -219,17 +212,19 @@ export default function MasterColor() {
 		if (!deleteDialog.item) return;
 
 		setIsDeleting(true);
-		deleteColor(null, {
+		deleteKat(null, {
 			onSuccess: () => {
-				showSuccess(`Color "${deleteDialog.item.nama}" deleted successfully`);
+				showSuccess(
+					`Kategori "${deleteDialog.item.value}" deleted successfully`
+				);
 				refetch(); // Refresh the data after deletion
 				closeDeleteDialog();
 			},
 			onError: (error) => {
-				console.error("Error deleting color:", error);
+				console.error("Error deleting kategori:", error);
 				showError(
-					`Failed to delete color: ${
-						error.response?.data?.error || error.message
+					`Failed to delete kategori: ${
+						error.response?.data?.message || error.message
 					}`
 				);
 			},
@@ -239,31 +234,30 @@ export default function MasterColor() {
 		});
 	};
 
-	// Handle color save success
-	const handleColorSaveSuccess = () => {
-		refetch(); // Refresh the colors data
+	// Handle kategori save success
+	const handleKatSaveSuccess = () => {
+		refetch(); // Refresh the kategori data
 	};
 
 	const rows = useMemo(() => {
-		const data = colorResponse?.data;
-		const colors = data?.colors || [];
-		return colors.map((color) => ({
-			...color,
+		const kats = katResponse?.data?.kats || [];
+		return kats.map((kat) => ({
+			...kat,
 			onDelete: openDeleteDialog,
-			onEdit: handleEditColor,
+			onEdit: handleEditKat,
 		}));
-	}, [colorResponse]);
+	}, [katResponse]);
 
 	const rowCount = useMemo(
-		() => (colorResponse?.data?.total_page || 0) * paginationModel.pageSize,
-		[colorResponse, paginationModel.pageSize]
+		() => (katResponse?.data?.total_page || 0) * paginationModel.pageSize,
+		[katResponse, paginationModel.pageSize]
 	);
 
 	if (error) {
 		return (
 			<Box className='flex justify-center items-center h-screen w-screen'>
 				<Typography variant='h6' color='error'>
-					Error loading colors
+					Error loading categories
 				</Typography>
 			</Box>
 		);
@@ -276,16 +270,16 @@ export default function MasterColor() {
 			<Box className='flex flex-col flex-grow h-full p-4 overflow-hidden'>
 				<Box className='flex mb-4'>
 					<Typography variant='h4' gutterBottom fontWeight={600}>
-						Master Colors
+						Master Kategori
 					</Typography>
 				</Box>
 
 				<Box className='mb-4'>
 					<button
 						className='bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition'
-						onClick={handleAddColor}
+						onClick={handleAddKat}
 					>
-						Add Color
+						Add Kategori
 					</button>
 				</Box>
 
@@ -302,7 +296,7 @@ export default function MasterColor() {
 				>
 					<TextField
 						className='w-full max-w-md mt-4'
-						label='Search Colors'
+						label='Search Categories'
 						variant='outlined'
 						fullWidth
 						size='small'
@@ -338,18 +332,18 @@ export default function MasterColor() {
 					open={deleteDialog.open}
 					onClose={closeDeleteDialog}
 					onConfirm={handleDeleteConfirm}
-					title='Delete Color'
-					message='Are you sure you want to delete this color?'
-					itemName={deleteDialog.item?.nama}
+					title='Delete Kategori'
+					message='Are you sure you want to delete this kategori?'
+					itemName={deleteDialog.item?.value}
 					isLoading={isDeleting || isDeleteLoading}
 				/>
 
-				{/* Add/Edit color modal */}
-				<AddEditColorModal
-					open={colorModal.open}
-					onClose={handleCloseColorModal}
-					colorId={colorModal.colorId}
-					onSuccess={handleColorSaveSuccess}
+				{/* Add/Edit kategori modal */}
+				<AddEditKatModal
+					open={katModal.open}
+					onClose={handleCloseKatModal}
+					katId={katModal.katId}
+					onSuccess={handleKatSaveSuccess}
 				/>
 			</Box>
 		</Box>

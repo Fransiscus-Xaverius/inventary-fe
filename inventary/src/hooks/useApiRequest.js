@@ -84,7 +84,7 @@ export default function useApiRequest({
 	// Return the appropriate hook result based on the method
 	if (isGetRequest) {
 		return {
-			data: query.data,
+			response: query.data,
 			isLoading: query.isLoading,
 			error: query.error,
 			refetch: query.refetch,
@@ -94,7 +94,7 @@ export default function useApiRequest({
 			mutate: mutation.mutate,
 			isLoading: mutation.isPending,
 			error: mutation.error,
-			data: mutation.data,
+			response: mutation.data,
 		};
 	}
 }
