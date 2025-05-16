@@ -10,6 +10,9 @@ import "./App.css";
 import { CircularProgress } from "@mui/material";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import NotificationContainer from "./components/NotificationSystem/NotificationContainer";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import theme from "../theme";
 
 // Lazy load components
 const MasterColor = lazy(() => import("./pages/MasterColor"));
@@ -29,8 +32,8 @@ export const AuthContext = createContext(null);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
+      staleTime: 1,
+      cacheTime: 0,
       refetchOnWindowFocus: false,
     },
   },
@@ -64,101 +67,106 @@ function App() {
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={auth}>
-        <NotificationProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route
-                path="/login"
-                element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />}
-              />
-              <Route
-                path="/register"
-                element={
-                  auth.isAuthenticated ? <Navigate to="/" /> : <Register />
-                }
-              />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-product"
-                element={
-                  <ProtectedRoute>
-                    <MasterProduct />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/addEdit-product"
-                element={
-                  <ProtectedRoute>
-                    <AddEditProduct />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/addEdit-product/:artikel"
-                element={
-                  <ProtectedRoute>
-                    <AddEditProduct />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-color"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<LoadingFallback />}>
-                      <MasterColor />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-grup"
-                element={
-                  <ProtectedRoute>
-                    <MasterGrup />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-kat"
-                element={
-                  <ProtectedRoute>
-                    <MasterKat />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-unit"
-                element={
-                  <ProtectedRoute>
-                    <MasterUnit />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/master-tipe"
-                element={
-                  <ProtectedRoute>
-                    <MasterTipe />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
-          <NotificationContainer />
-        </NotificationProvider>
-      </AuthContext.Provider>
-    </QueryClientProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <QueryClientProvider client={queryClient}>
+        <AuthContext.Provider value={auth}>
+          <NotificationProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route
+                  path="/login"
+                  element={
+                    auth.isAuthenticated ? <Navigate to="/" /> : <Login />
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    auth.isAuthenticated ? <Navigate to="/" /> : <Register />
+                  }
+                />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-product"
+                  element={
+                    <ProtectedRoute>
+                      <MasterProduct />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/addEdit-product"
+                  element={
+                    <ProtectedRoute>
+                      <AddEditProduct />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/addEdit-product/:artikel"
+                  element={
+                    <ProtectedRoute>
+                      <AddEditProduct />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-color"
+                  element={
+                    <ProtectedRoute>
+                      <Suspense fallback={<LoadingFallback />}>
+                        <MasterColor />
+                      </Suspense>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-grup"
+                  element={
+                    <ProtectedRoute>
+                      <MasterGrup />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-kat"
+                  element={
+                    <ProtectedRoute>
+                      <MasterKat />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-unit"
+                  element={
+                    <ProtectedRoute>
+                      <MasterUnit />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-tipe"
+                  element={
+                    <ProtectedRoute>
+                      <MasterTipe />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+            <NotificationContainer />
+          </NotificationProvider>
+        </AuthContext.Provider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
