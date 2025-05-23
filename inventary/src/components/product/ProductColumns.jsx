@@ -1,13 +1,27 @@
-import React from "react";
+// import React, { useState } from "react";
 import { formatCurrency, formatDate } from "../../utils/formatters";
-import { CategoryCell } from "../../components/CategoryChip";
+import {
+	CategoryCell,
+	ColorCell,
+	SizeCell,
+} from "../../components/CategoryChip";
+import { IconButton, Tooltip, Box, CircularProgress } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useNavigate } from "react-router-dom";
+import useApiRequest from "../../hooks/useApiRequest";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNotification } from "../../contexts/NotificationContext";
+import { useState } from "react";
+import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 
 /**
  * Creates DataGrid column definitions for product table with filter options
  * @param {Object} filterOptions - Filter options fetched from API
+ * @param {Function} refetch - Callback function to execute after product deletion
  * @returns {Array} Column definitions for MUI DataGrid
  */
-export const createProductColumns = (filterOptions) => {
+export const createProductColumns = (filterOptions, refetch) => {
 	// Helper function to create filter options for each column
 	const createFilterOptions = (field) => {
 		if (filterOptions?.fields?.[field]?.values) {
@@ -110,6 +124,145 @@ export const createProductColumns = (filterOptions) => {
 
 	return [
 		{
+			field: "actions",
+			headerName: "Actions",
+			width: 120,
+			sortable: false,
+			filterable: false,
+			disableColumnMenu: true,
+			renderCell: (params) => {
+				const ActionButtons = () => {
+					const navigate = useNavigate();
+					const queryClient = useQueryClient();
+					const { showSuccess, showError } = useNotification();
+					const [deleteDialog, setDeleteDialog] = useState({
+						open: false,
+						item: null,
+					});
+					const [isDeleting, setIsDeleting] = useState(false);
+
+					// API mutation for deletion
+					const { mutate: deleteProduct, isLoading: isDeleteLoading } =
+						useApiRequest({
+							url: deleteDialog.item
+								? `/api/products/${deleteDialog.item.artikel}`
+								: "",
+							method: "DELETE",
+						});
+
+					const handleEdit = () => {
+						navigate(`/addEdit-product/${params.row.artikel}`);
+					};
+
+					const openDeleteDialog = (item) => {
+						setDeleteDialog({
+							open: true,
+							item,
+						});
+					};
+
+					const closeDeleteDialog = () => {
+						setDeleteDialog({
+							open: false,
+							item: null,
+						});
+					};
+
+					const handleDeleteClick = () => {
+						openDeleteDialog(params.row);
+					};
+
+					const handleDeleteConfirm = async () => {
+						if (!deleteDialog.item) return;
+
+						setIsDeleting(true);
+						deleteProduct(null, {
+							onSuccess: () => {
+								showSuccess(
+									`Product "${deleteDialog.item.artikel}" deleted successfully`
+								);
+								refetch(); // Refresh the data after deletion
+								closeDeleteDialog();
+							},
+							onError: (error) => {
+								console.error("Error deleting product:", error);
+								showError(
+									`Failed to delete product: ${
+										error.response?.data?.error || error.message
+									}`
+								);
+							},
+							onSettled: () => {
+								setIsDeleting(false);
+							},
+						});
+					};
+
+					if (isDeleting || isDeleteLoading) {
+						return <CircularProgress size={20} />;
+					}
+
+					return (
+						<>
+							<Box
+								sx={{
+									display: "flex",
+									justifyContent: "start",
+									alignItems: "center",
+									gap: 1,
+									height: "100%",
+								}}
+							>
+								<Tooltip title='Edit Product'>
+									<IconButton
+										onClick={handleEdit}
+										size='small'
+										color='primary'
+										sx={{
+											backgroundColor: "rgba(25, 118, 210, 0.12)",
+											"&:hover": {
+												backgroundColor: "rgba(25, 118, 210, 0.25)",
+											},
+										}}
+									>
+										<EditIcon fontSize='small' />
+									</IconButton>
+								</Tooltip>
+								<Tooltip title='Delete Product'>
+									<IconButton
+										onClick={handleDeleteClick}
+										size='small'
+										color='error'
+										sx={{
+											backgroundColor: "rgba(211, 47, 47, 0.12)",
+											"&:hover": {
+												backgroundColor: "rgba(211, 47, 47, 0.25)",
+											},
+										}}
+									>
+										<DeleteIcon fontSize='small' />
+									</IconButton>
+								</Tooltip>
+							</Box>
+
+							{/* Delete confirmation modal */}
+							<DeleteConfirmationModal
+								open={deleteDialog.open}
+								onClose={closeDeleteDialog}
+								onConfirm={handleDeleteConfirm}
+								title='Delete Product'
+								message='Are you sure you want to delete this product?'
+								itemName={deleteDialog.item?.artikel}
+								isLoading={isDeleting || isDeleteLoading}
+							/>
+						</>
+					);
+				};
+
+				return <ActionButtons />;
+			},
+		},
+		{
 			field: "no",
 			headerName: "ID",
 			width: 90,
@@ -125,14 +278,16 @@ export const createProductColumns = (filterOptions) => {
 		{
 			field: "warna",
 			headerName: "Warna",
-			width: 120,
+			width: 300,
+			renderCell: (params) => <ColorCell params={params} />,
 			filterable: true,
 			filterOperators: createFilterOperators("warna"),
 		},
 		{
 			field: "size",
 			headerName: "Size",
-			width: 80,
+			width: 240,
+			renderCell: (params) => <SizeCell params={params} />,
 			filterable: true,
 			filterOperators: createFilterOperators("size"),
 		},
@@ -140,6 +295,7 @@ export const createProductColumns = (filterOptions) => {
 			field: "grup",
 			headerName: "Grup",
 			width: 120,
+			renderCell: (params) => <CategoryCell params={params} />,
 			filterable: true,
 			filterOperators: createFilterOperators("grup"),
 		},
@@ -147,6 +303,7 @@ export const createProductColumns = (filterOptions) => {
 			field: "unit",
 			headerName: "Unit",
 			width: 120,
+			renderCell: (params) => <CategoryCell params={params} />,
 			filterable: true,
 			filterOperators: createFilterOperators("unit"),
 		},
@@ -205,6 +362,7 @@ export const createProductColumns = (filterOptions) => {
 		{
 			field: "usia",
 			headerName: "Usia",
+			renderCell: (params) => <CategoryCell params={params} />,
 			width: 100,
 		},
 		{
