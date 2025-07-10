@@ -43,6 +43,12 @@ export default function SidebarDashboard() {
             Master Tipe
           </NavLink>
         </li>
+
+        <li className="hover:bg-gray-700 p-2 rounded cursor-pointer">
+          <NavLink to="/master-banner" className="text-white w-full">
+            Master Banner
+          </NavLink>
+        </li>
       </ul>
     </div>
   );

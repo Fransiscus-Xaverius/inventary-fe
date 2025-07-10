@@ -24,6 +24,7 @@ const MasterGrup = lazy(() => import("./pages/MasterGrup"));
 const MasterKat = lazy(() => import("./pages/MasterKat"));
 const MasterUnit = lazy(() => import("./pages/MasterUnit"));
 const MasterTipe = lazy(() => import("./pages/MasterTipe"));
+const MasterBanner = lazy(() => import("./pages/MasterBanner"));
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -157,6 +158,16 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <MasterTipe />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/master-banner"
+                  element={
+                    <ProtectedRoute>
+                      <Suspense fallback={<LoadingFallback />}>
+                        <MasterBanner />
+                      </Suspense>
                     </ProtectedRoute>
                   }
                 />
