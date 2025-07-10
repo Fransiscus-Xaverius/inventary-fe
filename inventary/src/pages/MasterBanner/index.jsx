@@ -23,159 +23,6 @@ import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal
 import { useNotification } from "../../contexts/NotificationContext";
 import AddEditBannerModal from "./AddEditBannerModal";
 
-const columns = [
-  {
-    field: "actions",
-    headerName: "Actions",
-    width: 120,
-    sortable: false,
-    filterable: false,
-    disableColumnMenu: true,
-    renderCell: (params) => {
-      const ActionButtons = () => {
-        const handleEdit = () => {
-          params.row.onEdit(params.row.id);
-        };
-
-        const handleDeleteClick = () => {
-          params.row.onDelete(params.row);
-        };
-
-        return (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 1,
-            }}
-          >
-            <Tooltip title="Edit Banner">
-              <IconButton
-                onClick={handleEdit}
-                onMouseDown={(e) => e.stopPropagation()}
-                size="small"
-                color="primary"
-                sx={{
-                  backgroundColor: "rgba(25, 118, 210, 0.12)",
-                  "&:hover": {
-                    backgroundColor: "rgba(25, 118, 210, 0.25)",
-                  },
-                  pointerEvents: "auto",
-                }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete Banner">
-              <IconButton
-                onClick={handleDeleteClick}
-                onMouseDown={(e) => e.stopPropagation()}
-                size="small"
-                color="error"
-                sx={{
-                  backgroundColor: "rgba(211, 47, 47, 0.12)",
-                  "&:hover": {
-                    backgroundColor: "rgba(211, 47, 47, 0.25)",
-                  },
-                  pointerEvents: "auto",
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        );
-      };
-
-      return <ActionButtons />;
-    },
-  },
-  {
-    field: "is_active",
-    headerName: "Aktif",
-    width: 100,
-    renderCell: (params) => {
-      const { showSuccess, showError } = useNotification();
-      const { mutate: updateBannerStatus } = useApiRequest({
-        url: `/api/banners/${params.row.id}`,
-        method: "PUT",
-      });
-
-      const handleToggle = (event) => {
-        const newStatus = event.target.checked;
-        updateBannerStatus(
-          { is_active: newStatus },
-          {
-            onSuccess: () => {
-              showSuccess(
-                `Banner "${params.row.title}" status updated to ${
-                  newStatus ? "active" : "inactive"
-                }`
-              );
-              params.api.invalidateRows([params.id]); // Invalidate row to trigger re-render
-              params.api.forceUpdateRows([params.id]);
-            },
-            onError: (error) => {
-              console.error("Error updating banner status:", error);
-              showError(
-                `Failed to update banner status: ${
-                  error.response?.data?.error || error.message
-                }`
-              );
-            },
-          }
-        );
-      };
-
-      return (
-        <Switch checked={params.value} onChange={handleToggle} size="small" />
-      );
-    },
-  },
-  {
-    field: "image_preview",
-    headerName: "Gambar",
-    width: 150,
-    renderCell: (params) => {
-      // const hostUrl = process.env.BACKEND_URL;
-      const hostUrl = "http://localhost:8080";
-      const imageUrl = `${hostUrl}${params.row.image_url}`;
-      return (
-        <div>
-          <img src={imageUrl} alt="Banner" width={100} height={100} />
-        </div>
-      );
-    },
-  },
-  { field: "order_index", headerName: "Urutan ke", width: 90 },
-  { field: "title", headerName: "Judul", width: 200 },
-  { field: "description", headerName: "Deskripsi", width: 200 },
-  { field: "cta_text", headerName: "CTA Text (Button)", width: 200 },
-  { field: "cta_link", headerName: "CTA Link", width: 200 },
-  {
-    field: "image_url",
-    headerName: "URL Gambar",
-    width: 200,
-    renderCell: (params) => (
-      <a href={params.value} target="_blank" rel="noopener noreferrer">
-        {params.value}
-      </a>
-    ),
-  },
-  {
-    field: "created_at",
-    headerName: "Tanggal Dibuat",
-    width: 180,
-    valueGetter: (value) => formatDate(value, true),
-  },
-  {
-    field: "updated_at",
-    headerName: "Terakhir Di-update",
-    width: 180,
-    valueGetter: (value) => formatDate(value, true),
-  },
-];
-
 export default function MasterBanner() {
   const [searchInputValue, setSearchInputValue] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({
@@ -300,6 +147,164 @@ export default function MasterBanner() {
     url: deleteDialog.item ? `/api/banners/${deleteDialog.item.id}` : "",
     method: "DELETE",
   });
+
+  const columns = useMemo(() => {
+    return [
+      {
+        field: "actions",
+        headerName: "Actions",
+        width: 120,
+        sortable: false,
+        filterable: false,
+        disableColumnMenu: true,
+        renderCell: (params) => {
+          const ActionButtons = () => {
+            const handleEdit = () => {
+              params.row.onEdit(params.row.id);
+            };
+
+            const handleDeleteClick = () => {
+              params.row.onDelete(params.row);
+            };
+
+            return (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 1,
+                }}
+              >
+                <Tooltip title="Edit Banner">
+                  <IconButton
+                    onClick={handleEdit}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    size="small"
+                    color="primary"
+                    sx={{
+                      backgroundColor: "rgba(25, 118, 210, 0.12)",
+                      "&:hover": {
+                        backgroundColor: "rgba(25, 118, 210, 0.25)",
+                      },
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete Banner">
+                  <IconButton
+                    onClick={handleDeleteClick}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    size="small"
+                    color="error"
+                    sx={{
+                      backgroundColor: "rgba(211, 47, 47, 0.12)",
+                      "&:hover": {
+                        backgroundColor: "rgba(211, 47, 47, 0.25)",
+                      },
+                      pointerEvents: "auto",
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            );
+          };
+
+          return <ActionButtons />;
+        },
+      },
+      {
+        field: "is_active",
+        headerName: "Aktif",
+        width: 100,
+        renderCell: (params) => {
+          const { showSuccess, showError } = useNotification();
+          const { mutate: updateBannerStatus } = useApiRequest({
+            url: `/api/banners/${params.row.id}`,
+            method: "PUT",
+          });
+
+          const handleToggle = (event) => {
+            const newStatus = event.target.checked;
+            updateBannerStatus(
+              { is_active: newStatus },
+              {
+                onSuccess: () => {
+                  showSuccess(
+                    `Banner "${params.row.title}" status updated to ${
+                      newStatus ? "active" : "inactive"
+                    }`
+                  );
+                  refetch();
+                },
+                onError: (error) => {
+                  console.error("Error updating banner status:", error);
+                  showError(
+                    `Failed to update banner status: ${
+                      error.response?.data?.error || error.message
+                    }`
+                  );
+                },
+              }
+            );
+          };
+
+          return (
+            <Switch
+              checked={params.value}
+              onChange={handleToggle}
+              size="small"
+            />
+          );
+        },
+      },
+      {
+        field: "image_preview",
+        headerName: "Gambar",
+        width: 150,
+        renderCell: (params) => {
+          // const hostUrl = process.env.BACKEND_URL;
+          const hostUrl = "http://localhost:8080";
+          const imageUrl = `${hostUrl}${params.row.image_url}`;
+          return (
+            <div>
+              <img src={imageUrl} alt="Banner" width={100} height={100} />
+            </div>
+          );
+        },
+      },
+      { field: "order_index", headerName: "Urutan ke", width: 90 },
+      { field: "title", headerName: "Judul", width: 200 },
+      { field: "description", headerName: "Deskripsi", width: 200 },
+      { field: "cta_text", headerName: "CTA Text (Button)", width: 200 },
+      { field: "cta_link", headerName: "CTA Link", width: 200 },
+      {
+        field: "image_url",
+        headerName: "URL Gambar",
+        width: 200,
+        renderCell: (params) => (
+          <a href={params.value} target="_blank" rel="noopener noreferrer">
+            {params.value}
+          </a>
+        ),
+      },
+      {
+        field: "created_at",
+        headerName: "Tanggal Dibuat",
+        width: 180,
+        valueGetter: (value) => formatDate(value, true),
+      },
+      {
+        field: "updated_at",
+        headerName: "Terakhir Di-update",
+        width: 180,
+        valueGetter: (value) => formatDate(value, true),
+      },
+    ];
+  }, []);
 
   const handleDeleteConfirm = async () => {
     if (!deleteDialog.item) return;
