@@ -26,6 +26,7 @@ const ALLOWED_ASPECT_RATIOS = [
   { ratio: 16 / 9, label: "16:9" },
   { ratio: 16 / 10, label: "16:10" },
 ];
+const MIN_RESOLUTION = { width: 1280, height: 720 };
 
 // Validation schema with Joi
 const bannerSchema = Joi.object({
@@ -135,22 +136,34 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
         const img = new Image();
         img.onload = () => {
           const imageAspectRatio = img.width / img.height;
-          const isValid = ALLOWED_ASPECT_RATIOS.some(
+          const isValidAspectRatio = ALLOWED_ASPECT_RATIOS.some(
             (ar) => Math.abs(imageAspectRatio - ar.ratio) <= ASPECT_RATIO_TOLERANCE
           );
+          const isValidResolution = img.width >= MIN_RESOLUTION.width || img.height >= MIN_RESOLUTION.height;
 
-          if (!isValid) {
+          if (!isValidAspectRatio) {
             const allowedLabels = ALLOWED_ASPECT_RATIOS.map((ar) => ar.label).join(", ");
             setFileError(`Invalid aspect ratio. Allowed ratios are around ${allowedLabels}.`);
             setSelectedFile(null);
             setImagePreview(null);
             setValue("image_url", "");
-          } else {
-            setFileError(null);
-            setSelectedFile(file);
-            setImagePreview(URL.createObjectURL(file));
-            setValue("image_url", file.name);
+            return;
           }
+
+          if (!isValidResolution) {
+            setFileError(
+              `Image resolution must be at least ${MIN_RESOLUTION.width}px wide or ${MIN_RESOLUTION.height}px high.`
+            );
+            setSelectedFile(null);
+            setImagePreview(null);
+            setValue("image_url", "");
+            return;
+          }
+
+          setFileError(null);
+          setSelectedFile(file);
+          setImagePreview(URL.createObjectURL(file));
+          setValue("image_url", file.name);
         };
         img.src = e.target.result;
       };
