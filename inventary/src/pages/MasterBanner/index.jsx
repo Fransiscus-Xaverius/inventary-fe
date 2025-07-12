@@ -38,15 +38,9 @@ export default function MasterBanner() {
     bannerId: null,
   });
 
-  const {
-    paginationModel,
-    handlePaginationModelChange,
-    offsetParam,
-    limitParam,
-  } = useProductPagination();
+  const { paginationModel, handlePaginationModelChange, offsetParam, limitParam } = useProductPagination();
   const { searchParam, handleSearchChange } = useProductSearch();
-  const { sortModel, handleSortModelChange, buildSortQueryString } =
-    useProductSorting();
+  const { sortModel, handleSortModelChange, buildSortQueryString } = useProductSorting();
 
   const [showActiveOnly, setShowActiveOnly] = useState(false);
 
@@ -100,9 +94,7 @@ export default function MasterBanner() {
 
   const searchUrl = useMemo(() => {
     const sortParams = buildSortQueryString();
-    const searchQuery = searchParam
-      ? `q=${encodeURIComponent(searchParam)}`
-      : "";
+    const searchQuery = searchParam ? `q=${encodeURIComponent(searchParam)}` : "";
     const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
     let url = `/api/admin/banners?${baseParams}`;
@@ -118,13 +110,7 @@ export default function MasterBanner() {
     url += sortParams;
 
     return url;
-  }, [
-    searchParam,
-    offsetParam,
-    limitParam,
-    buildSortQueryString,
-    showActiveOnly,
-  ]);
+  }, [searchParam, offsetParam, limitParam, buildSortQueryString, showActiveOnly]);
 
   const {
     response: bannerResponse,
@@ -133,14 +119,7 @@ export default function MasterBanner() {
     refetch,
   } = useApiRequest({
     url: searchUrl,
-    queryKey: [
-      "banners",
-      searchParam,
-      offsetParam,
-      limitParam,
-      sortModel,
-      showActiveOnly,
-    ],
+    queryKey: ["banners", searchParam, offsetParam, limitParam, sortModel, showActiveOnly],
   });
 
   const { mutate: deleteBanner, isLoading: isDeleteLoading } = useApiRequest({
@@ -233,32 +212,18 @@ export default function MasterBanner() {
               { is_active: newStatus },
               {
                 onSuccess: () => {
-                  showSuccess(
-                    `Banner "${params.row.title}" status updated to ${
-                      newStatus ? "active" : "inactive"
-                    }`
-                  );
+                  showSuccess(`Banner "${params.row.title}" status updated to ${newStatus ? "active" : "inactive"}`);
                   refetch();
                 },
                 onError: (error) => {
                   console.error("Error updating banner status:", error);
-                  showError(
-                    `Failed to update banner status: ${
-                      error.response?.data?.error || error.message
-                    }`
-                  );
+                  showError(`Failed to update banner status: ${error.response?.data?.error || error.message}`);
                 },
               }
             );
           };
 
-          return (
-            <Switch
-              checked={params.value}
-              onChange={handleToggle}
-              size="small"
-            />
-          );
+          return <Switch checked={params.value} onChange={handleToggle} size="small" />;
         },
       },
       {
@@ -318,11 +283,7 @@ export default function MasterBanner() {
       },
       onError: (error) => {
         console.error("Error deleting banner:", error);
-        showError(
-          `Failed to delete banner: ${
-            error.response?.data?.error || error.message
-          }`
-        );
+        showError(`Failed to delete banner: ${error.response?.data?.error || error.message}`);
       },
       onSettled: () => {
         setIsDeleting(false);
@@ -351,7 +312,7 @@ export default function MasterBanner() {
 
   if (error) {
     return (
-      <Box className="flex justify-center items-center h-screen w-screen">
+      <Box className="flex h-screen w-screen items-center justify-center">
         <Typography variant="h6" color="error">
           Error loading banners
         </Typography>
@@ -360,19 +321,19 @@ export default function MasterBanner() {
   }
 
   return (
-    <Box className="h-screen w-screen flex">
+    <Box className="flex h-screen w-screen">
       <SidebarDashboard />
 
-      <Box className="flex flex-col flex-grow h-full p-4 overflow-hidden">
-        <Box className="flex mb-4">
+      <Box className="flex h-full flex-grow flex-col overflow-hidden p-4">
+        <Box className="mb-4 flex">
           <Typography variant="h4" gutterBottom fontWeight={600}>
             Master Banners
           </Typography>
         </Box>
 
-        <Box className="mb-4 flex justify-between items-center">
+        <Box className="mb-4 flex items-center justify-between">
           <button
-            className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition"
+            className="rounded bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
             onClick={handleAddBanner}
           >
             Add Banner
@@ -402,7 +363,7 @@ export default function MasterBanner() {
           }}
         >
           <TextField
-            className="w-full max-w-md mt-4"
+            className="mt-4 w-full max-w-md"
             label="Search Banners"
             variant="outlined"
             fullWidth
@@ -421,7 +382,7 @@ export default function MasterBanner() {
           />
         </Box>
 
-        <Box className="flex-grow w-full overflow-auto">
+        <Box className="w-full flex-grow overflow-auto">
           <DataGridComponent
             rows={rows}
             rowCount={rowCount}

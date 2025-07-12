@@ -43,12 +43,7 @@ const bannerSchema = Joi.object({
   is_active: Joi.boolean().required(),
 });
 
-export default function AddEditBannerModal({
-  open,
-  onClose,
-  bannerId,
-  onSuccess,
-}) {
+export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess }) {
   const isEditing = !!bannerId;
   const { showSuccess, showError } = useNotification();
 
@@ -76,12 +71,11 @@ export default function AddEditBannerModal({
   });
 
   // Fetch banner data if editing
-  const { response: bannerResponse, isLoading: isLoadingBanner } =
-    useApiRequest({
-      url: isEditing ? `/api/admin/banners/${bannerId}` : null,
-      queryKey: ["banner", bannerId],
-      enabled: isEditing && open,
-    });
+  const { response: bannerResponse, isLoading: isLoadingBanner } = useApiRequest({
+    url: isEditing ? `/api/admin/banners/${bannerId}` : null,
+    queryKey: ["banner", bannerId],
+    enabled: isEditing && open,
+  });
 
   // Prepare create/update mutation
   const { mutate: saveBanner, isLoading: isSaving } = useApiRequest({
@@ -102,9 +96,7 @@ export default function AddEditBannerModal({
         order_index: data?.order_index || 0,
         is_active: data?.is_active !== undefined ? data.is_active : true,
       });
-      setImagePreview(
-        data?.image_url ? `http://localhost:8080${data.image_url}` : null
-      ); // Set preview for existing image
+      setImagePreview(data?.image_url ? `http://localhost:8080${data.image_url}` : null); // Set preview for existing image
     }
   }, [isEditing, bannerResponse, reset]);
 
@@ -163,9 +155,7 @@ export default function AddEditBannerModal({
       onError: (error) => {
         console.error("Error saving banner:", error);
         showError(
-          `Failed to ${isEditing ? "update" : "create"} banner: ${
-            error.response?.data?.error || error.message
-          }`
+          `Failed to ${isEditing ? "update" : "create"} banner: ${error.response?.data?.error || error.message}`
         );
       },
     });
@@ -174,12 +164,7 @@ export default function AddEditBannerModal({
   const isSubmitDisabled = isSaving || isLoadingBanner;
 
   return (
-    <Dialog
-      open={open}
-      onClose={!isSubmitDisabled ? onClose : undefined}
-      maxWidth="md"
-      fullWidth
-    >
+    <Dialog open={open} onClose={!isSubmitDisabled ? onClose : undefined} maxWidth="md" fullWidth>
       <DialogTitle>
         {isEditing ? "Edit Banner" : "Add New Banner"}
         <IconButton
@@ -279,11 +264,7 @@ export default function AddEditBannerModal({
                   disabled={isSubmitDisabled}
                 />
                 <label htmlFor="raised-button-file">
-                  <Button
-                    variant="outlined"
-                    component="span"
-                    disabled={isSubmitDisabled}
-                  >
+                  <Button variant="outlined" component="span" disabled={isSubmitDisabled}>
                     Upload Gambar
                   </Button>
                 </label>
@@ -334,14 +315,7 @@ export default function AddEditBannerModal({
                 control={control}
                 render={({ field }) => (
                   <FormControlLabel
-                    control={
-                      <Switch
-                        {...field}
-                        checked={field.value}
-                        disabled={isSubmitDisabled}
-                        color="primary"
-                      />
-                    }
+                    control={<Switch {...field} checked={field.value} disabled={isSubmitDisabled} color="primary" />}
                     label={field.value ? "Aktif" : "Tidak Aktif"}
                     sx={{ mt: 2 }}
                   />
@@ -349,13 +323,8 @@ export default function AddEditBannerModal({
               />
 
               {isEditing && bannerResponse?.data?.updated_at && (
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: "block", mt: 2 }}
-                >
-                  Terakhir Di-update:{" "}
-                  {new Date(bannerResponse?.data?.updated_at).toLocaleString()}
+                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+                  Terakhir Di-update: {new Date(bannerResponse?.data?.updated_at).toLocaleString()}
                 </Typography>
               )}
             </Box>
@@ -371,9 +340,7 @@ export default function AddEditBannerModal({
             variant="contained"
             color="primary"
             disabled={isSubmitDisabled}
-            startIcon={
-              isSubmitDisabled && <CircularProgress size={20} color="inherit" />
-            }
+            startIcon={isSubmitDisabled && <CircularProgress size={20} color="inherit" />}
           >
             {isEditing ? "Update" : "Create"}
           </Button>

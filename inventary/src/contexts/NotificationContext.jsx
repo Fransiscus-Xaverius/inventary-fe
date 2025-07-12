@@ -1,21 +1,21 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState } from "react";
 
 // Create the notification context
 const NotificationContext = createContext();
 
 // Notification types
 export const NOTIFICATION_TYPES = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  WARNING: 'warning',
-  INFO: 'info',
+  SUCCESS: "success",
+  ERROR: "error",
+  WARNING: "warning",
+  INFO: "info",
 };
 
 // Custom hook to access the notification context
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotification must be used within a NotificationProvider');
+    throw new Error("useNotification must be used within a NotificationProvider");
   }
   return context;
 };
@@ -27,17 +27,17 @@ export const NotificationProvider = ({ children }) => {
   // Add a new notification
   const showNotification = (message, type = NOTIFICATION_TYPES.INFO, duration = 3000, options = {}) => {
     const id = Date.now();
-    
+
     // Support for additional properties like onClose callback
-    const notification = { 
-      id, 
-      message, 
-      type, 
+    const notification = {
+      id,
+      message,
+      type,
       duration,
-      ...options 
+      ...options,
     };
-    
-    setNotifications(prev => [...prev, notification]);
+
+    setNotifications((prev) => [...prev, notification]);
 
     // Auto-dismiss the notification after duration
     if (duration !== 0) {
@@ -49,26 +49,26 @@ export const NotificationProvider = ({ children }) => {
         }
       }, duration);
     }
-    
+
     return id;
   };
 
   // Convenience methods for different notification types
-  const showSuccess = (message, duration, options) => 
+  const showSuccess = (message, duration, options) =>
     showNotification(message, NOTIFICATION_TYPES.SUCCESS, duration, options);
-  
-  const showError = (message, duration, options) => 
+
+  const showError = (message, duration, options) =>
     showNotification(message, NOTIFICATION_TYPES.ERROR, duration, options);
-  
-  const showWarning = (message, duration, options) => 
+
+  const showWarning = (message, duration, options) =>
     showNotification(message, NOTIFICATION_TYPES.WARNING, duration, options);
-  
-  const showInfo = (message, duration, options) => 
+
+  const showInfo = (message, duration, options) =>
     showNotification(message, NOTIFICATION_TYPES.INFO, duration, options);
 
   // Dismiss a notification by id
   const dismissNotification = (id) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    setNotifications((prev) => prev.filter((notification) => notification.id !== id));
   };
 
   // Clear all notifications
@@ -88,9 +88,5 @@ export const NotificationProvider = ({ children }) => {
     clearAllNotifications,
   };
 
-  return (
-    <NotificationContext.Provider value={contextValue}>
-      {children}
-    </NotificationContext.Provider>
-  );
+  return <NotificationContext.Provider value={contextValue}>{children}</NotificationContext.Provider>;
 };

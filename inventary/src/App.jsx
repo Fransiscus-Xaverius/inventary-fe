@@ -17,9 +17,7 @@ import theme from "../theme";
 // Lazy load components
 const MasterColor = lazy(() => import("./pages/MasterColor"));
 const MasterProduct = lazy(() => import("./pages/MasterProduct"));
-const AddEditProduct = lazy(() =>
-  import("./pages/MasterProduct/AddEditProduct")
-);
+const AddEditProduct = lazy(() => import("./pages/MasterProduct/AddEditProduct"));
 const MasterGrup = lazy(() => import("./pages/MasterGrup"));
 const MasterKat = lazy(() => import("./pages/MasterKat"));
 const MasterUnit = lazy(() => import("./pages/MasterUnit"));
@@ -42,7 +40,7 @@ const queryClient = new QueryClient({
 
 // Loading fallback component
 const LoadingFallback = () => (
-  <div className="flex justify-center items-center h-screen w-screen">
+  <div className="flex h-screen w-screen items-center justify-center">
     <CircularProgress />
   </div>
 );
@@ -54,7 +52,7 @@ function App() {
   const ProtectedRoute = ({ children }) => {
     if (auth.isLoading) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex min-h-screen flex-col items-center justify-center">
           <p>Loading...</p>
         </div>
       );
@@ -75,18 +73,8 @@ function App() {
           <NotificationProvider>
             <BrowserRouter>
               <Routes>
-                <Route
-                  path="/login"
-                  element={
-                    auth.isAuthenticated ? <Navigate to="/" /> : <Login />
-                  }
-                />
-                <Route
-                  path="/register"
-                  element={
-                    auth.isAuthenticated ? <Navigate to="/" /> : <Register />
-                  }
-                />
+                <Route path="/login" element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />} />
+                <Route path="/register" element={auth.isAuthenticated ? <Navigate to="/" /> : <Register />} />
                 <Route
                   path="/"
                   element={

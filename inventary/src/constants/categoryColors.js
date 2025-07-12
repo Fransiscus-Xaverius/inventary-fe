@@ -21,27 +21,27 @@
  *
  */
 export const categoryColors = {
-	// Category types
-	basic: "#9b59b6", // blue
-	premium: "#f1c40f", // gold
-	regular: "#2ecc71", // green
+  // Category types
+  basic: "#9b59b6", // blue
+  premium: "#f1c40f", // gold
+  regular: "#2ecc71", // green
 
-	// Gender types
-	pria: "#3498db", // purple
-	wanita: "#e91e63", // pink
-	unisex: "#222222", // indigo
+  // Gender types
+  pria: "#3498db", // purple
+  wanita: "#e91e63", // pink
+  unisex: "#222222", // indigo
 
-	// Product types
-	jaket: "#e67e22", // orange
-	topi: "#1abc9c", // teal
-	baju: "#34495e", // dark blue
-	sepatu: "#d35400", // burnt orange
-	celana: "#95a5a6", // gray
+  // Product types
+  jaket: "#e67e22", // orange
+  topi: "#1abc9c", // teal
+  baju: "#34495e", // dark blue
+  sepatu: "#d35400", // burnt orange
+  celana: "#95a5a6", // gray
 
-	// Status
-	active: "#2ecc71", // green
-	inactive: "#e74c3c", // red
-	discontinued: "#95a5a6", // gray
+  // Status
+  active: "#2ecc71", // green
+  inactive: "#e74c3c", // red
+  discontinued: "#95a5a6", // gray
 };
 
 // Default fallback color
@@ -53,7 +53,7 @@ export const defaultColor = "#7f8c8d";
  * @returns {string} - The color hex code
  */
 export const getCategoryColor = (categoryValue) => {
-	if (!categoryValue) return defaultColor;
-	const normalizedValue = categoryValue.toLowerCase().trim();
-	return categoryColors[normalizedValue] || defaultColor;
+  if (!categoryValue) return defaultColor;
+  const normalizedValue = categoryValue.toLowerCase().trim();
+  return categoryColors[normalizedValue] || defaultColor;
 };

@@ -67,18 +67,7 @@ export default function AddEditProduct() {
   const [submitError, setSubmitError] = useState("");
 
   // Define options to use in the form
-  const dummyColors = [
-    "Red",
-    "Blue",
-    "Green",
-    "Yellow",
-    "Black",
-    "White",
-    "Pink",
-    "Orange",
-    "Purple",
-    "Brown",
-  ];
+  const dummyColors = ["Red", "Blue", "Green", "Yellow", "Black", "White", "Pink", "Orange", "Purple", "Brown"];
   const dummyGroups = ["Formal", "Casual", "Accessories", "Sport", "Kids"];
   const dummyUnits = ["SET", "BOX", "PCS"];
   const dummyCategories = ["Regular", "Premium", "Basic"];
@@ -141,10 +130,7 @@ export default function AddEditProduct() {
         ...productData,
         size: sizes,
         // Convert string to number for harga if needed
-        harga:
-          typeof productData.harga === "string"
-            ? parseFloat(productData.harga)
-            : productData.harga,
+        harga: typeof productData.harga === "string" ? parseFloat(productData.harga) : productData.harga,
       });
     }
   }, [isEdit, productData, reset]);
@@ -158,9 +144,7 @@ export default function AddEditProduct() {
 
   // API mutation for submitting form
   const { mutate, isLoading: isMutating } = useApiRequest({
-    url: isEdit
-      ? `/api/admin/products/${productData?.id || artikel}`
-      : "/api/admin/products",
+    url: isEdit ? `/api/admin/products/${productData?.id || artikel}` : "/api/admin/products",
     method: isEdit ? "PUT" : "POST",
   });
 
@@ -182,9 +166,7 @@ export default function AddEditProduct() {
       },
       onError: (error) => {
         console.error("Error submitting form:", error);
-        setSubmitError(
-          error.message || "Failed to save product. Please try again."
-        );
+        setSubmitError(error.message || "Failed to save product. Please try again.");
       },
       onSettled: () => {
         setIsSubmitting(false);
@@ -197,7 +179,7 @@ export default function AddEditProduct() {
     return (
       <div className="flex min-h-screen bg-gray-100">
         <SidebarDashboard />
-        <div className="flex-1 p-6 flex items-center justify-center">
+        <div className="flex flex-1 items-center justify-center p-6">
           <p className="text-gray-500">Loading product data...</p>
         </div>
       </div>
@@ -210,11 +192,11 @@ export default function AddEditProduct() {
       <div className="flex min-h-screen bg-gray-100">
         <SidebarDashboard />
         <div className="flex-1 p-6">
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div className="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
             <p>Could not load product data. Please try again later.</p>
             <button
               onClick={() => navigate("/master-product")}
-              className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded"
+              className="mt-2 rounded bg-red-100 px-3 py-1 text-red-800 hover:bg-red-200"
             >
               Back to Products
             </button>
@@ -231,26 +213,19 @@ export default function AddEditProduct() {
     <div className="flex min-h-screen bg-gray-100">
       <SidebarDashboard />
       <div className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">
-          {isEdit ? "Edit Product" : "Add Product"}
-        </h1>
+        <h1 className="mb-4 text-2xl font-bold">{isEdit ? "Edit Product" : "Add Product"}</h1>
 
         {submitError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-            {submitError}
-          </div>
+          <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">{submitError}</div>
         )}
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded shadow"
+          className="grid grid-cols-1 gap-4 rounded bg-white p-6 shadow md:grid-cols-2"
         >
           {/* Artikel */}
           <div className="flex flex-col">
-            <label
-              htmlFor="artikel"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="artikel" className="mb-1 text-sm font-medium text-gray-700">
               Artikel
             </label>
             <Controller
@@ -268,19 +243,12 @@ export default function AddEditProduct() {
                 />
               )}
             />
-            {errors.artikel && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.artikel.message}
-              </p>
-            )}
+            {errors.artikel && <p className="mt-1 text-sm text-red-600">{errors.artikel.message}</p>}
           </div>
 
           {/* Warna */}
           <div className="flex flex-col">
-            <label
-              htmlFor="warna"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="warna" className="mb-1 text-sm font-medium text-gray-700">
               Warna
             </label>
             <Controller
@@ -303,18 +271,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.warna && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.warna.message}
-              </p>
-            )}
+            {errors.warna && <p className="mt-1 text-sm text-red-600">{errors.warna.message}</p>}
           </div>
 
           {/* Size */}
           <div className="flex flex-col">
-            <label className="mb-1 font-medium text-sm text-gray-700">
-              Size
-            </label>
+            <label className="mb-1 text-sm font-medium text-gray-700">Size</label>
             <div className="flex flex-wrap gap-2">
               {sizes.map((size) => (
                 <label key={size} className="inline-flex items-center">
@@ -351,17 +313,12 @@ export default function AddEditProduct() {
                 errors.size ? "border-red-300" : "border-gray-300"
               } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
             />
-            {errors.size && (
-              <p className="mt-1 text-sm text-red-600">{errors.size.message}</p>
-            )}
+            {errors.size && <p className="mt-1 text-sm text-red-600">{errors.size.message}</p>}
           </div>
 
           {/* Grup */}
           <div className="flex flex-col">
-            <label
-              htmlFor="grup"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="grup" className="mb-1 text-sm font-medium text-gray-700">
               Grup
             </label>
             <Controller
@@ -384,17 +341,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.grup && (
-              <p className="mt-1 text-sm text-red-600">{errors.grup.message}</p>
-            )}
+            {errors.grup && <p className="mt-1 text-sm text-red-600">{errors.grup.message}</p>}
           </div>
 
           {/* Unit */}
           <div className="flex flex-col">
-            <label
-              htmlFor="unit"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="unit" className="mb-1 text-sm font-medium text-gray-700">
               Unit
             </label>
             <Controller
@@ -417,17 +369,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.unit && (
-              <p className="mt-1 text-sm text-red-600">{errors.unit.message}</p>
-            )}
+            {errors.unit && <p className="mt-1 text-sm text-red-600">{errors.unit.message}</p>}
           </div>
 
           {/* Kategori */}
           <div className="flex flex-col">
-            <label
-              htmlFor="kat"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="kat" className="mb-1 text-sm font-medium text-gray-700">
               Kategori
             </label>
             <Controller
@@ -450,17 +397,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.kat && (
-              <p className="mt-1 text-sm text-red-600">{errors.kat.message}</p>
-            )}
+            {errors.kat && <p className="mt-1 text-sm text-red-600">{errors.kat.message}</p>}
           </div>
 
           {/* Model (Optional) */}
           <div className="flex flex-col">
-            <label
-              htmlFor="model"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="model" className="mb-1 text-sm font-medium text-gray-700">
               Model (Optional)
             </label>
             <Controller
@@ -471,7 +413,7 @@ export default function AddEditProduct() {
                   {...field}
                   type="text"
                   id="model"
-                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               )}
             />
@@ -479,10 +421,7 @@ export default function AddEditProduct() {
 
           {/* Gender */}
           <div className="flex flex-col">
-            <label
-              htmlFor="gender"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="gender" className="mb-1 text-sm font-medium text-gray-700">
               Gender
             </label>
             <Controller
@@ -505,19 +444,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.gender && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.gender.message}
-              </p>
-            )}
+            {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender.message}</p>}
           </div>
 
           {/* Tipe Harga */}
           <div className="flex flex-col">
-            <label
-              htmlFor="tipe"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="tipe" className="mb-1 text-sm font-medium text-gray-700">
               Tipe Harga
             </label>
             <Controller
@@ -540,17 +472,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.tipe && (
-              <p className="mt-1 text-sm text-red-600">{errors.tipe.message}</p>
-            )}
+            {errors.tipe && <p className="mt-1 text-sm text-red-600">{errors.tipe.message}</p>}
           </div>
 
           {/* Harga */}
           <div className="flex flex-col">
-            <label
-              htmlFor="harga"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="harga" className="mb-1 text-sm font-medium text-gray-700">
               Harga
             </label>
             <Controller
@@ -562,30 +489,19 @@ export default function AddEditProduct() {
                   type="number"
                   id="harga"
                   value={value}
-                  onChange={(e) =>
-                    onChange(
-                      e.target.value === "" ? "" : Number(e.target.value)
-                    )
-                  }
+                  onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
                   className={`border ${
                     errors.harga ? "border-red-300" : "border-gray-300"
                   } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
               )}
             />
-            {errors.harga && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.harga.message}
-              </p>
-            )}
+            {errors.harga && <p className="mt-1 text-sm text-red-600">{errors.harga.message}</p>}
           </div>
 
           {/* Tanggal Produk (Optional) */}
           <div className="flex flex-col">
-            <label
-              htmlFor="tanggalProduk"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="tanggalProduk" className="mb-1 text-sm font-medium text-gray-700">
               Tanggal Produk (Optional)
             </label>
             <Controller
@@ -596,7 +512,7 @@ export default function AddEditProduct() {
                   {...field}
                   type="date"
                   id="tanggalProduk"
-                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               )}
             />
@@ -604,10 +520,7 @@ export default function AddEditProduct() {
 
           {/* Tanggal Diterima (Optional) */}
           <div className="flex flex-col">
-            <label
-              htmlFor="tanggalDiterima"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="tanggalDiterima" className="mb-1 text-sm font-medium text-gray-700">
               Tanggal Diterima (Optional)
             </label>
             <Controller
@@ -618,7 +531,7 @@ export default function AddEditProduct() {
                   {...field}
                   type="date"
                   id="tanggalDiterima"
-                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               )}
             />
@@ -626,10 +539,7 @@ export default function AddEditProduct() {
 
           {/* Usia */}
           <div className="flex flex-col">
-            <label
-              htmlFor="usia"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="usia" className="mb-1 text-sm font-medium text-gray-700">
               Usia
             </label>
             <Controller
@@ -652,17 +562,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.usia && (
-              <p className="mt-1 text-sm text-red-600">{errors.usia.message}</p>
-            )}
+            {errors.usia && <p className="mt-1 text-sm text-red-600">{errors.usia.message}</p>}
           </div>
 
           {/* Status */}
           <div className="flex flex-col">
-            <label
-              htmlFor="status"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="status" className="mb-1 text-sm font-medium text-gray-700">
               Status
             </label>
             <Controller
@@ -685,19 +590,12 @@ export default function AddEditProduct() {
                 </select>
               )}
             />
-            {errors.status && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.status.message}
-              </p>
-            )}
+            {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>}
           </div>
 
           {/* Supplier (Optional) */}
           <div className="flex flex-col">
-            <label
-              htmlFor="supplier"
-              className="mb-1 font-medium text-sm text-gray-700"
-            >
+            <label htmlFor="supplier" className="mb-1 text-sm font-medium text-gray-700">
               Supplier (Optional)
             </label>
             <Controller
@@ -708,28 +606,22 @@ export default function AddEditProduct() {
                   {...field}
                   type="text"
                   id="supplier"
-                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               )}
             />
           </div>
 
           {/* Submit Button */}
-          <div className="md:col-span-2 text-right">
+          <div className="text-right md:col-span-2">
             <button
               type="submit"
               disabled={isSubmitting || isMutating}
               className={`${
-                isSubmitting || isMutating
-                  ? "bg-indigo-400"
-                  : "bg-indigo-600 hover:bg-indigo-700"
-              } text-white px-6 py-2 rounded transition`}
+                isSubmitting || isMutating ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
+              } rounded px-6 py-2 text-white transition`}
             >
-              {isSubmitting || isMutating
-                ? "Saving..."
-                : isEdit
-                ? "Update Product"
-                : "Add Product"}
+              {isSubmitting || isMutating ? "Saving..." : isEdit ? "Update Product" : "Add Product"}
             </button>
           </div>
         </form>

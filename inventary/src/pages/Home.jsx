@@ -1,7 +1,7 @@
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AnimatedLogo from '../components/AnimatedLogo';
-import { AuthContext } from '../App';
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import AnimatedLogo from "../components/AnimatedLogo";
+import { AuthContext } from "../App";
 
 function Home() {
   const navigate = useNavigate();
@@ -9,12 +9,12 @@ function Home() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
         <AnimatedLogo />
         <p className="mt-4 text-gray-600">Loading...</p>
       </div>
@@ -22,16 +22,16 @@ function Home() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
         <div className="text-center">
           <AnimatedLogo />
           <h1 className="text-2xl font-bold text-gray-900">Welcome, {userData?.username}!</h1>
           <p className="mt-2 text-gray-600">You're successfully logged in.</p>
         </div>
-        
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h2 className="text-lg font-medium text-gray-700 mb-2">Your Information</h2>
+
+        <div className="rounded-lg bg-gray-50 p-4">
+          <h2 className="mb-2 text-lg font-medium text-gray-700">Your Information</h2>
           <div className="space-y-2">
             <p className="text-sm text-gray-600">
               <span className="font-medium">Username:</span> {userData?.username}
@@ -47,10 +47,10 @@ function Home() {
             </p>
           </div>
         </div>
-        
+
         <button
           onClick={handleLogout}
-          className="w-full px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+          className="w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
         >
           Logout
         </button>
