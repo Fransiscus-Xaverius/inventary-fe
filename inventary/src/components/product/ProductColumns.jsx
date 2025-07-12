@@ -5,9 +5,16 @@ import {
 	ColorCell,
 	SizeCell,
 } from "../../components/CategoryChip";
-import { IconButton, Tooltip, Box, CircularProgress } from "@mui/material";
+import {
+	IconButton,
+	Tooltip,
+	Box,
+	CircularProgress,
+	Chip,
+} from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import StarIcon from "@mui/icons-material/Star";
 import { useNavigate } from "react-router-dom";
 import useApiRequest from "../../hooks/useApiRequest";
 import { useQueryClient } from "@tanstack/react-query";
@@ -49,7 +56,7 @@ export const createProductColumns = (filterOptions, refetch) => {
 					onChange={(e) => applyValue({ ...item, value: e.target.value })}
 					style={{ width: "100%", padding: "8px" }}
 				>
-					<option value=''>All</option>
+					<option value="">All</option>
 					{createFilterOptions(field).map((option) => (
 						<option key={option.value} value={option.value}>
 							{option.label}
@@ -145,7 +152,7 @@ export const createProductColumns = (filterOptions, refetch) => {
 					const { mutate: deleteProduct, isLoading: isDeleteLoading } =
 						useApiRequest({
 							url: deleteDialog.item
-								? `/api/products/${deleteDialog.item.artikel}`
+								? `/api/admin/products/${deleteDialog.item.artikel}`
 								: "",
 							method: "DELETE",
 						});
@@ -213,11 +220,11 @@ export const createProductColumns = (filterOptions, refetch) => {
 									height: "100%",
 								}}
 							>
-								<Tooltip title='Edit Product'>
+								<Tooltip title="Edit Product">
 									<IconButton
 										onClick={handleEdit}
-										size='small'
-										color='primary'
+										size="small"
+										color="primary"
 										sx={{
 											backgroundColor: "rgba(25, 118, 210, 0.12)",
 											"&:hover": {
@@ -225,14 +232,14 @@ export const createProductColumns = (filterOptions, refetch) => {
 											},
 										}}
 									>
-										<EditIcon fontSize='small' />
+										<EditIcon fontSize="small" />
 									</IconButton>
 								</Tooltip>
-								<Tooltip title='Delete Product'>
+								<Tooltip title="Delete Product">
 									<IconButton
 										onClick={handleDeleteClick}
-										size='small'
-										color='error'
+										size="small"
+										color="error"
 										sx={{
 											backgroundColor: "rgba(211, 47, 47, 0.12)",
 											"&:hover": {
@@ -240,7 +247,7 @@ export const createProductColumns = (filterOptions, refetch) => {
 											},
 										}}
 									>
-										<DeleteIcon fontSize='small' />
+										<DeleteIcon fontSize="small" />
 									</IconButton>
 								</Tooltip>
 							</Box>
@@ -250,8 +257,8 @@ export const createProductColumns = (filterOptions, refetch) => {
 								open={deleteDialog.open}
 								onClose={closeDeleteDialog}
 								onConfirm={handleDeleteConfirm}
-								title='Delete Product'
-								message='Are you sure you want to delete this product?'
+								title="Delete Product"
+								message="Are you sure you want to delete this product?"
 								itemName={deleteDialog.item?.artikel}
 								isLoading={isDeleting || isDeleteLoading}
 							/>
@@ -274,6 +281,40 @@ export const createProductColumns = (filterOptions, refetch) => {
 			width: 150,
 			filterable: true,
 			filterOperators: createFilterOperators("artikel"),
+		},
+		{
+			field: "nama",
+			headerName: "Nama",
+			width: 200,
+			filterable: true,
+			filterOperators: createFilterOperators("nama"),
+		},
+		{
+			field: "rating",
+			headerName: "Rating",
+			width: 150,
+			filterable: true,
+			filterOperators: createFilterOperators("rating"),
+			renderCell: (params) => {
+				return (
+					<Box>
+						{Array.from({ length: 5 }).map((_, index) => (
+							<StarIcon
+								key={index}
+								fontSize="small"
+								color={index < params.row.rating ? "primary" : "disabled"}
+							/>
+						))}
+					</Box>
+				);
+			},
+		},
+		{
+			field: "deskripsi",
+			headerName: "Deskripsi",
+			width: 300,
+			filterable: true,
+			filterOperators: createFilterOperators("deskripsi"),
 		},
 		{
 			field: "warna",
@@ -346,6 +387,34 @@ export const createProductColumns = (filterOptions, refetch) => {
 			headerName: "Harga",
 			width: 150,
 			valueGetter: (value) => formatCurrency(value),
+		},
+		{
+			field: "harga_diskon",
+			headerName: "Harga Diskon",
+			width: 150,
+			valueGetter: (value) => formatCurrency(value),
+		},
+		{
+			field: "marketplace",
+			headerName: "Marketplace",
+			width: 200,
+			filterable: true,
+			filterOperators: createFilterOperators("marketplace"),
+			renderCell: (params) => {
+				return (
+					<Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+						{Object.keys(params.row.marketplace).map((key) => (
+							<Chip
+								key={key}
+								label={key}
+								color="primary"
+								variant="outlined"
+								size="small"
+							/>
+						))}
+					</Box>
+				);
+			},
 		},
 		{
 			field: "tanggal_produk",
