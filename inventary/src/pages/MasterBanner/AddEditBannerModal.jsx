@@ -20,6 +20,13 @@ import { useForm, Controller } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
 
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const ASPECT_RATIO_TOLERANCE = 0.1;
+const ALLOWED_ASPECT_RATIOS = [
+  { ratio: 16 / 9, label: "16:9" },
+  { ratio: 16 / 10, label: "16:10" },
+];
+
 // Validation schema with Joi
 const bannerSchema = Joi.object({
   title: Joi.string().required().messages({
@@ -31,8 +38,6 @@ const bannerSchema = Joi.object({
   cta_link: Joi.string().uri().allow("").optional().messages({
     "string.uri": "CTA Link harus berupa URL yang valid",
   }),
-  // image_url is now handled by file input, so it's optional for updates
-  // For creation, we'll rely on the file input being present
   image_url: Joi.string().allow("").optional(),
   order_index: Joi.number().integer().min(1).required().messages({
     "number.base": "Urutan harus berupa angka",
@@ -49,6 +54,7 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [fileError, setFileError] = useState(null);
 
   const {
     control,
@@ -63,26 +69,23 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
       description: "",
       cta_text: "",
       cta_link: "",
-      image_url: "", // This will store the URL from backend, not the file
+      image_url: "",
       order_index: 1,
       is_active: true,
     },
   });
 
-  // Fetch banner data if editing
   const { response: bannerResponse, isLoading: isLoadingBanner } = useApiRequest({
     url: isEditing ? `/api/admin/banners/${bannerId}` : null,
     queryKey: ["banner", bannerId],
     enabled: isEditing && open,
   });
 
-  // Prepare create/update mutation
   const { mutate: saveBanner, isLoading: isSaving } = useApiRequest({
     url: isEditing ? `/api/admin/banners/${bannerId}` : `/api/admin/banners`,
     method: isEditing ? "PUT" : "POST",
   });
 
-  // Set form data when editing and data is loaded
   useEffect(() => {
     if (isEditing && bannerResponse) {
       const data = bannerResponse?.data;
@@ -91,17 +94,16 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
         description: data?.description || "",
         cta_text: data?.cta_text || "",
         cta_link: data?.cta_link || "",
-        image_url: data?.image_url || "", // Set existing image URL
+        image_url: data?.image_url || "",
         order_index: data?.order_index || 0,
         is_active: data?.is_active !== undefined ? data.is_active : true,
       });
-      setImagePreview(data?.image_url ? `http://localhost:8080${data.image_url}` : null); // Set preview for existing image
+      setImagePreview(data?.image_url ? `http://localhost:8080${data.image_url}` : null);
     }
   }, [isEditing, bannerResponse, reset]);
 
-  // Reset form and preview when modal opens/closes
   useEffect(() => {
-    if (!isEditing) {
+    if (!open) {
       reset({
         title: "",
         description: "",
@@ -113,23 +115,66 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
       });
       setSelectedFile(null);
       setImagePreview(null);
+      setFileError(null);
     }
-  }, [open, isEditing, reset]);
+  }, [open, reset]);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setSelectedFile(file);
-      setImagePreview(URL.createObjectURL(file));
-      setValue("image_url", file.name); // Set a dummy value for validation if needed
+      if (file.size > MAX_FILE_SIZE) {
+        setFileError("File size cannot exceed 20MB.");
+        setSelectedFile(null);
+        setImagePreview(null);
+        setValue("image_url", "");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const imageAspectRatio = img.width / img.height;
+          const isValid = ALLOWED_ASPECT_RATIOS.some(
+            (ar) => Math.abs(imageAspectRatio - ar.ratio) <= ASPECT_RATIO_TOLERANCE
+          );
+
+          if (!isValid) {
+            const allowedLabels = ALLOWED_ASPECT_RATIOS.map((ar) => ar.label).join(", ");
+            setFileError(`Invalid aspect ratio. Allowed ratios are around ${allowedLabels}.`);
+            setSelectedFile(null);
+            setImagePreview(null);
+            setValue("image_url", "");
+          } else {
+            setFileError(null);
+            setSelectedFile(file);
+            setImagePreview(URL.createObjectURL(file));
+            setValue("image_url", file.name);
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     } else {
       setSelectedFile(null);
       setImagePreview(null);
       setValue("image_url", "");
+      setFileError(null);
     }
   };
 
   const onSubmit = (data) => {
+    if (fileError) {
+      showError(fileError);
+      return;
+    }
+
+    if (!isEditing && !selectedFile) {
+      setFileError("Image is required.");
+      showError("Image is required.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
@@ -141,7 +186,6 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
     if (selectedFile) {
       formData.append("image", selectedFile);
     } else if (isEditing && bannerResponse?.data?.image_url) {
-      // If editing and no new file selected, but there was an existing image, send its URL
       formData.append("image_url", bannerResponse.data.image_url);
     }
 
@@ -252,7 +296,6 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
                   />
                 )}
               />
-              {/* Image Upload Field */}
               <Box sx={{ mt: 2, mb: 2 }}>
                 <input
                   accept="image/*"
@@ -272,9 +315,9 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
                     {selectedFile.name}
                   </Typography>
                 )}
-                {errors.image_url && (
-                  <Typography color="error" variant="body2">
-                    {errors.image_url?.message}
+                {fileError && (
+                  <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                    {fileError}
                   </Typography>
                 )}
                 {imagePreview && (
