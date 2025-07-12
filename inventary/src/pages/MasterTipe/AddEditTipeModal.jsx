@@ -46,14 +46,14 @@ export default function AddEditTipeModal({ open, onClose, tipeId, onSuccess }) {
 
 	// Fetch tipe data if editing
 	const { response: tipeResponse, isLoading: isLoadingTipe } = useApiRequest({
-		url: isEditing ? `/api/tipes/${tipeId}` : null,
+		url: isEditing ? `/api/admin/tipes/${tipeId}` : null,
 		queryKey: ["tipe", tipeId],
 		enabled: isEditing && open,
 	});
 
 	// Prepare create/update mutation
 	const { mutate: saveTipe, isLoading: isSaving } = useApiRequest({
-		url: isEditing ? `/api/tipes/${tipeId}` : `/api/tipes`,
+		url: isEditing ? `/api/admin/tipes/${tipeId}` : `/api/admin/tipes`,
 		method: isEditing ? "PUT" : "POST",
 	});
 

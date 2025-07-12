@@ -62,14 +62,14 @@ export default function AddEditColorModal({
 
 	// Fetch color data if editing
 	const { response: colorResponse, isLoading: isLoadingColor } = useApiRequest({
-		url: isEditing ? `/api/colors/${colorId}` : null,
+		url: isEditing ? `/api/admin/colors/${colorId}` : null,
 		queryKey: ["color", colorId],
 		enabled: isEditing && open,
 	});
 
 	// Prepare create/update mutation
 	const { mutate: saveColor, isLoading: isSaving } = useApiRequest({
-		url: isEditing ? `/api/colors/${colorId}` : `/api/colors`,
+		url: isEditing ? `/api/admin/colors/${colorId}` : `/api/admin/colors`,
 		method: isEditing ? "PUT" : "POST",
 	});
 

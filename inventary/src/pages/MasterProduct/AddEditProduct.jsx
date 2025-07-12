@@ -96,38 +96,38 @@ export default function AddEditProduct() {
 	// Fetch color options from API
 	const { response: colorsResponse, isLoading: isLoadingColors } =
 		useApiRequest({
-			url: "/api/colors",
+			url: "/api/admin/colors",
 			queryKey: ["colors"],
 		});
 
 	// Fetch grup options from API
 	const { response: grupsResponse, isLoading: isLoadingGrups } = useApiRequest({
-		url: "/api/grups",
+		url: "/api/admin/grups",
 		queryKey: ["grups"],
 	});
 
 	// Fetch unit options from API
 	const { response: unitsResponse, isLoading: isLoadingUnits } = useApiRequest({
-		url: "/api/units",
+		url: "/api/admin/units",
 		queryKey: ["units"],
 	});
 
 	// Fetch kategori options from API
 	const { response: katsResponse, isLoading: isLoadingKats } = useApiRequest({
-		url: "/api/kats",
+		url: "/api/admin/kats",
 		queryKey: ["kats"],
 	});
 
 	// Fetch gender options from API
 	const { response: gendersResponse, isLoading: isLoadingGenders } =
 		useApiRequest({
-			url: "/api/genders",
+			url: "/api/admin/genders",
 			queryKey: ["genders"],
 		});
 
 	// Fetch tipe options from API
 	const { response: tipesResponse, isLoading: isLoadingTipes } = useApiRequest({
-		url: "/api/tipes",
+		url: "/api/admin/tipes",
 		queryKey: ["tipes"],
 	});
 
@@ -147,7 +147,7 @@ export default function AddEditProduct() {
 		isLoading,
 		error,
 	} = useApiRequest({
-		url: `/api/products/${artikel}`,
+		url: `/api/admin/products/${artikel}`,
 		queryKey: ["product", "artikel", artikel],
 		enableQuery: isEdit,
 	});
@@ -266,8 +266,8 @@ export default function AddEditProduct() {
 	// API mutation for submitting form
 	const { mutate, isLoading: isMutating } = useApiRequest({
 		url: isEdit
-			? `/api/products/${productResponse?.data?.artikel || artikel}`
-			: "/api/products",
+			? `/api/admin/products/${productResponse?.data?.artikel || artikel}`
+			: "/api/admin/products",
 		method: isEdit ? "PUT" : "POST",
 	});
 

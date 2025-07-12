@@ -92,7 +92,7 @@ export default function MasterProduct() {
     const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
     // Construct URL with all parameters
-    let url = `/api/products?${baseParams}`;
+    let url = `/api/admin/products?${baseParams}`;
 
     if (searchQuery) {
       url += `&${searchQuery}`;

@@ -182,7 +182,7 @@ export default function MasterGrup() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/grups?${baseParams}`;
+		let url = `/api/admin/grups?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;
@@ -204,7 +204,7 @@ export default function MasterGrup() {
 	});
 
 	const { mutate: deleteGrup, isLoading: isDeleteLoading } = useApiRequest({
-		url: deleteDialog.item ? `/api/grups/${deleteDialog.item.id}` : "",
+		url: deleteDialog.item ? `/api/admin/grups/${deleteDialog.item.id}` : "",
 		method: "DELETE",
 	});
 

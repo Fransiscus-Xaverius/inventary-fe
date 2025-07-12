@@ -78,14 +78,14 @@ export default function AddEditBannerModal({
   // Fetch banner data if editing
   const { response: bannerResponse, isLoading: isLoadingBanner } =
     useApiRequest({
-      url: isEditing ? `/api/banners/${bannerId}` : null,
+      url: isEditing ? `/api/admin/banners/${bannerId}` : null,
       queryKey: ["banner", bannerId],
       enabled: isEditing && open,
     });
 
   // Prepare create/update mutation
   const { mutate: saveBanner, isLoading: isSaving } = useApiRequest({
-    url: isEditing ? `/api/banners/${bannerId}` : `/api/banners`,
+    url: isEditing ? `/api/admin/banners/${bannerId}` : `/api/admin/banners`,
     method: isEditing ? "PUT" : "POST",
   });
 

@@ -46,14 +46,14 @@ export default function AddEditKatModal({ open, onClose, katId, onSuccess }) {
 
 	// Fetch kategori data if editing
 	const { response: katResponse, isLoading: isLoadingKat } = useApiRequest({
-		url: isEditing ? `/api/kats/${katId}` : null,
+		url: isEditing ? `/api/admin/kats/${katId}` : null,
 		queryKey: ["kat", katId],
 		enabled: isEditing && open,
 	});
 
 	// Prepare create/update mutation
 	const { mutate: saveKat, isLoading: isSaving } = useApiRequest({
-		url: isEditing ? `/api/kats/${katId}` : `/api/kats`,
+		url: isEditing ? `/api/admin/kats/${katId}` : `/api/admin/kats`,
 		method: isEditing ? "PUT" : "POST",
 	});
 

@@ -182,7 +182,7 @@ export default function MasterKat() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/kats?${baseParams}`;
+		let url = `/api/admin/kats?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;

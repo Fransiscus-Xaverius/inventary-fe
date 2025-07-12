@@ -46,14 +46,14 @@ export default function AddEditUnitModal({ open, onClose, unitId, onSuccess }) {
 
 	// Fetch unit data if editing
 	const { response: unitResponse, isLoading: isLoadingUnit } = useApiRequest({
-		url: isEditing ? `/api/units/${unitId}` : null,
+		url: isEditing ? `/api/admin/units/${unitId}` : null,
 		queryKey: ["unit", unitId],
 		enabled: isEditing && open,
 	});
 
 	// Prepare create/update mutation
 	const { mutate: saveUnit, isLoading: isSaving } = useApiRequest({
-		url: isEditing ? `/api/units/${unitId}` : `/api/units`,
+		url: isEditing ? `/api/admin/units/${unitId}` : `/api/admin/units`,
 		method: isEditing ? "PUT" : "POST",
 	});
 

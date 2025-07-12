@@ -182,7 +182,7 @@ export default function MasterUnit() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/units?${baseParams}`;
+		let url = `/api/admin/units?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;
@@ -204,7 +204,7 @@ export default function MasterUnit() {
 	});
 
 	const { mutate: deleteUnit, isLoading: isDeleteLoading } = useApiRequest({
-		url: deleteDialog.item ? `/api/units/${deleteDialog.item.id}` : "",
+		url: deleteDialog.item ? `/api/admin/units/${deleteDialog.item.id}` : "",
 		method: "DELETE",
 	});
 

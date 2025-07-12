@@ -182,7 +182,7 @@ export default function MasterTipe() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/tipes?${baseParams}`;
+		let url = `/api/admin/tipes?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;
@@ -204,7 +204,7 @@ export default function MasterTipe() {
 	});
 
 	const { mutate: deleteTipe, isLoading: isDeleteLoading } = useApiRequest({
-		url: deleteDialog.item ? `/api/tipes/${deleteDialog.item.id}` : "",
+		url: deleteDialog.item ? `/api/admin/tipes/${deleteDialog.item.id}` : "",
 		method: "DELETE",
 	});
 

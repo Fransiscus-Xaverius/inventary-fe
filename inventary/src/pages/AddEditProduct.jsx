@@ -123,7 +123,7 @@ export default function AddEditProduct() {
     isLoading,
     error,
   } = useApiRequest({
-    url: `/api/products/${artikel}`,
+    url: `/api/admin/products/${artikel}`,
     queryKey: ["product", "artikel", artikel],
     enableQuery: isEdit,
   });
@@ -159,8 +159,8 @@ export default function AddEditProduct() {
   // API mutation for submitting form
   const { mutate, isLoading: isMutating } = useApiRequest({
     url: isEdit
-      ? `/api/products/${productData?.id || artikel}`
-      : "/api/products",
+      ? `/api/admin/products/${productData?.id || artikel}`
+      : "/api/admin/products",
     method: isEdit ? "PUT" : "POST",
   });
 

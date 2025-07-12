@@ -46,14 +46,14 @@ export default function AddEditGrupModal({ open, onClose, grupId, onSuccess }) {
 
 	// Fetch grup data if editing
 	const { response: grupResponse, isLoading: isLoadingGrup } = useApiRequest({
-		url: isEditing ? `/api/grups/${grupId}` : null,
+		url: isEditing ? `/api/admin/grups/${grupId}` : null,
 		queryKey: ["grup", grupId],
 		enabled: isEditing && open,
 	});
 
 	// Prepare create/update mutation
 	const { mutate: saveGrup, isLoading: isSaving } = useApiRequest({
-		url: isEditing ? `/api/grups/${grupId}` : `/api/grups`,
+		url: isEditing ? `/api/admin/grups/${grupId}` : `/api/admin/grups`,
 		method: isEditing ? "PUT" : "POST",
 	});
 

@@ -105,7 +105,7 @@ export default function MasterBanner() {
       : "";
     const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-    let url = `/api/banners?${baseParams}`;
+    let url = `/api/admin/banners?${baseParams}`;
 
     if (searchQuery) {
       url += `&${searchQuery}`;
@@ -144,7 +144,7 @@ export default function MasterBanner() {
   });
 
   const { mutate: deleteBanner, isLoading: isDeleteLoading } = useApiRequest({
-    url: deleteDialog.item ? `/api/banners/${deleteDialog.item.id}` : "",
+    url: deleteDialog.item ? `/api/admin/banners/${deleteDialog.item.id}` : "",
     method: "DELETE",
   });
 
@@ -223,7 +223,7 @@ export default function MasterBanner() {
         renderCell: (params) => {
           const { showSuccess, showError } = useNotification();
           const { mutate: updateBannerStatus } = useApiRequest({
-            url: `/api/banners/${params.row.id}`,
+            url: `/api/admin/banners/${params.row.id}`,
             method: "PUT",
           });
 

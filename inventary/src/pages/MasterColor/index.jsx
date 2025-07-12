@@ -189,7 +189,7 @@ export default function MasterColor() {
 			: "";
 		const baseParams = `offset=${offsetParam}&limit=${limitParam}`;
 
-		let url = `/api/colors?${baseParams}`;
+		let url = `/api/admin/colors?${baseParams}`;
 
 		if (searchQuery) {
 			url += `&${searchQuery}`;
@@ -211,7 +211,7 @@ export default function MasterColor() {
 	});
 
 	const { mutate: deleteColor, isLoading: isDeleteLoading } = useApiRequest({
-		url: deleteDialog.item ? `/api/colors/${deleteDialog.item.id}` : "",
+		url: deleteDialog.item ? `/api/admin/colors/${deleteDialog.item.id}` : "",
 		method: "DELETE",
 	});
 
