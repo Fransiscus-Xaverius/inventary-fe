@@ -6,13 +6,12 @@ import useProductPagination from "../../hooks/useProductPagination";
 import useProductSearch from "../../hooks/useProductSearch";
 import useProductSorting from "../../hooks/useProductSorting";
 import SidebarDashboard from "../../components/SidebarDashboard";
-import { useNavigate } from "react-router-dom";
 import DataGridComponent from "../../components/ui/DataGrid";
 import { formatDate } from "../../utils/formatters";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useNotification } from "../../hooks/useNotification";
 import AddEditKatModal from "./AddEditKatModal";
 
 const columns = [
@@ -94,7 +93,6 @@ const columns = [
 
 export default function MasterKat() {
   const [searchInputValue, setSearchInputValue] = useState("");
-  const navigate = useNavigate();
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     item: null,

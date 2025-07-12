@@ -7,8 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StarIcon from "@mui/icons-material/Star";
 import { useNavigate } from "react-router-dom";
 import useApiRequest from "../../hooks/useApiRequest";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useNotification } from "../../hooks/useNotification";
 import { useState } from "react";
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 
@@ -116,7 +115,6 @@ export const createProductColumns = (filterOptions, refetch) => {
       renderCell: (params) => {
         const ActionButtons = () => {
           const navigate = useNavigate();
-          const queryClient = useQueryClient();
           const { showSuccess, showError } = useNotification();
           const [deleteDialog, setDeleteDialog] = useState({
             open: false,

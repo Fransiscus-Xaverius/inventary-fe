@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
@@ -120,12 +120,12 @@ export default function AddEditProduct() {
   });
 
   // Extract options from API responses
-  const colors = colorsResponse?.data.colors || [];
-  const grups = grupsResponse?.data.grups || [];
-  const units = unitsResponse?.data.units || [];
-  const kats = katsResponse?.data.kats || [];
-  const genders = gendersResponse?.data.genders || [];
-  const tipes = tipesResponse?.data.tipes || [];
+  const colors = useMemo(() => colorsResponse?.data.colors || [], [colorsResponse]);
+  const grups = useMemo(() => grupsResponse?.data.grups || [], [grupsResponse]);
+  const units = useMemo(() => unitsResponse?.data.units || [], [unitsResponse]);
+  const kats = useMemo(() => katsResponse?.data.kats || [], [katsResponse]);
+  const genders = useMemo(() => gendersResponse?.data.genders || [], [gendersResponse]);
+  const tipes = useMemo(() => tipesResponse?.data.tipes || [], [tipesResponse]);
 
   const statuses = ["Active", "Inactive", "Discontinued"];
 
@@ -147,8 +147,6 @@ export default function AddEditProduct() {
     formState: { errors },
     reset,
     setValue,
-    watch,
-    register,
   } = useForm({
     resolver: joiResolver(productSchema),
     defaultValues: {

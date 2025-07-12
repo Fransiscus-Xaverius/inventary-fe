@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import useApiRequest from "../../hooks/useApiRequest";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useNotification } from "../../hooks/useNotification";
 import { useForm, Controller } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
@@ -55,7 +55,6 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
     setValue,
   } = useForm({
     resolver: joiResolver(bannerSchema),

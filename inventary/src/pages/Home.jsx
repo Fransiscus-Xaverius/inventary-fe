@@ -12,7 +12,7 @@ function Home() {
     navigate("/login");
   };
 
-  if (loading) {
+  if (!user) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100">
         <AnimatedLogo />
@@ -26,7 +26,7 @@ function Home() {
       <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow">
         <div className="text-center">
           <AnimatedLogo />
-          <h1 className="text-2xl font-bold text-gray-900">Welcome, {userData?.username}!</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome, {user?.username}!</h1>
           <p className="mt-2 text-gray-600">You're successfully logged in.</p>
         </div>
 
@@ -34,16 +34,16 @@ function Home() {
           <h2 className="mb-2 text-lg font-medium text-gray-700">Your Information</h2>
           <div className="space-y-2">
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Username:</span> {userData?.username}
+              <span className="font-medium">Username:</span> {user?.username}
             </p>
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Email:</span> {userData?.email}
+              <span className="font-medium">Email:</span> {user?.email}
             </p>
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Role:</span> {userData?.role}
+              <span className="font-medium">Role:</span> {user?.role}
             </p>
             <p className="text-sm text-gray-600">
-              <span className="font-medium">ID:</span> {userData?.id}
+              <span className="font-medium">ID:</span> {user?.id}
             </p>
           </div>
         </div>

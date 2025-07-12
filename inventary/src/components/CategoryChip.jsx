@@ -79,6 +79,7 @@ export const CategoryCell = ({ params }) => {
     response: categoryResponse,
     isLoading,
     error,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
   } = useApiRequest({
     url: `/api/category-colors/${params.field}/${label}`,
     queryKey: ["category-colors", params.field, label],

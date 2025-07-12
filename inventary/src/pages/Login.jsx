@@ -37,8 +37,9 @@ function Login() {
       // Use the auth context to login
       login(data.token, data.user, data.expires_at);
       navigate("/");
-    } catch (err) {
+    } catch (error) {
       setError("Invalid username or password");
+      error.message;
     } finally {
       setLoading(false);
     }

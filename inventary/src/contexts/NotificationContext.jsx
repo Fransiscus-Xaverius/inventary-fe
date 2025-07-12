@@ -1,24 +1,8 @@
-import React, { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
+import { NOTIFICATION_TYPES } from "../constants/notificationTypes";
 
 // Create the notification context
-const NotificationContext = createContext();
-
-// Notification types
-export const NOTIFICATION_TYPES = {
-  SUCCESS: "success",
-  ERROR: "error",
-  WARNING: "warning",
-  INFO: "info",
-};
-
-// Custom hook to access the notification context
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error("useNotification must be used within a NotificationProvider");
-  }
-  return context;
-};
+export const NotificationContext = createContext();
 
 // Notification Provider component
 export const NotificationProvider = ({ children }) => {

@@ -20,7 +20,7 @@ import { formatDate } from "../../utils/formatters";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useNotification } from "../../hooks/useNotification";
 import AddEditBannerModal from "./AddEditBannerModal";
 
 export default function MasterBanner() {
@@ -127,6 +127,12 @@ export default function MasterBanner() {
     method: "DELETE",
   });
 
+  const [bannerIdToUpdate, setBannerIdToUpdate] = useState(null);
+  const { mutate: updateBannerStatus } = useApiRequest({
+    url: `/api/admin/banners/${bannerIdToUpdate}`,
+    method: "PUT",
+  });
+
   const columns = useMemo(() => {
     return [
       {
@@ -200,13 +206,9 @@ export default function MasterBanner() {
         headerName: "Aktif",
         width: 100,
         renderCell: (params) => {
-          const { showSuccess, showError } = useNotification();
-          const { mutate: updateBannerStatus } = useApiRequest({
-            url: `/api/admin/banners/${params.row.id}`,
-            method: "PUT",
-          });
-
           const handleToggle = (event) => {
+            setBannerIdToUpdate(params.row.id);
+
             const newStatus = event.target.checked;
             updateBannerStatus(
               { is_active: newStatus },
@@ -269,7 +271,7 @@ export default function MasterBanner() {
         valueGetter: (value) => formatDate(value, true),
       },
     ];
-  }, []);
+  }, [refetch, showError, showSuccess, updateBannerStatus]);
 
   const handleDeleteConfirm = async () => {
     if (!deleteDialog.item) return;

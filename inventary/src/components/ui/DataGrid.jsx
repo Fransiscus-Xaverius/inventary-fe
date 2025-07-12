@@ -1,7 +1,5 @@
-import PropTypes from "prop-types";
 import { DataGrid, GridPagination, GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
-import { useCallback } from "react";
 
 export default function DataGridComponent({
   columns,

@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createContext, Suspense, lazy } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import { useAuth } from "./hooks/useAuth";
 import "./App.css";
