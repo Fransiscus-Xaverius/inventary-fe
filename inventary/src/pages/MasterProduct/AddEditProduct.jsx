@@ -1,22 +1,77 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
 import SidebarDashboard from "../../components/SidebarDashboard";
 import useApiRequest from "../../hooks/useApiRequest";
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 // Size pattern validator for EU sizes or ranges (e.g., 30 or 30-38)
 const sizePattern = Joi.string().pattern(/^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/);
+const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
+
+const MarketplaceInput = memo(({ control, index, remove }) => {
+  return (
+    <div className="mb-2 flex items-center gap-2">
+      <Controller
+        name={`marketplace.${index}.key`}
+        control={control}
+        render={({ field }) => (
+          <select {...field} className="rounded border border-gray-300 px-3 py-2">
+            <option value="">Select Marketplace</option>
+            {MARKETPLACE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        )}
+      />
+      <Controller
+        name={`marketplace.${index}.value`}
+        control={control}
+        render={({ field }) => (
+          <input
+            {...field}
+            type="text"
+            placeholder="Enter URL"
+            className="flex-1 rounded border border-gray-300 px-3 py-2"
+          />
+        )}
+      />
+      <button type="button" onClick={() => remove(index)} className="rounded bg-red-500 px-3 py-2 text-white">
+        Remove
+      </button>
+    </div>
+  );
+});
 
 // Validation schema with Joi
 const productSchema = Joi.object({
   artikel: Joi.string().required().messages({
     "string.empty": "Artikel tidak boleh kosong",
     "any.required": "Artikel harus diisi",
+  }),
+  nama: Joi.string().required().messages({
+    "string.empty": "Nama tidak boleh kosong",
+    "any.required": "Nama harus diisi",
+  }),
+  deskripsi: Joi.string().required().messages({
+    "string.empty": "Deskripsi tidak boleh kosong",
+    "any.required": "Deskripsi harus diisi",
   }),
   warna: Joi.array().min(1).required().messages({
     "array.min": "Pilih minimal 1 warna",
@@ -56,9 +111,38 @@ const productSchema = Joi.object({
     "number.positive": "Harga harus lebih dari 0",
     "any.required": "Harga harus diisi",
   }),
+  harga_diskon: Joi.number().positive().optional().allow(""),
+  rating: Joi.number().min(0).max(5).optional().allow(""),
+  marketplace: Joi.array()
+    .items(
+      Joi.object({
+        key: Joi.string()
+          .valid(...MARKETPLACE_OPTIONS)
+          .required(),
+        value: Joi.string()
+          .uri({ scheme: ["http", "https"] })
+          .required()
+          .messages({
+            "string.uri": "Please enter a valid URL",
+            "string.empty": "URL cannot be empty",
+          }),
+      })
+    )
+    .min(1)
+    .unique("key")
+    .required()
+    .messages({
+      "array.min": "Please add at least one marketplace link.",
+      "array.unique": "Marketplace keys must be unique.",
+      "any.required": "Marketplace is required.",
+    }),
+  gambar: Joi.array().min(1).required().messages({
+    "array.min": "Pilih minimal 1 gambar",
+    "any.required": "Gambar harus diisi",
+  }),
   tanggal_produk: Joi.date().iso().allow("").optional(),
   tanggal_terima: Joi.date().iso().allow("").optional(),
-  status: Joi.string().valid("Active", "Inactive", "Discontinued").required().messages({
+  status: Joi.string().valid("active", "inactive", "discontinued").required().messages({
     "string.empty": "Status tidak boleh kosong",
     "any.required": "Status harus diisi",
     "any.only": "Status harus Active, Inactive, atau Discontinued",
@@ -127,7 +211,7 @@ export default function AddEditProduct() {
   const genders = useMemo(() => gendersResponse?.data.genders || [], [gendersResponse]);
   const tipes = useMemo(() => tipesResponse?.data.tipes || [], [tipesResponse]);
 
-  const statuses = ["Active", "Inactive", "Discontinued"];
+  const statuses = ["active", "inactive", "discontinued"];
 
   // API request for getting product data (only enabled when editing)
   const {
@@ -147,26 +231,48 @@ export default function AddEditProduct() {
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm({
     resolver: joiResolver(productSchema),
     defaultValues: {
-      artikel: "",
-      warna: [],
-      size: "",
-      grup: "",
-      unit: "",
-      kat: "",
-      model: "",
-      gender: "",
-      tipe: "",
-      harga: "",
-      tanggal_produk: "",
-      tanggal_terima: "",
-      status: "",
-      supplier: "",
-      diupdate_oleh: "",
+      artikel: "ART-100001",
+      nama: "Sepatu Bagus",
+      deskripsi: "Uapik soro",
+      warna: ["1"],
+      size: "30",
+      grup: "1",
+      unit: "1",
+      kat: "1",
+      model: "1",
+      gender: "1",
+      tipe: "1",
+      harga: 200000,
+      harga_diskon: 100000,
+      marketplace: [
+        {
+          key: "tokopedia",
+          value: "https://www.tokopedia.com/bagus/sepatu-bagus",
+        },
+      ],
+      gambar: [],
+      tanggal_produk: "2025-01-01",
+      tanggal_terima: "2025-01-01",
+      status: "active",
+      supplier: "1",
+      diupdate_oleh: "1",
     },
   });
+
+  const {
+    fields: marketplaceFields,
+    append: appendMarketplace,
+    remove: removeMarketplace,
+  } = useFieldArray({
+    control,
+    name: "marketplace",
+  });
+
+  const watchedImages = watch("gambar");
 
   // Fill the form with existing data when editing
   useEffect(() => {
@@ -196,11 +302,12 @@ export default function AddEditProduct() {
         gender: stringify(genders.find((gender) => gender.value === productData.gender)?.id),
         tipe: stringify(tipes.find((tipe) => tipe.value === productData.tipe)?.id),
         harga: productData.harga !== undefined ? Number(productData.harga) : "",
+        harga_diskon: productData.harga_diskon !== undefined ? Number(productData.harga_diskon) : "",
+        marketplace: productData.marketplace || {},
+        gambar: productData.gambar || [],
         tanggal_produk: productData.tanggal_produk ? productData.tanggal_produk.split("T")[0] : "",
         tanggal_terima: productData.tanggal_terima ? productData.tanggal_terima.split("T")[0] : "",
-        status: productData.status
-          ? productData.status.charAt(0).toUpperCase() + productData.status.slice(1).toLowerCase()
-          : "",
+        status: productData.status || "",
         supplier: productData.supplier || "",
         diupdate_oleh: productData.diupdate_oleh || "",
       };
@@ -212,6 +319,16 @@ export default function AddEditProduct() {
       }
       setSelectedColors(warnaIdsFromApi || []);
       valuesToReset.warna = warnaIdsFromApi || []; // Also set for RHF if it needs to track it, though UI is custom
+
+      // Handle marketplace
+      if (productData.marketplace && typeof productData.marketplace === "object") {
+        const marketplaceArray = Object.entries(productData.marketplace)
+          .map(([key, value]) => ({ key, value }))
+          .filter((item) => item.value); // filter out empty urls
+        valuesToReset.marketplace = marketplaceArray;
+      } else {
+        valuesToReset.marketplace = [];
+      }
 
       console.log("[Edit Mode] Values prepared for reset:", valuesToReset);
       reset(valuesToReset);
@@ -234,6 +351,7 @@ export default function AddEditProduct() {
 
   // Form submission handler
   const onSubmit = (data) => {
+    console.log("Data: ", data);
     setIsSubmitting(true);
     setSubmitError("");
 
@@ -438,6 +556,50 @@ export default function AddEditProduct() {
               )}
             />
             {errors.artikel && <p className="mt-1 text-sm text-red-600">{errors.artikel.message}</p>}
+          </div>
+
+          {/* Nama */}
+          <div className="flex flex-col">
+            <label htmlFor="nama" className="mb-1 text-sm font-medium text-gray-700">
+              Nama
+            </label>
+            <Controller
+              name="nama"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  id="nama"
+                  className={`border ${
+                    errors.nama ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.nama && <p className="mt-1 text-sm text-red-600">{errors.nama.message}</p>}
+          </div>
+
+          {/* Deskripsi */}
+          <div className="flex flex-col">
+            <label htmlFor="deskripsi" className="mb-1 text-sm font-medium text-gray-700">
+              Deskripsi
+            </label>
+            <Controller
+              name="deskripsi"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  id="deskripsi"
+                  rows="3"
+                  className={`border ${
+                    errors.deskripsi ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.deskripsi && <p className="mt-1 text-sm text-red-600">{errors.deskripsi.message}</p>}
           </div>
 
           {/* Warna */}
@@ -771,6 +933,51 @@ export default function AddEditProduct() {
             {errors.harga && <p className="mt-1 text-sm text-red-600">{errors.harga.message}</p>}
           </div>
 
+          {/* Harga Diskon */}
+          <div className="flex flex-col">
+            <label htmlFor="harga_diskon" className="mb-1 text-sm font-medium text-gray-700">
+              Harga Diskon
+            </label>
+            <Controller
+              name="harga_diskon"
+              control={control}
+              render={({ field: { onChange, value, ...field } }) => (
+                <input
+                  {...field}
+                  type="number"
+                  id="harga_diskon"
+                  value={value}
+                  onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                  step="0.1"
+                  className={`border ${
+                    errors.harga_diskon ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.harga_diskon && <p className="mt-1 text-sm text-red-600">{errors.harga_diskon.message}</p>}
+          </div>
+
+          {/* Marketplace */}
+          <div className="flex flex-col md:col-span-2">
+            <label className="mb-1 text-sm font-medium text-gray-700">Marketplace</label>
+            {marketplaceFields.map((item, index) => (
+              <MarketplaceInput key={item.id} control={control} index={index} remove={removeMarketplace} />
+            ))}
+            {errors.marketplace && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.marketplace.message || errors.marketplace?.root?.message}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => appendMarketplace({ key: "", value: "" })}
+              className="mt-2 self-start rounded bg-gray-200 px-4 py-2 text-sm"
+            >
+              Add Marketplace
+            </button>
+          </div>
+
           {/* Tanggal Produk (Optional) */}
           <div className="flex flex-col">
             <label htmlFor="tanggal_produk" className="mb-1 text-sm font-medium text-gray-700">
@@ -828,7 +1035,7 @@ export default function AddEditProduct() {
                   <option value="">Pilih Status</option>
                   {statuses.map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
                 </select>
