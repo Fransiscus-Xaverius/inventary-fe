@@ -1,77 +1,33 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
-import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
-import SidebarDashboard from "../../components/SidebarDashboard";
-import useApiRequest from "../../hooks/useApiRequest";
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Button,
+  Box,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-// Size pattern validator for EU sizes or ranges (e.g., 30 or 30-38)
-const sizePattern = Joi.string().pattern(/^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/);
-
-// Validation schema with Joi
-const productSchema = Joi.object({
-  artikel: Joi.string().required().messages({
-    "string.empty": "Artikel tidak boleh kosong",
-    "any.required": "Artikel harus diisi",
-  }),
-  warna: Joi.array().min(1).required().messages({
-    "array.min": "Pilih minimal 1 warna",
-    "any.required": "Warna harus diisi",
-  }),
-  size: sizePattern.required().messages({
-    "string.empty": "Ukuran tidak boleh kosong",
-    "string.pattern.base": "Format ukuran harus berupa angka (mis: 30) atau rentang (mis: 30-38)",
-    "any.required": "Ukuran harus diisi",
-  }),
-  grup: Joi.string().required().messages({
-    "string.empty": "Grup tidak boleh kosong",
-    "any.required": "Grup harus diisi",
-  }),
-  unit: Joi.string().required().messages({
-    "string.empty": "Unit tidak boleh kosong",
-    "any.required": "Unit harus diisi",
-  }),
-  kat: Joi.string().required().messages({
-    "string.empty": "Kategori tidak boleh kosong",
-    "any.required": "Kategori harus diisi",
-  }),
-  model: Joi.string().required().messages({
-    "string.empty": "Model tidak boleh kosong",
-    "any.required": "Model harus diisi",
-  }),
-  gender: Joi.string().required().messages({
-    "string.empty": "Gender tidak boleh kosong",
-    "any.required": "Gender harus diisi",
-  }),
-  tipe: Joi.string().required().messages({
-    "string.empty": "Tipe tidak boleh kosong",
-    "any.required": "Tipe harus diisi",
-  }),
-  harga: Joi.number().positive().required().messages({
-    "number.base": "Harga harus berupa angka",
-    "number.positive": "Harga harus lebih dari 0",
-    "any.required": "Harga harus diisi",
-  }),
-  tanggal_produk: Joi.date().iso().allow("").optional(),
-  tanggal_terima: Joi.date().iso().allow("").optional(),
-  status: Joi.string().valid("Active", "Inactive", "Discontinued").required().messages({
-    "string.empty": "Status tidak boleh kosong",
-    "any.required": "Status harus diisi",
-    "any.only": "Status harus Active, Inactive, atau Discontinued",
-  }),
-  supplier: Joi.string().required().messages({
-    "string.empty": "Supplier tidak boleh kosong",
-    "any.required": "Supplier harus diisi",
-  }),
-  diupdate_oleh: Joi.string().required().messages({
-    "string.empty": "Diupdate oleh tidak boleh kosong",
-    "any.required": "Diupdate oleh harus diisi",
-  }),
-});
+import SidebarDashboard from "../../components/SidebarDashboard";
+import MarketplaceInput from "./MarketplaceInput";
+import useApiRequest from "../../hooks/useApiRequest";
+import {
+  formatDateForApi,
+  formatMarketplace,
+  parseGambar,
+  getColorById,
+  STATUSES,
+  useHandleFileChange,
+  useGetOptions,
+  useCustomForm,
+} from "./utils";
 
 export default function AddEditProduct() {
   const { artikel } = useParams();
@@ -83,41 +39,15 @@ export default function AddEditProduct() {
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [colorSelections, setColorSelections] = useState([""]);
 
-  // Fetch color options from API
-  const { response: colorsResponse, isLoading: isLoadingColors } = useApiRequest({
-    url: "/api/admin/colors",
-    queryKey: ["colors"],
-  });
-
-  // Fetch grup options from API
-  const { response: grupsResponse, isLoading: isLoadingGrups } = useApiRequest({
-    url: "/api/admin/grups",
-    queryKey: ["grups"],
-  });
-
-  // Fetch unit options from API
-  const { response: unitsResponse, isLoading: isLoadingUnits } = useApiRequest({
-    url: "/api/admin/units",
-    queryKey: ["units"],
-  });
-
-  // Fetch kategori options from API
-  const { response: katsResponse, isLoading: isLoadingKats } = useApiRequest({
-    url: "/api/admin/kats",
-    queryKey: ["kats"],
-  });
-
-  // Fetch gender options from API
-  const { response: gendersResponse, isLoading: isLoadingGenders } = useApiRequest({
-    url: "/api/admin/genders",
-    queryKey: ["genders"],
-  });
-
-  // Fetch tipe options from API
-  const { response: tipesResponse, isLoading: isLoadingTipes } = useApiRequest({
-    url: "/api/admin/tipes",
-    queryKey: ["tipes"],
-  });
+  const {
+    colorsResponse,
+    grupsResponse,
+    unitsResponse,
+    katsResponse,
+    gendersResponse,
+    tipesResponse,
+    isOptionsLoading,
+  } = useGetOptions();
 
   // Extract options from API responses
   const colors = useMemo(() => colorsResponse?.data.colors || [], [colorsResponse]);
@@ -126,8 +56,6 @@ export default function AddEditProduct() {
   const kats = useMemo(() => katsResponse?.data.kats || [], [katsResponse]);
   const genders = useMemo(() => gendersResponse?.data.genders || [], [gendersResponse]);
   const tipes = useMemo(() => tipesResponse?.data.tipes || [], [tipesResponse]);
-
-  const statuses = ["Active", "Inactive", "Discontinued"];
 
   // API request for getting product data (only enabled when editing)
   const {
@@ -147,26 +75,30 @@ export default function AddEditProduct() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm({
-    resolver: joiResolver(productSchema),
-    defaultValues: {
-      artikel: "",
-      warna: [],
-      size: "",
-      grup: "",
-      unit: "",
-      kat: "",
-      model: "",
-      gender: "",
-      tipe: "",
-      harga: "",
-      tanggal_produk: "",
-      tanggal_terima: "",
-      status: "",
-      supplier: "",
-      diupdate_oleh: "",
-    },
+    setError,
+    watch,
+  } = useCustomForm({ isEdit });
+
+  const {
+    fields: marketplaceFields,
+    append: appendMarketplace,
+    remove: removeMarketplace,
+  } = useFieldArray({
+    control,
+    name: "marketplace",
   });
+
+  const watchedImages = watch("gambar");
+  const watchedImageUrls = watch("image_url");
+
+  // Debug useEffect to monitor form state
+  useEffect(() => {
+    console.log("=== FORM STATE DEBUG ===");
+    console.log("Current errors:", errors);
+    console.log("Current form values:", watch());
+    console.log("Watched images:", watchedImages);
+    console.log("Watched image URLs:", watchedImageUrls);
+  }, [errors, watchedImages, watchedImageUrls, watch]);
 
   // Fill the form with existing data when editing
   useEffect(() => {
@@ -196,11 +128,12 @@ export default function AddEditProduct() {
         gender: stringify(genders.find((gender) => gender.value === productData.gender)?.id),
         tipe: stringify(tipes.find((tipe) => tipe.value === productData.tipe)?.id),
         harga: productData.harga !== undefined ? Number(productData.harga) : "",
+        harga_diskon: productData.harga_diskon !== undefined ? Number(productData.harga_diskon) : "",
+        marketplace: productData.marketplace || {},
+        image_url: productData.gambar || [],
         tanggal_produk: productData.tanggal_produk ? productData.tanggal_produk.split("T")[0] : "",
         tanggal_terima: productData.tanggal_terima ? productData.tanggal_terima.split("T")[0] : "",
-        status: productData.status
-          ? productData.status.charAt(0).toUpperCase() + productData.status.slice(1).toLowerCase()
-          : "",
+        status: productData.status || "",
         supplier: productData.supplier || "",
         diupdate_oleh: productData.diupdate_oleh || "",
       };
@@ -212,6 +145,23 @@ export default function AddEditProduct() {
       }
       setSelectedColors(warnaIdsFromApi || []);
       valuesToReset.warna = warnaIdsFromApi || []; // Also set for RHF if it needs to track it, though UI is custom
+
+      // Handle marketplace
+      if (productData.marketplace && typeof productData.marketplace === "object") {
+        const marketplaceArray = Object.entries(productData.marketplace)
+          .map(([key, value]) => ({ key, value }))
+          .filter((item) => item.value); // filter out empty urls
+        valuesToReset.marketplace = marketplaceArray;
+      } else {
+        valuesToReset.marketplace = [];
+      }
+
+      // Handle image_url
+      if (productData.gambar && Array.isArray(productData.gambar)) {
+        valuesToReset.image_url = productData.gambar;
+      } else {
+        valuesToReset.image_url = [];
+      }
 
       console.log("[Edit Mode] Values prepared for reset:", valuesToReset);
       reset(valuesToReset);
@@ -232,89 +182,94 @@ export default function AddEditProduct() {
     method: isEdit ? "PUT" : "POST",
   });
 
+  const handleFileChange = useHandleFileChange({ setError, setValue, watchedImages });
+
   // Form submission handler
-  const onSubmit = (data) => {
-    setIsSubmitting(true);
-    setSubmitError("");
+  const onSubmit = useCallback(
+    (data) => {
+      console.log("=== FORM SUBMISSION STARTED ===");
+      console.log("Data received in onSubmit: ", data);
+      console.log("Errors object: ", errors);
 
-    // Format dates to ISO strings for API
-    const formatDateForApi = (dateValue) => {
-      if (!dateValue) return "";
+      setIsSubmitting(true);
+      setSubmitError("");
 
-      // If dateValue is already a date object (react-hook-form might convert it)
-      if (dateValue instanceof Date) {
-        // Format to YYYY-MM-DD
-        const year = dateValue.getFullYear();
-        const month = String(dateValue.getMonth() + 1).padStart(2, "0");
-        const day = String(dateValue.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}T00:00:00Z`;
-      }
+      console.log("[Submit] Form data received by onSubmit:", data);
 
-      // If dateValue is a string, ensure it's in the right format
-      if (typeof dateValue === "string") {
-        // If it already contains time information, strip it
-        const datePart = dateValue.split("T")[0];
-        // Ensure the string is in YYYY-MM-DD format
-        if (/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
-          return `${datePart}T00:00:00Z`;
+      // Process data for API submission
+      // 'data' should now contain the correct IDs for dropdown fields from react-hook-form state
+      const processedData = {
+        artikel: data.artikel,
+        nama: data.nama,
+        deskripsi: data.deskripsi,
+        warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna, // Assuming 'warna' in form state is array of IDs
+        size: data.size,
+        grup: data.grup, // Should be ID string e.g., "1"
+        unit: data.unit, // Should be ID string
+        kat: data.kat, // Should be ID string
+        model: data.model,
+        gender: data.gender, // Should be ID string
+        tipe: data.tipe, // Should be ID string
+        harga: Number(data.harga),
+        harga_diskon: Number(data.harga_diskon),
+        marketplace: formatMarketplace(data.marketplace),
+        tanggal_produk: formatDateForApi(data.tanggal_produk),
+        tanggal_terima: formatDateForApi(data.tanggal_terima),
+        status: data.status ? data.status.toLowerCase() : "", // Ensure lowercase for API
+        supplier: data.supplier,
+        diupdate_oleh: data.diupdate_oleh,
+        ...parseGambar(data.gambar),
+      };
+
+      console.log("[Submit] Processed data (to be sent to API):", processedData);
+
+      let submissionData;
+
+      if (isEdit) {
+        // For PUT (update), send JSON
+        const marketplaceObject = {};
+        if (Array.isArray(data.marketplace)) {
+          data.marketplace.forEach((item) => {
+            if (item.key && item.value) {
+              marketplaceObject[item.key] = item.value;
+            }
+          });
         }
+        const { gambar: _gambar, ...jsonData } = {
+          ...data,
+          size: Array.isArray(data.size) ? data.size.join(", ") : data.size,
+          warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna,
+          marketplace: marketplaceObject,
+        };
+        submissionData = jsonData;
       }
 
-      // Fallback - attempt to create a new date and format it
-      try {
-        const date = new Date(dateValue);
-        if (!isNaN(date.getTime())) {
-          // Check if date is valid
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
-          return `${year}-${month}-${day}T00:00:00Z`;
-        }
-      } catch (e) {
-        console.error("Error formatting date:", e);
-      }
+      const formData = new FormData();
+      Object.keys(processedData).forEach((key) => {
+        formData.append(key, processedData[key]);
+      });
 
-      return ""; // Return empty string if all else fails
-    };
+      console.log("=== SUBMITTING TO API ===");
+      console.log("Form data: ", formData);
 
-    console.log("[Submit] Form data received by onSubmit:", data);
-
-    // Process data for API submission
-    // 'data' should now contain the correct IDs for dropdown fields from react-hook-form state
-    const processedData = {
-      artikel: data.artikel,
-      warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna, // Assuming 'warna' in form state is array of IDs
-      size: data.size,
-      grup: data.grup, // Should be ID string e.g., "1"
-      unit: data.unit, // Should be ID string
-      kat: data.kat, // Should be ID string
-      model: data.model,
-      gender: data.gender, // Should be ID string
-      tipe: data.tipe, // Should be ID string
-      harga: Number(data.harga),
-      tanggal_produk: formatDateForApi(data.tanggal_produk),
-      tanggal_terima: formatDateForApi(data.tanggal_terima),
-      status: data.status ? data.status.toLowerCase() : "", // Ensure lowercase for API
-      supplier: data.supplier,
-      diupdate_oleh: data.diupdate_oleh,
-    };
-
-    console.log("[Submit] Processed data (to be sent to API):", processedData);
-
-    mutate(processedData, {
-      onSuccess: () => {
-        alert(`${isEdit ? "Updated" : "Added"} product successfully!`);
-        navigate("/master-product");
-      },
-      onError: (error) => {
-        console.error("Error submitting form:", error);
-        setSubmitError(error.response.data.error || "Failed to save product. Please try again.");
-      },
-      onSettled: () => {
-        setIsSubmitting(false);
-      },
-    });
-  };
+      mutate(formData, {
+        onSuccess: () => {
+          console.log("=== SUBMISSION SUCCESS ===");
+          alert(`${isEdit ? "Updated" : "Added"} product successfully!`);
+          navigate("/master-product");
+        },
+        onError: (error) => {
+          console.error("=== SUBMISSION ERROR ===", error);
+          setSubmitError(error.response?.data?.error || "Failed to save product.");
+        },
+        onSettled: () => {
+          console.log("=== SUBMISSION SETTLED ===");
+          setIsSubmitting(false);
+        },
+      });
+    },
+    [mutate, isEdit, navigate, errors]
+  );
 
   // Handle color selection modal
   const openColorModal = () => {
@@ -358,21 +313,8 @@ export default function AddEditProduct() {
     closeColorModal();
   };
 
-  // Get color info by ID
-  const getColorById = (colorId) => {
-    return colors.find((color) => color.id === parseInt(colorId));
-  };
-
   // Show loading state when fetching necessary data
-  if (
-    (isEdit && isLoading) ||
-    isLoadingColors ||
-    isLoadingGrups ||
-    isLoadingUnits ||
-    isLoadingKats ||
-    isLoadingGenders ||
-    isLoadingTipes
-  ) {
+  if ((isEdit && isLoading) || isOptionsLoading) {
     return (
       <div className="flex min-h-screen bg-gray-100">
         <SidebarDashboard />
@@ -412,9 +354,22 @@ export default function AddEditProduct() {
         {submitError && (
           <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">{submitError}</div>
         )}
+        {errors && Object.keys(errors).length > 0 && (
+          <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+            {Object.keys(errors).map((key) => (
+              <p key={key} className="text-sm text-red-600">
+                {errors[key].message}
+              </p>
+            ))}
+          </div>
+        )}
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            console.log("=== FORM onSubmit EVENT TRIGGERED ===");
+            console.log("Form submission event: ", e);
+            return handleSubmit(onSubmit)(e);
+          }}
           className="grid grid-cols-1 gap-4 rounded bg-white p-6 shadow md:grid-cols-2"
         >
           {/* Artikel */}
@@ -440,6 +395,50 @@ export default function AddEditProduct() {
             {errors.artikel && <p className="mt-1 text-sm text-red-600">{errors.artikel.message}</p>}
           </div>
 
+          {/* Nama */}
+          <div className="flex flex-col">
+            <label htmlFor="nama" className="mb-1 text-sm font-medium text-gray-700">
+              Nama
+            </label>
+            <Controller
+              name="nama"
+              control={control}
+              render={({ field }) => (
+                <input
+                  {...field}
+                  type="text"
+                  id="nama"
+                  className={`border ${
+                    errors.nama ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.nama && <p className="mt-1 text-sm text-red-600">{errors.nama.message}</p>}
+          </div>
+
+          {/* Deskripsi */}
+          <div className="flex flex-col">
+            <label htmlFor="deskripsi" className="mb-1 text-sm font-medium text-gray-700">
+              Deskripsi
+            </label>
+            <Controller
+              name="deskripsi"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  {...field}
+                  id="deskripsi"
+                  rows="3"
+                  className={`border ${
+                    errors.deskripsi ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.deskripsi && <p className="mt-1 text-sm text-red-600">{errors.deskripsi.message}</p>}
+          </div>
+
           {/* Warna */}
           <div className="flex flex-col">
             <label className="mb-1 text-sm font-medium text-gray-700">Warna</label>
@@ -450,9 +449,7 @@ export default function AddEditProduct() {
               {selectedColors.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {selectedColors.map((colorId) => {
-                    const color = getColorById(colorId);
-                    console.log("Colors: ", colors);
-                    console.log("Color: ", color);
+                    const color = getColorById(colors, colorId);
 
                     return color ? (
                       <div key={color.id} className="flex items-center">
@@ -518,7 +515,7 @@ export default function AddEditProduct() {
                       <div
                         className="h-8 w-8 rounded-sm border border-gray-300"
                         style={{
-                          backgroundColor: getColorById(selectedId)?.hex || "#FFFFFF",
+                          backgroundColor: getColorById(colors, selectedId)?.hex || "#FFFFFF",
                         }}
                       ></div>
                     )}
@@ -771,6 +768,51 @@ export default function AddEditProduct() {
             {errors.harga && <p className="mt-1 text-sm text-red-600">{errors.harga.message}</p>}
           </div>
 
+          {/* Harga Diskon */}
+          <div className="flex flex-col">
+            <label htmlFor="harga_diskon" className="mb-1 text-sm font-medium text-gray-700">
+              Harga Diskon
+            </label>
+            <Controller
+              name="harga_diskon"
+              control={control}
+              render={({ field: { onChange, value, ...field } }) => (
+                <input
+                  {...field}
+                  type="number"
+                  id="harga_diskon"
+                  value={value}
+                  onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                  step="0.1"
+                  className={`border ${
+                    errors.harga_diskon ? "border-red-300" : "border-gray-300"
+                  } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                />
+              )}
+            />
+            {errors.harga_diskon && <p className="mt-1 text-sm text-red-600">{errors.harga_diskon.message}</p>}
+          </div>
+
+          {/* Marketplace */}
+          <div className="flex flex-col md:col-span-2">
+            <label className="mb-1 text-sm font-medium text-gray-700">Marketplace</label>
+            {marketplaceFields.map((item, index) => (
+              <MarketplaceInput key={item.id} control={control} index={index} remove={removeMarketplace} />
+            ))}
+            {errors.marketplace && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.marketplace.message || errors.marketplace?.root?.message}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => appendMarketplace({ key: "", value: "" })}
+              className="mt-2 self-start rounded bg-gray-200 px-4 py-2 text-sm"
+            >
+              Add Marketplace
+            </button>
+          </div>
+
           {/* Tanggal Produk (Optional) */}
           <div className="flex flex-col">
             <label htmlFor="tanggal_produk" className="mb-1 text-sm font-medium text-gray-700">
@@ -826,9 +868,9 @@ export default function AddEditProduct() {
                   } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 >
                   <option value="">Pilih Status</option>
-                  {statuses.map((status) => (
+                  {STATUSES.map((status) => (
                     <option key={status} value={status}>
-                      {status}
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
                     </option>
                   ))}
                 </select>
@@ -881,10 +923,96 @@ export default function AddEditProduct() {
             {errors.diupdate_oleh && <p className="mt-1 text-sm text-red-600">{errors.diupdate_oleh.message}</p>}
           </div>
 
+          {/* Main Image */}
+          <div className="flex flex-col">
+            <label htmlFor="mainImage" className="mb-1 text-sm font-medium text-gray-700">
+              Main Image
+            </label>
+            <Controller
+              name="gambar[0]" // Register as the first element of the 'gambar' array
+              control={control}
+              render={({ field }) => (
+                <input
+                  accept="image/*"
+                  type="file"
+                  id="mainImage"
+                  onChange={(e) => handleFileChange(e, 0, field)} // Update form state
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              )}
+            />
+            {/* Preview using the watched value */}
+            {!isEdit && watchedImages?.[0] && (
+              <div className="mt-2">
+                <img
+                  src={URL.createObjectURL(watchedImages[0])}
+                  alt="Main preview"
+                  className="h-32 w-32 object-cover"
+                />
+              </div>
+            )}
+            {isEdit && watchedImageUrls?.[0] && (
+              <div className="mt-2">
+                <img
+                  src={`${import.meta.env.VITE_BACKEND_URL}${watchedImageUrls[0]}`}
+                  alt="Main preview"
+                  className="h-32 w-32 object-cover"
+                />
+              </div>
+            )}
+            {errors.gambar && <p className="mt-1 text-sm text-red-600">{errors.gambar.message}</p>}
+          </div>
+
+          {/* Additional Images */}
+          <div className="flex flex-col">
+            <label htmlFor="additionalImages" className="mb-1 text-sm font-medium text-gray-700">
+              Additional Images (up to 5)
+            </label>
+            <Controller
+              name="gambar" // Register the rest of the images
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="file"
+                  id="additionalImages"
+                  multiple
+                  onChange={(e) => {
+                    const newFiles = Array.from(e.target.files).slice(0, 5);
+                    // Combine main image with additional images
+                    const allFiles = [watchedImages?.[0], ...newFiles].filter(Boolean);
+                    field.onChange(allFiles);
+                  }}
+                  className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              )}
+            />
+
+            {/* Preview using the watched value, skipping the main image */}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {!isEdit &&
+                watchedImages
+                  ?.slice(1)
+                  .map((image, index) => (
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(image)}
+                      alt={`Preview ${index}`}
+                      className="h-32 w-32 object-cover"
+                    />
+                  ))}
+            </div>
+          </div>
+
           {/* Submit Button */}
           <div className="text-right md:col-span-2">
             <button
               type="submit"
+              onClick={(e) => {
+                console.log("=== SUBMIT BUTTON CLICKED ===");
+                console.log("Button event: ", e);
+                console.log("Form errors: ", errors);
+                console.log("Current form values: ", watch());
+              }}
               disabled={isSubmitting || isMutating}
               className={`${
                 isSubmitting || isMutating ? "bg-indigo-400" : "bg-indigo-600 hover:bg-indigo-700"
