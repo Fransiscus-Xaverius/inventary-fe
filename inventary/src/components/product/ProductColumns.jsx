@@ -5,7 +5,7 @@ import { IconButton, Tooltip, Box, CircularProgress, Chip } from "@mui/material"
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StarIcon from "@mui/icons-material/Star";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useApiRequest from "../../hooks/useApiRequest";
 import { useNotification } from "../../hooks/useNotification";
 import { useState } from "react";
@@ -108,7 +108,6 @@ export const createProductColumns = (filterOptions, refetch) => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
       sortable: false,
       filterable: false,
       disableColumnMenu: true,
@@ -179,7 +178,7 @@ export const createProductColumns = (filterOptions, refetch) => {
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "start",
+                  justifyContent: "center",
                   alignItems: "center",
                   gap: 1,
                   height: "100%",
@@ -235,6 +234,21 @@ export const createProductColumns = (filterOptions, refetch) => {
       },
     },
     {
+      field: "image_preview",
+      headerName: "Gambar",
+      renderCell: (params) => {
+        if (!params.row.gambar) return <div>No image</div>;
+        // const hostUrl = process.env.BACKEND_URL;
+        const hostUrl = "http://localhost:8080";
+        const imageUrl = `${hostUrl}${params.row.gambar[0]}`;
+        return (
+          <div className="flex h-full w-full items-center justify-center p-2">
+            <img src={imageUrl} alt="Product" className="h-full w-full rounded-md object-contain" />
+          </div>
+        );
+      },
+    },
+    {
       field: "no",
       headerName: "ID",
       width: 90,
@@ -273,8 +287,8 @@ export const createProductColumns = (filterOptions, refetch) => {
     {
       field: "deskripsi",
       headerName: "Deskripsi",
-      width: 300,
       filterable: true,
+      width: 300,
       filterOperators: createFilterOperators("deskripsi"),
     },
     {
@@ -358,14 +372,16 @@ export const createProductColumns = (filterOptions, refetch) => {
     {
       field: "marketplace",
       headerName: "Marketplace",
-      width: 200,
+      width: 400,
       filterable: true,
       filterOperators: createFilterOperators("marketplace"),
       renderCell: (params) => {
         return (
-          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <Box sx={{ display: "flex", height: "100%", gap: 1, alignItems: "center", alignContent: "center" }}>
             {Object.keys(params.row.marketplace).map((key) => (
-              <Chip key={key} label={key} color="primary" variant="outlined" size="small" />
+              <Link key={key} to={params.row.marketplace[key]} target="_blank" rel="noopener noreferrer">
+                <Chip label={key} color="primary" variant="outlined" size="small" />
+              </Link>
             ))}
           </Box>
         );
