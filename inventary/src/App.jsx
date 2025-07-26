@@ -16,7 +16,7 @@ import theme from "../theme";
 // Lazy load components
 const MasterColor = lazy(() => import("./pages/MasterColor"));
 const MasterProduct = lazy(() => import("./pages/MasterProduct"));
-const AddEditProduct = lazy(() => import("./pages/MasterProduct/AddEditProduct"));
+const AddEditProduct = lazy(() => import("./pages/MasterProduct/AddEditProduct/AddEditProductPage"));
 const MasterGrup = lazy(() => import("./pages/MasterGrup"));
 const MasterKat = lazy(() => import("./pages/MasterKat"));
 const MasterUnit = lazy(() => import("./pages/MasterUnit"));
