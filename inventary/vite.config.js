@@ -19,5 +19,10 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    test: {
+      environment: "jsdom",
+      setupFiles: [],
+      // coverage reporting can be added later when vitest 3 is adopted
+    },
   };
 });

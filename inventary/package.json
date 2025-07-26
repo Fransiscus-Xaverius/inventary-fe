@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest"
   },
   "husky": {
     "hooks": {
@@ -39,7 +40,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
-    "react-router-dom": "^7.5.3"
+    "react-router-dom": "^7.5.3",
+    "notistack": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -57,6 +59,10 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.4.1",
+    "vitest": "^1.5.3",
+    "jsdom": "^24.0.0"
   }
 }
