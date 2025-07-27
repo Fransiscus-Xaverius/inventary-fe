@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
+
 import SidebarDashboard from "../../../components/SidebarDashboard";
-import AddEditProductForm from "./AddEditProductForm";
+import AddEditProductForm from "./components/AddEditProductForm";
 
 /**
  * Page shell for Add/Edit Product functionality.

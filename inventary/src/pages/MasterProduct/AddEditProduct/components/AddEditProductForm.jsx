@@ -1,7 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
+import { enqueueSnackbar } from "notistack";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
-import { Grid, CircularProgress, Box, Typography } from "@mui/material";
+import { CircularProgress, Box, Typography } from "@mui/material";
 
 // New modular components
 import ColorPickerModal from "./components/ColorPickerModal";
@@ -147,6 +148,12 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
     }
   }, [isEdit, artikel, setValue]);
 
+  useEffect(() => {
+    if (mutationError) {
+      enqueueSnackbar(mutationError.message, { variant: "error" });
+    }
+  }, [mutationError]);
+
   // Form submission handler
   const onSubmit = (data) => {
     // Process data for API submission
@@ -204,6 +211,10 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
     submit(submissionData, {
       onSuccess: () => {
         onSuccess?.();
+      },
+      onError: (error) => {
+        console.error(error);
+        enqueueSnackbar("Gagal menyimpan data", { variant: "error" });
       },
     });
   };
