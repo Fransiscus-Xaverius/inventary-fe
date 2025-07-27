@@ -1,12 +1,12 @@
+import { useContext } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 
-import { useAuth } from "../hooks/useAuth";
-
 import SidebarDashboard from "../components/SidebarDashboard";
+import { AuthContext } from "../App";
 
 export default function MainLayout() {
-  const auth = useAuth();
+  const auth = useContext(AuthContext);
 
   if (auth.isLoading) {
     return (

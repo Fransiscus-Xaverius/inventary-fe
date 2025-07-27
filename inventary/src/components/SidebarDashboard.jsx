@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { NavLink } from "react-router-dom";
+import { Button } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import ColorLensIcon from "@mui/icons-material/ColorLens";
@@ -7,9 +9,13 @@ import CategoryIcon from "@mui/icons-material/Category";
 import BuildIcon from "@mui/icons-material/Build";
 import ImageIcon from "@mui/icons-material/Image";
 
+import { AuthContext } from "../App";
+
 export default function SidebarDashboard() {
+  const { logout } = useContext(AuthContext);
+
   return (
-    <div className="h-full bg-gray-800 p-4 text-white">
+    <div className="flex h-full flex-col bg-gray-800 p-4 text-white">
       <h2 className="mb-6 text-xl font-semibold">Admin Dashboard</h2>
       <ul className="space-y-2">
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
@@ -57,6 +63,16 @@ export default function SidebarDashboard() {
           </NavLink>
         </li>
       </ul>
+
+      <div className="mt-auto">
+        <Button
+          variant="contained"
+          onClick={() => logout()}
+          sx={{ width: "100%", mb: 2, mt: 2, backgroundColor: "#f44336" }}
+        >
+          Logout
+        </Button>
+      </div>
     </div>
   );
 }

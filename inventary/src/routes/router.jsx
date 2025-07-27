@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 // Layouts
 import MainLayout from "../layouts/MainLayout";
+import AuthLayout from "../layouts/AuthLayout";
 import LoadingFallback from "../components/LoadingFallback";
 
 // Pages - Lazy load components
@@ -21,15 +22,21 @@ const MasterTipe = lazy(() => import("../pages/MasterTipe"));
 const MasterBanner = lazy(() => import("../pages/MasterBanner"));
 
 export const router = createBrowserRouter([
-  // <Route path="/login" element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />} />
-  // <Route path="/register" element={auth.isAuthenticated ? <Navigate to="/" /> : <Register />} />
   {
     path: "/login",
-    element: <Login />,
+    element: (
+      <AuthLayout>
+        <Login />
+      </AuthLayout>
+    ),
   },
   {
     path: "/register",
-    element: <Register />,
+    element: (
+      <AuthLayout>
+        <Register />
+      </AuthLayout>
+    ),
   },
 
   {
