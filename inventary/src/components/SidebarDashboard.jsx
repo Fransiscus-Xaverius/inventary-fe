@@ -1,52 +1,59 @@
 import { NavLink } from "react-router-dom";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import ColorLensIcon from "@mui/icons-material/ColorLens";
+import GroupIcon from "@mui/icons-material/Group";
+import CategoryIcon from "@mui/icons-material/Category";
+import BuildIcon from "@mui/icons-material/Build";
+import ImageIcon from "@mui/icons-material/Image";
 
 export default function SidebarDashboard() {
   return (
-    <div className="w-1/5 bg-gray-800 p-4 text-white">
-      <h2 className="mb-6 text-xl font-semibold">Dashboard</h2>
+    <div className="h-full bg-gray-800 p-4 text-white">
+      <h2 className="mb-6 text-xl font-semibold">Admin Dashboard</h2>
       <ul className="space-y-2">
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/" className="w-full text-white">
-            Dashboard
+            <DashboardIcon sx={{ mr: 1 }} /> Dashboard
           </NavLink>
         </li>
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-product" className="w-full text-white">
-            Master Products
+            <Inventory2Icon sx={{ mr: 1 }} /> Master Products
           </NavLink>
         </li>
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-color" className="w-full text-white">
-            Master Color
+            <ColorLensIcon sx={{ mr: 1 }} /> Master Color
           </NavLink>
         </li>
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-grup" className="w-full text-white">
-            Master Grup
+            <GroupIcon sx={{ mr: 1 }} /> Master Grup
           </NavLink>
         </li>
 
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-kat" className="w-full text-white">
-            Master Kat
+            <CategoryIcon sx={{ mr: 1 }} /> Master Kat
           </NavLink>
         </li>
 
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-unit" className="w-full text-white">
-            Master Unit
+            <BuildIcon sx={{ mr: 1 }} /> Master Unit
           </NavLink>
         </li>
 
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-tipe" className="w-full text-white">
-            Master Tipe
+            <BuildIcon sx={{ mr: 1 }} /> Master Tipe
           </NavLink>
         </li>
 
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-banner" className="w-full text-white">
-            Master Banner
+            <ImageIcon sx={{ mr: 1 }} /> Master Banner
           </NavLink>
         </li>
       </ul>

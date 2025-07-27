@@ -1,27 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createContext } from "react";
+import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createContext, Suspense, lazy } from "react";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import { useAuth } from "./hooks/useAuth";
-import "./App.css";
-import { CircularProgress } from "@mui/material";
-import { NotificationProvider } from "./contexts/NotificationContext";
-import NotificationContainer from "./components/NotificationSystem/NotificationContainer";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import theme from "../theme";
 
-// Lazy load components
-const MasterColor = lazy(() => import("./pages/MasterColor"));
-const MasterProduct = lazy(() => import("./pages/MasterProduct"));
-const AddEditProduct = lazy(() => import("./pages/MasterProduct/AddEditProduct/AddEditProductPage"));
-const MasterGrup = lazy(() => import("./pages/MasterGrup"));
-const MasterKat = lazy(() => import("./pages/MasterKat"));
-const MasterUnit = lazy(() => import("./pages/MasterUnit"));
-const MasterTipe = lazy(() => import("./pages/MasterTipe"));
-const MasterBanner = lazy(() => import("./pages/MasterBanner"));
+import { NotificationProvider } from "./contexts/NotificationContext";
+import NotificationContainer from "./components/NotificationSystem/NotificationContainer";
+import { useAuth } from "./hooks/useAuth";
+import { router } from "./routes/router";
+
+import "./App.css";
+import theme from "../theme";
 
 // Create auth context
 export const AuthContext = createContext(null);
@@ -37,32 +26,8 @@ const queryClient = new QueryClient({
   },
 });
 
-// Loading fallback component
-const LoadingFallback = () => (
-  <div className="flex h-screen w-screen items-center justify-center">
-    <CircularProgress />
-  </div>
-);
-
 function App() {
   const auth = useAuth();
-
-  // Protected route component
-  const ProtectedRoute = ({ children }) => {
-    if (auth.isLoading) {
-      return (
-        <div className="flex min-h-screen flex-col items-center justify-center">
-          <p>Loading...</p>
-        </div>
-      );
-    }
-
-    if (!auth.isAuthenticated) {
-      return <Navigate to="/login" />;
-    }
-
-    return children;
-  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -70,96 +35,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={auth}>
           <NotificationProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/login" element={auth.isAuthenticated ? <Navigate to="/" /> : <Login />} />
-                <Route path="/register" element={auth.isAuthenticated ? <Navigate to="/" /> : <Register />} />
-                <Route
-                  path="/"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-product"
-                  element={
-                    <ProtectedRoute>
-                      <MasterProduct />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/addEdit-product"
-                  element={
-                    <ProtectedRoute>
-                      <AddEditProduct />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/addEdit-product/:artikel"
-                  element={
-                    <ProtectedRoute>
-                      <AddEditProduct />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-color"
-                  element={
-                    <ProtectedRoute>
-                      <Suspense fallback={<LoadingFallback />}>
-                        <MasterColor />
-                      </Suspense>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-grup"
-                  element={
-                    <ProtectedRoute>
-                      <MasterGrup />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-kat"
-                  element={
-                    <ProtectedRoute>
-                      <MasterKat />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-unit"
-                  element={
-                    <ProtectedRoute>
-                      <MasterUnit />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-tipe"
-                  element={
-                    <ProtectedRoute>
-                      <MasterTipe />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/master-banner"
-                  element={
-                    <ProtectedRoute>
-                      <Suspense fallback={<LoadingFallback />}>
-                        <MasterBanner />
-                      </Suspense>
-                    </ProtectedRoute>
-                  }
-                />
-              </Routes>
-            </BrowserRouter>
+            <RouterProvider router={router} />
             <NotificationContainer />
           </NotificationProvider>
         </AuthContext.Provider>

@@ -5,19 +5,19 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { CircularProgress, Box, Typography } from "@mui/material";
 
 // New modular components
-import ColorPickerModal from "./components/ColorPickerModal";
-import ImageInput from "./components/ImageInput";
-import MarketplaceInput from "./components/MarketplaceInput";
+import ColorPickerModal from "../components/ColorPickerModal";
+import ImageInput from "../components/ImageInput";
+import MarketplaceInput from "../components/MarketplaceInput";
 
 // New hooks
-import useMasterOptions from "./hooks/useMasterOptions";
-import useProductQuery from "./hooks/useProductQuery";
-import useProductMutation from "./hooks/useProductMutation";
-import useFileUpload from "./hooks/useFileUpload";
+import useMasterOptions from "../hooks/useMasterOptions";
+import useProductQuery from "../hooks/useProductQuery";
+import useProductMutation from "../hooks/useProductMutation";
+import useFileUpload from "../hooks/useFileUpload";
 
 // Helpers and validation
-import { formatDateForApi, formatMarketplace, parseGambar, getColorById, STATUSES } from "./helpers";
-import { createProductSchema } from "./validation";
+import { formatDateForApi, formatMarketplace, parseGambar, getColorById, STATUSES } from "../helpers";
+import { createProductSchema } from "../validation";
 
 export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
   // State for color picker modal

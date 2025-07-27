@@ -10,18 +10,22 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import useApiRequest from "../../hooks/useApiRequest";
 import useProductPagination from "../../hooks/useProductPagination";
 import useProductSearch from "../../hooks/useProductSearch";
 import useProductSorting from "../../hooks/useProductSorting";
+import { useNotification } from "../../hooks/useNotification";
+
+import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 import SidebarDashboard from "../../components/SidebarDashboard";
 import DataGridComponent from "../../components/ui/DataGrid";
-import { formatDate } from "../../utils/formatters";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
-import { useNotification } from "../../hooks/useNotification";
+
 import AddEditBannerModal from "./AddEditBannerModal";
+
+import { formatDate } from "../../utils/formatters";
 
 export default function MasterBanner() {
   const [searchInputValue, setSearchInputValue] = useState("");
@@ -323,99 +327,95 @@ export default function MasterBanner() {
   }
 
   return (
-    <Box className="flex h-screen w-screen">
-      <SidebarDashboard />
+    <Box className="flex h-full flex-grow flex-col overflow-auto p-6">
+      <Box className="mb-4 flex">
+        <Typography variant="h1" gutterBottom fontWeight={600} sx={{ fontSize: "2rem" }}>
+          Master Banners
+        </Typography>
+      </Box>
 
-      <Box className="flex h-full flex-grow flex-col overflow-hidden p-4">
-        <Box className="mb-4 flex">
-          <Typography variant="h4" gutterBottom fontWeight={600}>
-            Master Banners
-          </Typography>
-        </Box>
-
-        <Box className="mb-4 flex items-center justify-between">
-          <button
-            className="rounded bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
-            onClick={handleAddBanner}
-          >
-            Add Banner
-          </button>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={showActiveOnly}
-                onChange={(e) => setShowActiveOnly(e.target.checked)}
-                name="showActiveOnly"
-                color="primary"
-              />
-            }
-            label="Hanya tampilkan yang aktif"
-          />
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "end",
-            gap: 2,
-            my: 1,
-            px: 1,
-          }}
+      <Box className="mb-4 flex items-center justify-between">
+        <button
+          className="rounded bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
+          onClick={handleAddBanner}
         >
-          <TextField
-            className="mt-4 w-full max-w-md"
-            label="Search Banners"
-            variant="outlined"
-            fullWidth
-            size="small"
-            value={searchInputValue}
-            onChange={(e) => setSearchInputValue(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            placeholder="Search by title, subtitle, description..."
-          />
-        </Box>
-
-        <Box className="w-full flex-grow overflow-auto">
-          <DataGridComponent
-            rows={rows}
-            rowCount={rowCount}
-            loading={isLoading}
-            columns={columns}
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationModelChange}
-            sortModel={sortModel}
-            onSortModelChange={handleSortModelChange}
-          />
-        </Box>
-
-        {/* Delete confirmation modal */}
-        <DeleteConfirmationModal
-          open={deleteDialog.open}
-          onClose={closeDeleteDialog}
-          onConfirm={handleDeleteConfirm}
-          title="Delete Banner"
-          message="Are you sure you want to delete this banner?"
-          itemName={deleteDialog.item?.title}
-          isLoading={isDeleting || isDeleteLoading}
-        />
-
-        {/* Add/Edit banner modal */}
-        <AddEditBannerModal
-          open={bannerModal.open}
-          onClose={handleCloseBannerModal}
-          bannerId={bannerModal.bannerId}
-          onSuccess={handleBannerSaveSuccess}
+          Add Banner
+        </button>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showActiveOnly}
+              onChange={(e) => setShowActiveOnly(e.target.checked)}
+              name="showActiveOnly"
+              color="primary"
+            />
+          }
+          label="Hanya tampilkan yang aktif"
         />
       </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "end",
+          gap: 2,
+          my: 1,
+          px: 1,
+        }}
+      >
+        <TextField
+          className="mt-4 w-full max-w-md"
+          label="Search Banners"
+          variant="outlined"
+          fullWidth
+          size="small"
+          value={searchInputValue}
+          onChange={(e) => setSearchInputValue(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          placeholder="Search by title, subtitle, description..."
+        />
+      </Box>
+
+      <Box className="w-full flex-grow overflow-auto">
+        <DataGridComponent
+          rows={rows}
+          rowCount={rowCount}
+          loading={isLoading}
+          columns={columns}
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationModelChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortModelChange}
+        />
+      </Box>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={deleteDialog.open}
+        onClose={closeDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Banner"
+        message="Are you sure you want to delete this banner?"
+        itemName={deleteDialog.item?.title}
+        isLoading={isDeleting || isDeleteLoading}
+      />
+
+      {/* Add/Edit banner modal */}
+      <AddEditBannerModal
+        open={bannerModal.open}
+        onClose={handleCloseBannerModal}
+        bannerId={bannerModal.bannerId}
+        onSuccess={handleBannerSaveSuccess}
+      />
     </Box>
   );
 }
