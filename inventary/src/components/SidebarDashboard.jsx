@@ -9,7 +9,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import BuildIcon from "@mui/icons-material/Build";
 import ImageIcon from "@mui/icons-material/Image";
 
-import { AuthContext } from "../App";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function SidebarDashboard() {
   const { logout } = useContext(AuthContext);

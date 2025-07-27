@@ -1,7 +1,9 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import AnimatedLogo from "../components/AnimatedLogo";
-import { AuthContext } from "../App";
+
+import { AuthContext } from "../contexts/AuthContext";
 
 function Login() {
   const [username, setUsername] = useState("");

@@ -3,7 +3,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 
 import SidebarDashboard from "../components/SidebarDashboard";
-import { AuthContext } from "../App";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function MainLayout() {
   const auth = useContext(AuthContext);

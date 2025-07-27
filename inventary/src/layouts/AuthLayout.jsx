@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 
-import { AuthContext } from "../App";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function AuthLayout({ children }) {
   const { isAuthenticated } = useContext(AuthContext);
