@@ -299,7 +299,7 @@ export default function MasterColor() {
         />
       </Box>
 
-      <Box className="w-full flex-grow overflow-auto">
+      <Box className="w-full overflow-auto">
         <DataGridComponent
           rows={rows}
           rowCount={rowCount}
