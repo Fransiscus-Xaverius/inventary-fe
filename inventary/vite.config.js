@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       environment: "jsdom",
-      setupFiles: [],
+      globals: true,
+      setupFiles: ["@testing-library/jest-dom"],
       // coverage reporting can be added later when vitest 3 is adopted
     },
   };

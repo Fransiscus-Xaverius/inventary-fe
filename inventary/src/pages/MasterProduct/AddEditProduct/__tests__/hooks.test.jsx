@@ -1,6 +1,6 @@
 import { renderHook } from "@testing-library/react";
 import { SnackbarProvider } from "notistack";
-import { vi, describe, it, expect } from "vitest";
+import { vi, describe, it } from "vitest";
 import * as api from "../../../../hooks/useApiRequest";
 
 // Mock the useApiRequest hook
