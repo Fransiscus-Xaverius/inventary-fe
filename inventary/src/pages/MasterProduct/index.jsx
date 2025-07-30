@@ -401,6 +401,7 @@ export default function MasterProduct() {
           sortModel={sortModel}
           onSortModelChange={handleSortModelChange}
           // Styling
+          rowHeight={100}
           sx={{
             boxShadow: 1,
             border: 1,

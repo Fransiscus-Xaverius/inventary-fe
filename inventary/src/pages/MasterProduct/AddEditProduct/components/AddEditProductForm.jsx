@@ -10,6 +10,7 @@ import ColorPickerModal from "../components/ColorPickerModal";
 import MainImageInput from "../components/MainImageInput";
 import AdditionalImagesInput from "../components/AdditionalImagesInput";
 import MarketplaceInput from "../components/MarketplaceInput";
+import RatingInput from "../../../../components/product/RatingInput";
 
 // New hooks
 import useMasterOptions from "../hooks/useMasterOptions";
@@ -589,7 +590,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Marketplace */}
         <div className="flex flex-col md:col-span-2">
-          <label className="mb-1 text-sm font-medium text-gray-700">Marketplace</label>
+          <label className="text-md mb-1 font-medium text-gray-700">Marketplace</label>
           {marketplaceFields.map((item, index) => (
             <MarketplaceInput key={item.id} control={control} index={index} remove={removeMarketplace} />
           ))}
@@ -606,6 +607,9 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
             Add Marketplace
           </button>
         </div>
+
+        {/* Rating Input */}
+        <RatingInput control={control} errors={errors} />
 
         <Controller
           name="image_url"

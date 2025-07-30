@@ -61,7 +61,39 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
           "any.required": "Harga harus diisi",
         }),
         harga_diskon: Joi.number().positive().optional().allow(""),
-        rating: Joi.number().min(0).max(5).optional().allow(""),
+        rating: Joi.object({
+          comfort: Joi.number().integer().min(0).max(10).required().messages({
+            "number.base": "Comfort harus berupa angka",
+            "number.integer": "Comfort harus berupa bilangan bulat",
+            "number.min": "Comfort minimum 0",
+            "number.max": "Comfort maksimum 10",
+            "any.required": "Comfort harus diisi",
+          }),
+          style: Joi.number().integer().min(0).max(10).required().messages({
+            "number.base": "Style harus berupa angka",
+            "number.integer": "Style harus berupa bilangan bulat",
+            "number.min": "Style minimum 0",
+            "number.max": "Style maksimum 10",
+            "any.required": "Style harus diisi",
+          }),
+          support: Joi.number().integer().min(0).max(10).required().messages({
+            "number.base": "Support harus berupa angka",
+            "number.integer": "Support harus berupa bilangan bulat",
+            "number.min": "Support minimum 0",
+            "number.max": "Support maksimum 10",
+            "any.required": "Support harus diisi",
+          }),
+          purpose: Joi.array().items(Joi.string().trim().min(1)).required().messages({
+            "array.base": "Purpose harus berupa array",
+            "string.empty": "Purpose tidak boleh kosong",
+            "string.min": "Purpose harus memiliki minimal 1 karakter",
+            "any.required": "Purpose harus diisi",
+          }),
+        })
+          .required()
+          .messages({
+            "any.required": "Rating harus diisi",
+          }),
         marketplace: Joi.array()
           .items(
             Joi.object({
@@ -186,6 +218,12 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
       tipe: "1",
       harga: 100000,
       harga_diskon: undefined,
+      rating: {
+        comfort: 0,
+        style: 0,
+        support: 0,
+        purpose: [],
+      },
       marketplace: [
         {
           key: "tokopedia",

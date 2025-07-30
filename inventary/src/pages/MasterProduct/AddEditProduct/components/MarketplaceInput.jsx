@@ -1,6 +1,6 @@
 import { Controller } from "react-hook-form";
 
-export const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
+import { MARKETPLACE_OPTIONS } from "../helpers";
 
 export default function MarketplaceInput({ control, index, remove }) {
   return (

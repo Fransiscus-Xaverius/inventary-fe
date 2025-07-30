@@ -271,15 +271,65 @@ export const createProductColumns = (filterOptions, refetch) => {
     {
       field: "rating",
       headerName: "Rating",
-      width: 150,
+      width: 320,
       filterable: true,
       filterOperators: createFilterOperators("rating"),
       renderCell: (params) => {
+        const rating = params.row.rating;
+
+        // Handle old format or empty rating
+        if (!rating || typeof rating !== "object") {
+          return <div className="text-sm text-gray-400">No rating</div>;
+        }
+
+        const { comfort = 0, style = 0, support = 0, purpose = [] } = rating;
+
         return (
-          <Box>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <StarIcon key={index} fontSize="small" color={index < params.row.rating ? "primary" : "disabled"} />
-            ))}
+          <Box className="flex h-full flex-col justify-center gap-y-2">
+            {/* Ratings with star icons */}
+            <Box className="flex flex-wrap items-center gap-3 text-sm">
+              <Box className="flex items-center gap-1">
+                <span className="text-gray-700">Comfort:</span>
+                <span className="font-medium text-gray-900">{comfort}</span>
+                <StarIcon fontSize="inherit" color="primary" />
+              </Box>
+              <Box className="flex items-center gap-1">
+                <span className="text-gray-700">Style:</span>
+                <span className="font-medium text-gray-900">{style}</span>
+                <StarIcon fontSize="inherit" color="primary" />
+              </Box>
+              <Box className="flex items-center gap-1">
+                <span className="text-gray-700">Support:</span>
+                <span className="font-medium text-gray-900">{support}</span>
+                <StarIcon fontSize="inherit" color="primary" />
+              </Box>
+            </Box>
+            {/* Purpose categories as chips */}
+            {purpose.length > 0 && (
+              <Box className="flex flex-wrap items-center gap-1">
+                <span className="text-sm text-gray-700">Purpose:</span>
+                <Box className="flex flex-wrap items-center gap-1">
+                  {purpose
+                    .filter((p) => p && p.trim())
+                    .map((purposeItem, index) => (
+                      <Chip
+                        key={index}
+                        label={purposeItem}
+                        size="medium"
+                        variant="filled"
+                        color="primary"
+                        sx={{
+                          fontSize: "10px",
+                          height: "20px",
+                          "& .MuiChip-label": {
+                            padding: "0 6px",
+                          },
+                        }}
+                      />
+                    ))}
+                </Box>
+              </Box>
+            )}
           </Box>
         );
       },

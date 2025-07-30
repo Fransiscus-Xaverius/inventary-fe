@@ -57,6 +57,7 @@ export default function useProductMutation({ isEdit, artikel, onSuccess }) {
         tipe: data.tipe,
         harga: Number(data.harga),
         harga_diskon: Number(data.harga_diskon),
+        rating: JSON.stringify(data.rating),
         marketplace: formatMarketplace(data.marketplace),
         tanggal_produk: formatDateForApi(data.tanggal_produk),
         tanggal_terima: formatDateForApi(data.tanggal_terima),

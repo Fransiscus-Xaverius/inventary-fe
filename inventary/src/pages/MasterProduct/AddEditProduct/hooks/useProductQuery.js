@@ -45,6 +45,7 @@ export default function useProductQuery(artikel, options, setSelectedColors, res
       tipe: stringify(options.tipes.find((tipe) => tipe.value === product.tipe)?.id),
       harga: product.harga !== null ? Number(product.harga) : "",
       harga_diskon: product.harga_diskon !== null ? Number(product.harga_diskon) : "",
+      rating: product.rating || { comfort: 0, style: 0, support: 0, purpose: [] },
       marketplace: product.marketplace || [],
       image_url: product.gambar || [],
       tanggal_produk: product.tanggal_produk ? product.tanggal_produk.split("T")[0] : "",
