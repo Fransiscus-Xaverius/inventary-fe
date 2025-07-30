@@ -86,6 +86,7 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
             "any.required": "Marketplace is required.",
           }),
         gambar: Joi.array()
+          .max(10)
           .custom((value, helpers) => {
             // If not edit mode, validate that all items are File objects
             if (!isEdit) {
@@ -114,6 +115,7 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
           .messages({
             "any.required": "Gambar tidak boleh kosong",
             "array.base": "Gambar harus berupa array",
+            "array.max": "Maksimal 10 gambar yang diizinkan",
             "gambar.invalidFile": "Semua item harus berupa file yang valid",
           }),
         image_url: Joi.array()

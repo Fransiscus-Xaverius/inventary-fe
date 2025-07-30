@@ -7,14 +7,14 @@ import { CircularProgress, Box, Typography } from "@mui/material";
 
 // New modular components
 import ColorPickerModal from "../components/ColorPickerModal";
-import ImageInput from "../components/ImageInput";
+import MainImageInput from "../components/MainImageInput";
+import AdditionalImagesInput from "../components/AdditionalImagesInput";
 import MarketplaceInput from "../components/MarketplaceInput";
 
 // New hooks
 import useMasterOptions from "../hooks/useMasterOptions";
 import useProductQuery from "../hooks/useProductQuery";
 import useProductMutation from "../hooks/useProductMutation";
-import useFileUpload from "../hooks/useFileUpload";
 
 // Helpers and validation
 import { getColorById, STATUSES } from "../helpers";
@@ -86,8 +86,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
     }
   }, [mutationError]);
 
-  // File upload handler
-  const handleFileChange = useFileUpload({ setError, setValue, watchedImages });
+  // File upload is now handled directly in the image components
 
   // Color picker handlers
   const openColorModal = useCallback(() => {
@@ -615,28 +614,30 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
         />
 
         {/* Main Image */}
-        <ImageInput
-          control={control}
-          name="gambar[0]"
-          label="Main Image"
-          isEdit={isEdit}
-          onFileChange={handleFileChange}
-          watchedImages={watchedImages}
-          watchedImageUrls={watchedImageUrls}
-          errors={errors}
-        />
+        <div className="md:col-span-1">
+          <MainImageInput
+            control={control}
+            setValue={setValue}
+            setError={setError}
+            watchedImages={watchedImages}
+            watchedImageUrls={watchedImageUrls}
+            isEdit={isEdit}
+            errors={errors}
+          />
+        </div>
 
         {/* Additional Images */}
-        <ImageInput
-          control={control}
-          name="gambar"
-          label="Additional Images (up to 5)"
-          isEdit={isEdit}
-          multiple
-          watchedImages={watchedImages}
-          watchedImageUrls={watchedImageUrls}
-          errors={errors}
-        />
+        <div className="md:col-span-2">
+          <AdditionalImagesInput
+            control={control}
+            setValue={setValue}
+            setError={setError}
+            watchedImages={watchedImages}
+            watchedImageUrls={watchedImageUrls}
+            isEdit={isEdit}
+            errors={errors}
+          />
+        </div>
 
         {/* Submit Button */}
         <div className="text-right md:col-span-2">
