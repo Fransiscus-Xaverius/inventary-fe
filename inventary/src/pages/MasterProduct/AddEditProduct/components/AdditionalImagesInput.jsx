@@ -114,7 +114,7 @@ export default function AdditionalImagesInput({
   const slotsToShow = Math.min(actualAdditionalImageCount + 1, maxSlots);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex w-fit flex-col">
       <label className="mb-2 text-sm font-medium text-gray-700">Additional Images (up to 9)</label>
 
       <div className="grid grid-cols-3 gap-4 md:grid-cols-4 lg:grid-cols-5">

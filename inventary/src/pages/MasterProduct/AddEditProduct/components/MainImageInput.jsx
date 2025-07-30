@@ -99,7 +99,7 @@ export default function MainImageInput({
   const hasImage = getImagePreview();
 
   return (
-    <div className="flex flex-col">
+    <div className="flex w-fit flex-col">
       <label className="mb-2 text-sm font-medium text-gray-700">Main Image *</label>
 
       <Controller
@@ -122,7 +122,7 @@ export default function MainImageInput({
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`flex h-48 w-48 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-indigo-400 hover:bg-gray-100 ${isDragOver ? "border-indigo-500 bg-indigo-50" : ""} `}
+                className={`flex h-48 w-48 cursor-pointer flex-col items-center justify-center gap-y-3 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-indigo-400 hover:bg-gray-100 ${isDragOver ? "border-indigo-500 bg-indigo-50" : ""} `}
               >
                 <svg className="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                   <path
@@ -132,7 +132,7 @@ export default function MainImageInput({
                     strokeLinejoin="round"
                   />
                 </svg>
-                <p className="mt-2 text-sm text-gray-600">Click to select or drag image here</p>
+                <p className="text-center text-sm text-gray-600">Click to select or drag image here</p>
                 <p className="text-xs text-gray-400">PNG, JPG up to 20MB</p>
               </div>
             ) : (

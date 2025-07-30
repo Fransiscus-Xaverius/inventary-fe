@@ -139,10 +139,10 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-x-5 gap-y-8 md:grid-cols-2">
         {/* Artikel */}
         <div className="flex flex-col">
-          <label htmlFor="artikel" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="artikel" className="text-md mb-1 font-medium text-gray-700">
             Artikel
           </label>
           <Controller
@@ -156,7 +156,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 readOnly={isEdit}
                 className={`border ${
                   errors.artikel ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -165,7 +165,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Nama */}
         <div className="flex flex-col">
-          <label htmlFor="nama" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="nama" className="text-md mb-1 font-medium text-gray-700">
             Nama
           </label>
           <Controller
@@ -178,7 +178,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="nama"
                 className={`border ${
                   errors.nama ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -187,7 +187,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Deskripsi */}
         <div className="flex flex-col">
-          <label htmlFor="deskripsi" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="deskripsi" className="text-md mb-1 font-medium text-gray-700">
             Deskripsi
           </label>
           <Controller
@@ -200,7 +200,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 rows="3"
                 className={`border ${
                   errors.deskripsi ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -244,7 +244,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Size */}
         <div className="flex flex-col">
-          <label htmlFor="size" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="size" className="text-md mb-1 font-medium text-gray-700">
             Size (Comma-separated, e.g. 30,32-38,42)
           </label>
           <Controller
@@ -258,7 +258,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 placeholder="30,32-38,42"
                 className={`border ${
                   errors.size ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -267,7 +267,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Grup */}
         <div className="flex flex-col">
-          <label htmlFor="grup" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="grup" className="text-md mb-1 font-medium text-gray-700">
             Grup
           </label>
           <Controller
@@ -279,7 +279,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="grup"
                 className={`border ${
                   errors.grup ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               >
                 <option value="">Pilih Grup</option>
                 {options.grups.map((grup) => (
@@ -295,7 +295,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Unit */}
         <div className="flex flex-col">
-          <label htmlFor="unit" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="unit" className="text-md mb-1 font-medium text-gray-700">
             Unit
           </label>
           <Controller
@@ -307,7 +307,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="unit"
                 className={`border ${
                   errors.unit ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               >
                 <option value="">Pilih Unit</option>
                 {options.units.map((unit) => (
@@ -323,7 +323,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Kategori */}
         <div className="flex flex-col">
-          <label htmlFor="kat" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="kat" className="text-md mb-1 font-medium text-gray-700">
             Kategori
           </label>
           <Controller
@@ -335,7 +335,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="kat"
                 className={`border ${
                   errors.kat ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               >
                 <option value="">Pilih Kategori</option>
                 {options.kats.map((kat) => (
@@ -351,7 +351,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Model */}
         <div className="flex flex-col">
-          <label htmlFor="model" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="model" className="text-md mb-1 font-medium text-gray-700">
             Model
           </label>
           <Controller
@@ -364,7 +364,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="model"
                 className={`border ${
                   errors.model ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -373,7 +373,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Gender */}
         <div className="flex flex-col">
-          <label htmlFor="gender" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="gender" className="text-md mb-1 font-medium text-gray-700">
             Gender
           </label>
           <Controller
@@ -385,7 +385,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="gender"
                 className={`border ${
                   errors.gender ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               >
                 <option value="">Pilih Gender</option>
                 {options.genders.map((gender) => (
@@ -401,7 +401,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Tipe */}
         <div className="flex flex-col">
-          <label htmlFor="tipe" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="tipe" className="text-md mb-1 font-medium text-gray-700">
             Tipe
           </label>
           <Controller
@@ -413,7 +413,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 id="tipe"
                 className={`border ${
                   errors.tipe ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               >
                 <option value="">Pilih Tipe</option>
                 {options.tipes.map((tipe) => (
@@ -429,7 +429,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Harga */}
         <div className="flex flex-col">
-          <label htmlFor="harga" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="harga" className="text-md mb-1 font-medium text-gray-700">
             Harga
           </label>
           <Controller
@@ -445,7 +445,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 step="0.1"
                 className={`border ${
                   errors.harga ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
@@ -454,7 +454,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
         {/* Harga Diskon */}
         <div className="flex flex-col">
-          <label htmlFor="harga_diskon" className="mb-1 text-sm font-medium text-gray-700">
+          <label htmlFor="harga_diskon" className="text-md mb-1 font-medium text-gray-700">
             Harga Diskon
           </label>
           <Controller
@@ -470,11 +470,121 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
                 step="0.1"
                 className={`border ${
                   errors.harga_diskon ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               />
             )}
           />
           {errors.harga_diskon && <p className="mt-1 text-sm text-red-600">{errors.harga_diskon.message}</p>}
+        </div>
+
+        {/* Status */}
+        <div className="flex flex-col">
+          <label htmlFor="status" className="text-md mb-1 font-medium text-gray-700">
+            Status
+          </label>
+          <Controller
+            name="status"
+            control={control}
+            render={({ field }) => (
+              <select
+                {...field}
+                id="status"
+                className={`border ${
+                  errors.status ? "border-red-300" : "border-gray-300"
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              >
+                <option value="">Pilih Status</option>
+                {STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </select>
+            )}
+          />
+          {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>}
+        </div>
+
+        {/* Supplier */}
+        <div className="flex flex-col">
+          <label htmlFor="supplier" className="text-md mb-1 font-medium text-gray-700">
+            Supplier
+          </label>
+          <Controller
+            name="supplier"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                id="supplier"
+                className={`border ${
+                  errors.supplier ? "border-red-300" : "border-gray-300"
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              />
+            )}
+          />
+          {errors.supplier && <p className="mt-1 text-sm text-red-600">{errors.supplier.message}</p>}
+        </div>
+
+        {/* Diupdate Oleh */}
+        <div className="flex flex-col">
+          <label htmlFor="diupdate_oleh" className="text-md mb-1 font-medium text-gray-700">
+            Diupdate Oleh
+          </label>
+          <Controller
+            name="diupdate_oleh"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="text"
+                id="diupdate_oleh"
+                className={`border ${
+                  errors.diupdate_oleh ? "border-red-300" : "border-gray-300"
+                } rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              />
+            )}
+          />
+          {errors.diupdate_oleh && <p className="mt-1 text-sm text-red-600">{errors.diupdate_oleh.message}</p>}
+        </div>
+
+        {/* Tanggal Produk */}
+        <div className="flex flex-col">
+          <label htmlFor="tanggal_produk" className="text-md mb-1 font-medium text-gray-700">
+            Tanggal Produk (Optional)
+          </label>
+          <Controller
+            name="tanggal_produk"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="date"
+                id="tanggal_produk"
+                className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            )}
+          />
+        </div>
+
+        {/* Tanggal Diterima */}
+        <div className="flex flex-col">
+          <label htmlFor="tanggal_terima" className="text-md mb-1 font-medium text-gray-700">
+            Tanggal Diterima (Optional)
+          </label>
+          <Controller
+            name="tanggal_terima"
+            control={control}
+            render={({ field }) => (
+              <input
+                {...field}
+                type="date"
+                id="tanggal_terima"
+                className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            )}
+          />
         </div>
 
         {/* Marketplace */}
@@ -495,116 +605,6 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
           >
             Add Marketplace
           </button>
-        </div>
-
-        {/* Tanggal Produk */}
-        <div className="flex flex-col">
-          <label htmlFor="tanggal_produk" className="mb-1 text-sm font-medium text-gray-700">
-            Tanggal Produk (Optional)
-          </label>
-          <Controller
-            name="tanggal_produk"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="date"
-                id="tanggal_produk"
-                className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            )}
-          />
-        </div>
-
-        {/* Tanggal Diterima */}
-        <div className="flex flex-col">
-          <label htmlFor="tanggal_terima" className="mb-1 text-sm font-medium text-gray-700">
-            Tanggal Diterima (Optional)
-          </label>
-          <Controller
-            name="tanggal_terima"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="date"
-                id="tanggal_terima"
-                className="rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            )}
-          />
-        </div>
-
-        {/* Status */}
-        <div className="flex flex-col">
-          <label htmlFor="status" className="mb-1 text-sm font-medium text-gray-700">
-            Status
-          </label>
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <select
-                {...field}
-                id="status"
-                className={`border ${
-                  errors.status ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-              >
-                <option value="">Pilih Status</option>
-                {STATUSES.map((status) => (
-                  <option key={status} value={status}>
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
-          {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>}
-        </div>
-
-        {/* Supplier */}
-        <div className="flex flex-col">
-          <label htmlFor="supplier" className="mb-1 text-sm font-medium text-gray-700">
-            Supplier
-          </label>
-          <Controller
-            name="supplier"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                id="supplier"
-                className={`border ${
-                  errors.supplier ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-              />
-            )}
-          />
-          {errors.supplier && <p className="mt-1 text-sm text-red-600">{errors.supplier.message}</p>}
-        </div>
-
-        {/* Diupdate Oleh */}
-        <div className="flex flex-col">
-          <label htmlFor="diupdate_oleh" className="mb-1 text-sm font-medium text-gray-700">
-            Diupdate Oleh
-          </label>
-          <Controller
-            name="diupdate_oleh"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                type="text"
-                id="diupdate_oleh"
-                className={`border ${
-                  errors.diupdate_oleh ? "border-red-300" : "border-gray-300"
-                } rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-              />
-            )}
-          />
-          {errors.diupdate_oleh && <p className="mt-1 text-sm text-red-600">{errors.diupdate_oleh.message}</p>}
         </div>
 
         <Controller
