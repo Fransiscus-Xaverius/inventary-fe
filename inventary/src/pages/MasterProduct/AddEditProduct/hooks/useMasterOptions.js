@@ -63,8 +63,20 @@ export default function useMasterOptions() {
 
   const error = colorsError || grupsError || unitsError || katsError || gendersError || tipesError;
 
+  const options = useMemo(
+    () => ({
+      colors,
+      grups,
+      units,
+      kats,
+      genders,
+      tipes,
+    }),
+    [colors, grups, units, kats, genders, tipes]
+  );
+
   return {
-    options: { colors, grups, units, kats, genders, tipes },
+    options,
     isLoading,
     error,
   };
