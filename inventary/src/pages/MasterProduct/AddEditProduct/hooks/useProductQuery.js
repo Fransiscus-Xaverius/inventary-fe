@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import useApiRequest from "../../../../hooks/useApiRequest";
 
 /**
@@ -16,7 +18,7 @@ export default function useProductQuery(artikel) {
   });
 
   // The API returns { data: { /* product */ } }
-  const product = response?.data ?? null;
+  const product = useMemo(() => response?.data ?? null, [response]);
 
   return { product, isLoading, error, refetch };
 }
