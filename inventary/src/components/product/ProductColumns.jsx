@@ -429,8 +429,22 @@ export const createProductColumns = (filterOptions, refetch) => {
         return (
           <Box sx={{ display: "flex", height: "100%", gap: 1, alignItems: "center", alignContent: "center" }}>
             {Object.keys(params.row.marketplace).map((key) => (
-              <Link key={key} to={params.row.marketplace[key]} target="_blank" rel="noopener noreferrer">
-                <Chip label={key} color="primary" variant="outlined" size="small" />
+              <Link
+                key={key}
+                to={params.row.marketplace[key]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-fit items-center justify-center"
+              >
+                <Chip
+                  label={key}
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    "&:hover": { backgroundColor: "primary.main", color: "white" },
+                  }}
+                />
               </Link>
             ))}
           </Box>
