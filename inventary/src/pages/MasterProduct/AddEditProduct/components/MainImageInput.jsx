@@ -22,11 +22,21 @@ export default function MainImageInput({
   const mainImageUrl = watchedImageUrls?.[0];
 
   const getImagePreview = () => {
-    if (!isEdit && mainImage) {
-      return URL.createObjectURL(mainImage);
-    }
-    if (isEdit && mainImageUrl) {
-      return `${import.meta.env.VITE_BACKEND_URL}${mainImageUrl}`;
+    // In edit mode, prioritize new images from gambar over existing images from image_url
+    if (isEdit) {
+      // If user has uploaded new images, show the new main image
+      if (mainImage && mainImage instanceof File) {
+        return URL.createObjectURL(mainImage);
+      }
+      // If no new images but has existing images, show existing main image
+      if (mainImageUrl) {
+        return `${import.meta.env.VITE_BACKEND_URL}${mainImageUrl}`;
+      }
+    } else {
+      // In add mode, show from gambar array
+      if (mainImage && mainImage instanceof File) {
+        return URL.createObjectURL(mainImage);
+      }
     }
     return null;
   };
@@ -46,10 +56,18 @@ export default function MainImageInput({
   const handleFileSelection = (file) => {
     if (!handleFileValidation(file)) return;
 
-    const currentImages = watchedImages || [];
-    const updated = [...currentImages];
-    updated[0] = file; // Main image is always at index 0
-    setValue("gambar", updated, { shouldValidate: true });
+    // In edit mode, when user uploads a new image, discard all existing images
+    if (isEdit) {
+      setValue("image_url", [], { shouldValidate: true }); // Clear existing images
+      setValue("gambar", [file], { shouldValidate: true }); // Set only the new main image
+    } else {
+      // In add mode, update the gambar array normally
+      const currentImages = watchedImages || [];
+      const updated = [...currentImages];
+      updated[0] = file; // Main image is always at index 0
+      setValue("gambar", updated, { shouldValidate: true });
+    }
+
     setError("gambar", { message: null });
   };
 
@@ -81,12 +99,21 @@ export default function MainImageInput({
   };
 
   const handleRemoveImage = () => {
-    const currentImages = watchedImages || [];
-    const updated = [...currentImages];
-    updated[0] = undefined; // Remove main image at index 0
-    // Filter out undefined values to clean up the array
-    const filtered = updated.filter((img) => img !== undefined);
-    setValue("gambar", filtered, { shouldValidate: true });
+    if (isEdit) {
+      // In edit mode, if we're showing existing images (from image_url), clear them
+      // If we're showing new images (from gambar), clear them too
+      setValue("image_url", [], { shouldValidate: true });
+      setValue("gambar", [], { shouldValidate: true });
+    } else {
+      // In add mode, remove from gambar array normally
+      const currentImages = watchedImages || [];
+      const updated = [...currentImages];
+      updated[0] = undefined; // Remove main image at index 0
+      // Filter out undefined values to clean up the array
+      const filtered = updated.filter((img) => img !== undefined);
+      setValue("gambar", filtered, { shouldValidate: true });
+    }
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
