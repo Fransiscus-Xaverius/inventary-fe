@@ -1,8 +1,6 @@
 import Joi from "joi";
 
-// Constants for validation
-const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
-const STATUSES = ["active", "inactive", "discontinued"];
+import { STATUSES, MARKETPLACE_OPTIONS } from "./helpers";
 
 // Size pattern validator for EU sizes or ranges (e.g., 30 or 30-38)
 const sizePattern = Joi.string().pattern(/^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/);
@@ -126,7 +124,7 @@ export const createProductSchema = ({ isEdit }) => {
           }
         }
 
-        if (isEdit && value.length > 0) {
+        if (isEdit && value && value.length > 0) {
           for (let item of value) {
             if (!item.startsWith("/")) {
               return helpers.error("image_url.invalidUrl");
@@ -134,7 +132,7 @@ export const createProductSchema = ({ isEdit }) => {
           }
         }
 
-        if (isEdit && gambar.length > 0) {
+        if (isEdit && gambar && gambar.length > 0) {
           return undefined;
         }
 
@@ -147,11 +145,14 @@ export const createProductSchema = ({ isEdit }) => {
       }),
     tanggal_produk: Joi.date().iso().allow("").optional(),
     tanggal_terima: Joi.date().iso().allow("").optional(),
-    status: Joi.string().valid("active", "inactive", "discontinued").required().messages({
-      "string.empty": "Status tidak boleh kosong",
-      "any.required": "Status harus diisi",
-      "any.only": "Status harus Active, Inactive, atau Discontinued",
-    }),
+    status: Joi.string()
+      .valid(...STATUSES)
+      .required()
+      .messages({
+        "string.empty": "Status tidak boleh kosong",
+        "any.required": "Status harus diisi",
+        "any.only": "Status harus Active, Inactive, atau Discontinued",
+      }),
     supplier: Joi.string().required().messages({
       "string.empty": "Supplier tidak boleh kosong",
       "any.required": "Supplier harus diisi",

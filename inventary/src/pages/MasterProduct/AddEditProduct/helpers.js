@@ -1,6 +1,7 @@
 // Constants
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 export const STATUSES = ["active", "inactive", "discontinued"];
+export const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
 
 // Format dates to ISO strings for API
 export const formatDateForApi = (dateValue) => {
