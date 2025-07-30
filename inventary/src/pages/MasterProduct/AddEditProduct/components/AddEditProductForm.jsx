@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { enqueueSnackbar } from "notistack";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { DevTool } from "@hookform/devtools";
 import { joiResolver } from "@hookform/resolvers/joi";
 import { CircularProgress, Box, Typography } from "@mui/material";
 
@@ -16,19 +17,18 @@ import useProductMutation from "../hooks/useProductMutation";
 import useFileUpload from "../hooks/useFileUpload";
 
 // Helpers and validation
-import { formatDateForApi, formatMarketplace, parseGambar, getColorById, STATUSES } from "../helpers";
-import { createProductSchema } from "../validation";
+import { getColorById, STATUSES } from "../helpers";
+import useProductSchema from "../validation";
 
-export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
+export default function AddEditProductForm({ artikel, onSuccess }) {
+  const isEdit = !!artikel;
+
   // State for color picker modal
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [selectedColors, setSelectedColors] = useState([]);
 
-  // Fetch master options (colors, grups, etc.)
-  const { options, isLoading: isOptionsLoading, error: optionsError } = useMasterOptions();
-
-  // Fetch product data for edit mode
-  const { product, isLoading: isProductLoading, error: productError } = useProductQuery(artikel);
+  // Memoize the validation schema to prevent recreation on every render
+  const { validationSchema, defaultValues } = useProductSchema({ isEdit, setSelectedColors });
 
   // Form setup with Joi validation
   const {
@@ -40,30 +40,8 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
     setError,
     watch,
   } = useForm({
-    resolver: joiResolver(createProductSchema({ isEdit })),
-    defaultValues: {
-      artikel: "",
-      nama: "",
-      deskripsi: "",
-      warna: [],
-      size: "",
-      grup: "",
-      unit: "",
-      kat: "",
-      model: "",
-      gender: "",
-      tipe: "",
-      harga: "",
-      harga_diskon: "",
-      marketplace: [],
-      gambar: [],
-      image_url: [],
-      tanggal_produk: "",
-      tanggal_terima: "",
-      status: "",
-      supplier: "",
-      diupdate_oleh: "",
-    },
+    resolver: joiResolver(validationSchema),
+    defaultValues,
   });
 
   // Marketplace field array
@@ -80,73 +58,27 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
   const watchedImages = watch("gambar");
   const watchedImageUrls = watch("image_url");
 
-  // File upload handler
-  const handleFileChange = useFileUpload({ setError, setValue, watchedImages });
+  // Fetch master options (colors, grups, etc.)
+  const { options, isLoading: isOptionsLoading, error: optionsError } = useMasterOptions();
+
+  // Fetch product data for edit mode
+  const { isLoading: isProductLoading, error: productError } = useProductQuery(
+    artikel,
+    options,
+    setSelectedColors,
+    reset
+  );
 
   // Product mutation
   const {
-    submit,
+    onSubmit,
     isLoading: isMutating,
     error: mutationError,
   } = useProductMutation({
     isEdit,
     artikel,
+    onSuccess,
   });
-
-  // Populate form when editing
-  useEffect(() => {
-    if (isEdit && product && Object.keys(options).every((key) => options[key].length > 0)) {
-      const stringify = (id) => id?.toString() || "";
-
-      const valuesToReset = {
-        artikel: product.artikel || "",
-        nama: product.nama || "",
-        deskripsi: product.deskripsi || "",
-        warna: [], // Handled separately
-        size: product.size || "",
-        grup: stringify(options.grups.find((grup) => grup.value === product.grup)?.id),
-        unit: stringify(options.units.find((unit) => unit.value === product.unit)?.id),
-        kat: stringify(options.kats.find((kat) => kat.value === product.kat)?.id),
-        model: product.model || "",
-        gender: stringify(options.genders.find((gender) => gender.value === product.gender)?.id),
-        tipe: stringify(options.tipes.find((tipe) => tipe.value === product.tipe)?.id),
-        harga: product.harga !== undefined ? Number(product.harga) : "",
-        harga_diskon: product.harga_diskon !== undefined ? Number(product.harga_diskon) : "",
-        marketplace: product.marketplace || [],
-        image_url: product.gambar || [],
-        tanggal_produk: product.tanggal_produk ? product.tanggal_produk.split("T")[0] : "",
-        tanggal_terima: product.tanggal_terima ? product.tanggal_terima.split("T")[0] : "",
-        status: product.status || "",
-        supplier: product.supplier || "",
-        diupdate_oleh: product.diupdate_oleh || "",
-      };
-
-      // Handle warna (colors) separately
-      let warnaIdsFromApi = product.warna;
-      if (typeof warnaIdsFromApi === "string") {
-        warnaIdsFromApi = warnaIdsFromApi.split(",").map((id) => id.trim());
-      }
-      setSelectedColors(warnaIdsFromApi || []);
-      valuesToReset.warna = warnaIdsFromApi || [];
-
-      // Handle marketplace
-      if (product.marketplace && typeof product.marketplace === "object") {
-        const marketplaceArray = Object.entries(product.marketplace)
-          .map(([key, value]) => ({ key, value }))
-          .filter((item) => item.value);
-        valuesToReset.marketplace = marketplaceArray;
-      }
-
-      reset(valuesToReset);
-    }
-  }, [isEdit, product, options, reset, setSelectedColors]);
-
-  // Set artikel field for edit mode
-  useEffect(() => {
-    if (isEdit && artikel) {
-      setValue("artikel", artikel);
-    }
-  }, [isEdit, artikel, setValue]);
 
   useEffect(() => {
     if (mutationError) {
@@ -154,84 +86,25 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
     }
   }, [mutationError]);
 
-  // Form submission handler
-  const onSubmit = (data) => {
-    // Process data for API submission
-    const processedData = {
-      artikel: data.artikel,
-      nama: data.nama,
-      deskripsi: data.deskripsi,
-      warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna,
-      size: data.size,
-      grup: data.grup,
-      unit: data.unit,
-      kat: data.kat,
-      model: data.model,
-      gender: data.gender,
-      tipe: data.tipe,
-      harga: Number(data.harga),
-      harga_diskon: Number(data.harga_diskon),
-      marketplace: formatMarketplace(data.marketplace),
-      tanggal_produk: formatDateForApi(data.tanggal_produk),
-      tanggal_terima: formatDateForApi(data.tanggal_terima),
-      status: data.status ? data.status.toLowerCase() : "",
-      supplier: data.supplier,
-      diupdate_oleh: data.diupdate_oleh,
-      ...parseGambar(data.gambar),
-    };
-
-    let submissionData;
-
-    if (isEdit) {
-      // For PUT (update), send JSON
-      const marketplaceObject = {};
-      if (Array.isArray(data.marketplace)) {
-        data.marketplace.forEach((item) => {
-          if (item.key && item.value) {
-            marketplaceObject[item.key] = item.value;
-          }
-        });
-      }
-      const { gambar: _gambar, ...jsonData } = {
-        ...data,
-        size: Array.isArray(data.size) ? data.size.join(", ") : data.size,
-        warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna,
-        marketplace: marketplaceObject,
-      };
-      submissionData = jsonData;
-    } else {
-      // For POST (create), send FormData
-      const formData = new FormData();
-      Object.keys(processedData).forEach((key) => {
-        formData.append(key, processedData[key]);
-      });
-      submissionData = formData;
-    }
-
-    submit(submissionData, {
-      onSuccess: () => {
-        onSuccess?.();
-      },
-      onError: (error) => {
-        console.error(error);
-        enqueueSnackbar("Gagal menyimpan data", { variant: "error" });
-      },
-    });
-  };
+  // File upload handler
+  const handleFileChange = useFileUpload({ setError, setValue, watchedImages });
 
   // Color picker handlers
-  const openColorModal = () => {
+  const openColorModal = useCallback(() => {
     setColorModalOpen(true);
-  };
+  }, []);
 
-  const closeColorModal = () => {
+  const closeColorModal = useCallback(() => {
     setColorModalOpen(false);
-  };
+  }, []);
 
-  const handleColorSave = (validSelections) => {
-    setSelectedColors(validSelections);
-    setValue("warna", validSelections, { shouldValidate: true });
-  };
+  const handleColorSave = useCallback(
+    (validSelections) => {
+      setSelectedColors(validSelections);
+      setValue("warna", validSelections, { shouldValidate: true });
+    },
+    [setValue]
+  );
 
   // Loading state
   if (isOptionsLoading || (isEdit && isProductLoading)) {
@@ -342,24 +215,30 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
             onClick={openColorModal}
             className="min-h-12 cursor-pointer rounded border border-gray-300 p-3 hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
-            {selectedColors.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {selectedColors.map((colorId) => {
-                  const color = getColorById(options.colors, colorId);
-                  return color ? (
-                    <div key={color.id} className="flex items-center">
-                      <div
-                        className="mr-1 h-6 w-6 rounded-sm border border-gray-300"
-                        style={{ backgroundColor: color.hex }}
-                        title={color.nama}
-                      ></div>
-                    </div>
-                  ) : null;
-                })}
-              </div>
-            ) : (
-              <span className="text-gray-500">Klik untuk memilih warna</span>
-            )}
+            <Controller
+              name="warna"
+              control={control}
+              render={() =>
+                selectedColors.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedColors.map((colorId) => {
+                      const color = getColorById(options.colors, colorId);
+                      return color ? (
+                        <div key={color.id} className="flex items-center">
+                          <div
+                            className="mr-1 h-6 w-6 rounded-sm border border-gray-300"
+                            style={{ backgroundColor: color.hex }}
+                            title={color.nama}
+                          ></div>
+                        </div>
+                      ) : null;
+                    })}
+                  </div>
+                ) : (
+                  <span className="text-gray-500">Klik untuk memilih warna</span>
+                )
+              }
+            />
           </div>
           {errors.warna && <p className="mt-1 text-sm text-red-600">{errors.warna.message}</p>}
         </div>
@@ -729,6 +608,12 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
           {errors.diupdate_oleh && <p className="mt-1 text-sm text-red-600">{errors.diupdate_oleh.message}</p>}
         </div>
 
+        <Controller
+          name="image_url"
+          control={control}
+          render={({ field }) => <input {...field} type="hidden" id="image_url" />}
+        />
+
         {/* Main Image */}
         <ImageInput
           control={control}
@@ -775,6 +660,8 @@ export default function AddEditProductForm({ artikel, isEdit, onSuccess }) {
         selectedColors={selectedColors}
         onSave={handleColorSave}
       />
+
+      <DevTool control={control} />
     </div>
   );
 }

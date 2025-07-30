@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { useSnackbar } from "notistack";
 import useApiRequest from "../../../../hooks/useApiRequest";
+import { formatMarketplace, formatDateForApi, parseGambar } from "../helpers";
 
 /**
  * Wrap POST / PUT product submission with notistack notifications.
@@ -9,7 +10,7 @@ import useApiRequest from "../../../../hooks/useApiRequest";
  * @param {string} artikel  – artikel id used for PUT endpoint
  * @returns {object} { submit, isLoading, error }
  */
-export default function useProductMutation({ isEdit, artikel }) {
+export default function useProductMutation({ isEdit, artikel, onSuccess }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const { mutate, isLoading, error } = useApiRequest({
@@ -38,5 +39,50 @@ export default function useProductMutation({ isEdit, artikel }) {
     [enqueueSnackbar, isEdit, mutate]
   );
 
-  return { submit, isLoading, error };
+  // Form submission handler
+  const onSubmit = useCallback(
+    (data) => {
+      // Process data for API submission
+      const processedData = {
+        artikel: data.artikel,
+        nama: data.nama,
+        deskripsi: data.deskripsi,
+        warna: Array.isArray(data.warna) ? data.warna.join(",") : data.warna,
+        size: data.size,
+        grup: data.grup,
+        unit: data.unit,
+        kat: data.kat,
+        model: data.model,
+        gender: data.gender,
+        tipe: data.tipe,
+        harga: Number(data.harga),
+        harga_diskon: Number(data.harga_diskon),
+        marketplace: formatMarketplace(data.marketplace),
+        tanggal_produk: formatDateForApi(data.tanggal_produk),
+        tanggal_terima: formatDateForApi(data.tanggal_terima),
+        status: data.status ? data.status.toLowerCase() : "",
+        // status: data.status,
+        supplier: data.supplier,
+        diupdate_oleh: data.diupdate_oleh,
+        ...parseGambar(data.gambar),
+      };
+
+      let submissionData;
+
+      const formData = new FormData();
+      Object.keys(processedData).forEach((key) => {
+        formData.append(key, processedData[key]);
+      });
+      submissionData = formData;
+
+      submit(submissionData, {
+        onSuccess: () => {
+          onSuccess?.();
+        },
+      });
+    },
+    [onSuccess, submit]
+  );
+
+  return { onSubmit, isLoading, error };
 }

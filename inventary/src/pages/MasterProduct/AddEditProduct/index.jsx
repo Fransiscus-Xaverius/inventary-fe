@@ -24,7 +24,7 @@ export default function AddEditProductPage() {
         </Typography>
       </div>
 
-      <AddEditProductForm artikel={artikel} isEdit={isEdit} onSuccess={handleSuccess} />
+      <AddEditProductForm artikel={artikel} onSuccess={handleSuccess} />
     </div>
   );
 }
