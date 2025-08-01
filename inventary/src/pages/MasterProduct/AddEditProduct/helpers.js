@@ -2,6 +2,7 @@
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 export const STATUSES = ["active", "inactive", "discontinued"];
 export const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
+// export const OFFLINE_MAP_TYPES = ["google-map", "waze", "apple-maps", "custom"];
 
 // Format dates to ISO strings for API
 export const formatDateForApi = (dateValue) => {
@@ -57,6 +58,24 @@ export const formatMarketplace = (marketplace) => {
 // Get color info by ID
 export const getColorById = (colors, colorId) => {
   return colors.find((color) => color.id === parseInt(colorId));
+};
+
+export const formatOffline = (offline) => {
+  if (!offline || !Array.isArray(offline)) return [];
+  return (
+    offline
+      .map((item) => ({
+        name: item.name?.trim(),
+        // type: item.type,
+        url: item.url,
+        address: item.address?.trim() || "",
+        // phone: item.phone?.trim() || "",
+        // hours: item.hours?.trim() || "",
+        is_active: item.is_active !== undefined ? item.is_active : true,
+      }))
+      // .filter((item) => item.name && item.type && item.url);
+      .filter((item) => item.name && item.url)
+  );
 };
 
 export const parseGambar = (gambar) => {

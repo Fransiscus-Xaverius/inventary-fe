@@ -10,6 +10,7 @@ import ColorPickerModal from "../components/ColorPickerModal";
 import MainImageInput from "../components/MainImageInput";
 import AdditionalImagesInput from "../components/AdditionalImagesInput";
 import MarketplaceInput from "../components/MarketplaceInput";
+import OfflineInput from "../components/OfflineInput";
 import RatingInput from "../../../../components/product/RatingInput";
 
 // New hooks
@@ -53,6 +54,16 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
   } = useFieldArray({
     control,
     name: "marketplace",
+  });
+
+  // Offline field array
+  const {
+    fields: offlineFields,
+    append: appendOffline,
+    remove: removeOffline,
+  } = useFieldArray({
+    control,
+    name: "offline",
   });
 
   // Watch form values for file handling
@@ -140,7 +151,13 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-x-5 gap-y-8 md:grid-cols-2">
+      <form
+        onSubmit={handleSubmit((data) => {
+          console.log("data", data);
+          onSubmit(data);
+        })}
+        className="grid grid-cols-1 gap-x-5 gap-y-8 md:grid-cols-2"
+      >
         {/* Artikel */}
         <div className="flex flex-col">
           <label htmlFor="artikel" className="text-md mb-1 font-medium text-gray-700">
@@ -605,6 +622,38 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
             className="mt-2 self-start rounded bg-gray-200 px-4 py-2 text-sm"
           >
             Add Marketplace
+          </button>
+        </div>
+
+        {/* Offline Stores */}
+        <div className="flex flex-col md:col-span-2">
+          <label className="text-md mb-1 font-medium text-gray-700">Toko Offline</label>
+          {offlineFields.map((item, index) => (
+            <OfflineInput key={item.id} control={control} index={index} remove={removeOffline} />
+          ))}
+          {errors.offline && (
+            <p className="mt-1 text-sm text-red-600">{errors.offline.message || errors.offline?.root?.message}</p>
+          )}
+          {/* Show global validation error for marketplace/offline mutual requirement */}
+          {errors.root?.marketplaceOrOfflineRequired && (
+            <p className="mt-1 text-sm text-red-600">{errors.root.marketplaceOrOfflineRequired.message}</p>
+          )}
+          <button
+            type="button"
+            onClick={() =>
+              appendOffline({
+                name: "",
+                // type: "",
+                url: "",
+                address: "",
+                // phone: "",
+                // hours: "",
+                is_active: true,
+              })
+            }
+            className="mt-2 self-start rounded bg-gray-200 px-4 py-2 text-sm"
+          >
+            Add Offline Store
           </button>
         </div>
 

@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useSnackbar } from "notistack";
 import useApiRequest from "../../../../hooks/useApiRequest";
-import { formatMarketplace, formatDateForApi, parseGambar } from "../helpers";
+import { formatMarketplace, formatOffline, formatDateForApi, parseGambar } from "../helpers";
 
 /**
  * Wrap POST / PUT product submission with notistack notifications.
@@ -21,6 +21,7 @@ export default function useProductMutation({ isEdit, artikel, onSuccess }) {
   // Wrap the original mutate to inject snackbars.
   const submit = useCallback(
     (payload, callbacks = {}) => {
+      console.log("payload", payload);
       mutate(payload, {
         onSuccess: (data) => {
           enqueueSnackbar(`Product ${isEdit ? "updated" : "created"} successfully`, {
@@ -59,6 +60,7 @@ export default function useProductMutation({ isEdit, artikel, onSuccess }) {
         harga_diskon: Number(data.harga_diskon),
         rating: JSON.stringify(data.rating),
         marketplace: formatMarketplace(data.marketplace),
+        offline: JSON.stringify(formatOffline(data.offline)),
         tanggal_produk: formatDateForApi(data.tanggal_produk),
         tanggal_terima: formatDateForApi(data.tanggal_terima),
         status: data.status ? data.status.toLowerCase() : "",

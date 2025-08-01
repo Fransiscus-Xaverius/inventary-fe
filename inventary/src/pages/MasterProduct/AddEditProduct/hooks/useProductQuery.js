@@ -47,6 +47,7 @@ export default function useProductQuery(artikel, options, setSelectedColors, res
       harga_diskon: product.harga_diskon !== null ? Number(product.harga_diskon) : "",
       rating: product.rating || { comfort: 0, style: 0, support: 0, purpose: [] },
       marketplace: product.marketplace || [],
+      offline: product.offline || [],
       image_url: product.gambar || [],
       tanggal_produk: product.tanggal_produk ? product.tanggal_produk.split("T")[0] : "",
       tanggal_terima: product.tanggal_terima ? product.tanggal_terima.split("T")[0] : "",
@@ -69,6 +70,19 @@ export default function useProductQuery(artikel, options, setSelectedColors, res
         .map(([key, value]) => ({ key, value }))
         .filter((item) => item.value);
       valuesToReset.marketplace = marketplaceArray;
+    }
+
+    // Handle offline stores
+    if (product.offline && Array.isArray(product.offline)) {
+      valuesToReset.offline = product.offline.map((store) => ({
+        name: store.name || "",
+        // type: store.type || "",
+        url: store.url || "",
+        address: store.address || "",
+        // phone: store.phone || "",
+        // hours: store.hours || "",
+        is_active: store.is_active !== undefined ? store.is_active : true,
+      }));
     }
 
     reset(valuesToReset);

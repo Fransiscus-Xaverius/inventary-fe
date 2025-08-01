@@ -452,6 +452,51 @@ export const createProductColumns = (filterOptions, refetch) => {
       },
     },
     {
+      field: "offline",
+      headerName: "Toko Offline",
+      width: 400,
+      filterable: true,
+      filterOperators: createFilterOperators("offline"),
+      renderCell: (params) => {
+        const offlineStores = params.row.offline || [];
+        console.log(offlineStores);
+        if (!Array.isArray(offlineStores) || offlineStores.length === 0) {
+          return (
+            <Box sx={{ display: "flex", alignItems: "center", height: "100%" }}>
+              <span className="text-sm text-gray-400">Tidak ada toko offline</span>
+            </Box>
+          );
+        }
+
+        return (
+          <Box sx={{ display: "flex", height: "100%", gap: 1, alignItems: "center", alignContent: "center" }}>
+            {offlineStores.map((store, index) => (
+              <Link
+                key={index}
+                to={store.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-fit items-center justify-center"
+              >
+                <Chip
+                  label={store.name}
+                  color={store.is_active ? "primary" : "default"}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: store.is_active ? "primary.main" : "grey.300",
+                      color: "white",
+                    },
+                  }}
+                />
+              </Link>
+            ))}
+          </Box>
+        );
+      },
+    },
+    {
       field: "tanggal_produk",
       headerName: "Tanggal Produk",
       width: 200,

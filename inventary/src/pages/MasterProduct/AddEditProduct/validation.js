@@ -109,13 +109,49 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
                 }),
             })
           )
-          .min(1)
+          .min(0)
           .unique("key")
-          .required()
+          .optional()
           .messages({
             "array.min": "Please add at least one marketplace link.",
             "array.unique": "Marketplace keys must be unique.",
-            "any.required": "Marketplace is required.",
+          }),
+        offline: Joi.array()
+          .items(
+            Joi.object({
+              name: Joi.string().trim().min(1).max(100).required().messages({
+                "string.empty": "Nama toko offline tidak boleh kosong",
+                "string.min": "Nama toko offline minimal 1 karakter",
+                "string.max": "Nama toko offline maksimal 100 karakter",
+                "any.required": "Nama toko offline harus diisi",
+              }),
+              // type: Joi.string()
+              //   .valid(...OFFLINE_MAP_TYPES)
+              //   .required()
+              //   .messages({
+              //     "any.only": "Tipe harus salah satu dari: " + OFFLINE_MAP_TYPES.join(", "),
+              //     "any.required": "Tipe harus diisi",
+              //   }),
+              url: Joi.string()
+                .uri({ scheme: ["http", "https"] })
+                .required()
+                .messages({
+                  "string.uri": "URL harus berupa URL yang valid",
+                  "string.empty": "URL tidak boleh kosong",
+                  "any.required": "URL harus diisi",
+                }),
+              address: Joi.string().trim().allow("").optional(),
+              // phone: Joi.string().trim().allow("").optional(),
+              // hours: Joi.string().trim().allow("").optional(),
+              is_active: Joi.boolean().default(true).optional(),
+            })
+          )
+          .min(0)
+          .unique("name")
+          .optional()
+          .messages({
+            "array.min": "Tambahkan minimal satu toko offline.",
+            "array.unique": "Nama toko offline harus unik.",
           }),
         gambar: Joi.array()
           .max(10)
@@ -198,7 +234,24 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
           "string.empty": "Diupdate oleh tidak boleh kosong",
           "any.required": "Diupdate oleh harus diisi",
         }),
-      }),
+      })
+        .custom((value, helpers) => {
+          // At least one of marketplace or offline must be present and non-empty
+          const marketplace = value.marketplace;
+          const offline = value.offline;
+
+          const hasValidMarketplace = marketplace && Array.isArray(marketplace) && marketplace.length > 0;
+          const hasValidOffline = offline && Array.isArray(offline) && offline.length > 0;
+
+          if (!hasValidMarketplace && !hasValidOffline) {
+            return helpers.error("any.marketplaceOrOfflineRequired");
+          }
+
+          return value;
+        })
+        .messages({
+          "any.marketplaceOrOfflineRequired": "Setidaknya satu dari Marketplace atau Toko Offline harus diisi.",
+        }),
     [isEdit]
   );
 
@@ -230,6 +283,7 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
           value: "https://www.tokopedia.com/product/1234567890",
         },
       ],
+      offline: [],
       gambar: [],
       image_url: [],
       tanggal_produk: "2025-01-01",
