@@ -1,5 +1,6 @@
 import { Controller } from "react-hook-form";
-import { MARKETPLACE_OPTIONS } from "./utils";
+
+import { MARKETPLACE_OPTIONS } from "../helpers";
 
 export default function MarketplaceInput({ control, index, remove }) {
   return (

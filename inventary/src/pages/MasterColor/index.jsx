@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Typography, TextField, InputAdornment, Box, Tooltip, IconButton } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import useApiRequest from "../../hooks/useApiRequest";
 import useProductPagination from "../../hooks/useProductPagination";
 import useProductSearch from "../../hooks/useProductSearch";
 import useProductSorting from "../../hooks/useProductSorting";
-import SidebarDashboard from "../../components/SidebarDashboard";
-import DataGridComponent from "../../components/ui/DataGrid";
-import { formatDate } from "../../utils/formatters";
-import AutoColoredChip from "../../components/ui/AutoColoredChip";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
 import { useNotification } from "../../hooks/useNotification";
+
+import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
+import DataGridComponent from "../../components/ui/DataGrid";
+import AutoColoredChip from "../../components/ui/AutoColoredChip";
+
 import AddEditColorModal from "./AddEditColorModal";
+
+import { formatDate } from "../../utils/formatters";
 
 const columns = [
   {
@@ -249,88 +252,84 @@ export default function MasterColor() {
   }
 
   return (
-    <Box className="flex h-screen w-screen">
-      <SidebarDashboard />
+    <Box className="flex h-full flex-grow flex-col overflow-auto p-6">
+      <Box className="mb-4 flex">
+        <Typography variant="h1" gutterBottom fontWeight={600} sx={{ fontSize: "2rem" }}>
+          Master Colors
+        </Typography>
+      </Box>
 
-      <Box className="flex h-full flex-grow flex-col overflow-hidden p-4">
-        <Box className="mb-4 flex">
-          <Typography variant="h4" gutterBottom fontWeight={600}>
-            Master Colors
-          </Typography>
-        </Box>
-
-        <Box className="mb-4">
-          <button
-            className="rounded bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
-            onClick={handleAddColor}
-          >
-            Add Color
-          </button>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "end",
-            gap: 2,
-            my: 1,
-            px: 1,
-          }}
+      <Box className="mb-4">
+        <button
+          className="rounded bg-indigo-600 px-6 py-2 text-white transition hover:bg-indigo-700"
+          onClick={handleAddColor}
         >
-          <TextField
-            className="mt-4 w-full max-w-md"
-            label="Search Colors"
-            variant="outlined"
-            fullWidth
-            size="small"
-            value={searchInputValue}
-            onChange={(e) => setSearchInputValue(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            placeholder="Search by any field..."
-          />
-        </Box>
+          Add Color
+        </button>
+      </Box>
 
-        <Box className="w-full flex-grow overflow-auto">
-          <DataGridComponent
-            rows={rows}
-            rowCount={rowCount}
-            loading={isLoading}
-            columns={columns}
-            paginationModel={paginationModel}
-            onPaginationModelChange={handlePaginationModelChange}
-            sortModel={sortModel}
-            onSortModelChange={handleSortModelChange}
-          />
-        </Box>
-
-        {/* Delete confirmation modal */}
-        <DeleteConfirmationModal
-          open={deleteDialog.open}
-          onClose={closeDeleteDialog}
-          onConfirm={handleDeleteConfirm}
-          title="Delete Color"
-          message="Are you sure you want to delete this color?"
-          itemName={deleteDialog.item?.nama}
-          isLoading={isDeleting || isDeleteLoading}
-        />
-
-        {/* Add/Edit color modal */}
-        <AddEditColorModal
-          open={colorModal.open}
-          onClose={handleCloseColorModal}
-          colorId={colorModal.colorId}
-          onSuccess={handleColorSaveSuccess}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "end",
+          gap: 2,
+          my: 1,
+          px: 1,
+        }}
+      >
+        <TextField
+          className="mt-4 w-full max-w-md"
+          label="Search Colors"
+          variant="outlined"
+          fullWidth
+          size="small"
+          value={searchInputValue}
+          onChange={(e) => setSearchInputValue(e.target.value)}
+          onKeyDown={handleSearchKeyDown}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          placeholder="Search by any field..."
         />
       </Box>
+
+      <Box className="w-full overflow-auto">
+        <DataGridComponent
+          rows={rows}
+          rowCount={rowCount}
+          loading={isLoading}
+          columns={columns}
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationModelChange}
+          sortModel={sortModel}
+          onSortModelChange={handleSortModelChange}
+        />
+      </Box>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmationModal
+        open={deleteDialog.open}
+        onClose={closeDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Color"
+        message="Are you sure you want to delete this color?"
+        itemName={deleteDialog.item?.nama}
+        isLoading={isDeleting || isDeleteLoading}
+      />
+
+      {/* Add/Edit color modal */}
+      <AddEditColorModal
+        open={colorModal.open}
+        onClose={handleCloseColorModal}
+        colorId={colorModal.colorId}
+        onSuccess={handleColorSaveSuccess}
+      />
     </Box>
   );
 }

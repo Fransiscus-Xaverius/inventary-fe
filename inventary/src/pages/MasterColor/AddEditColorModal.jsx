@@ -1,4 +1,7 @@
 import React, { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { joiResolver } from "@hookform/resolvers/joi";
+import Joi from "joi";
 import {
   Dialog,
   DialogTitle,
@@ -12,11 +15,9 @@ import {
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+
 import useApiRequest from "../../hooks/useApiRequest";
 import { useNotification } from "../../hooks/useNotification";
-import { useForm, Controller } from "react-hook-form";
-import { joiResolver } from "@hookform/resolvers/joi";
-import Joi from "joi";
 
 // Validation schema with Joi - same as in AddEditColor
 const colorSchema = Joi.object({
