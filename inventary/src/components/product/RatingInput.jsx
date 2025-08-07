@@ -58,7 +58,7 @@ export default function RatingInput({ control, errors }) {
           )}
         </Box>
         <Box sx={{ minWidth: "85%" }}>
-          {Array.from({ length: 10 }).map((_, index) => {
+          {Array.from({ length: 5 }).map((_, index) => {
             const starValue = index + 1;
             return (
               <IconButton
@@ -186,63 +186,68 @@ export default function RatingInput({ control, errors }) {
     <div className="flex flex-col md:col-span-2">
       <span className="text-md mb-4 font-medium text-gray-700">Product Rating</span>
 
-      <Box className="grid grid-cols-1 gap-6 rounded-lg border border-gray-300 bg-gray-50 p-4">
-        {/* Comfort Rating */}
-        <Controller
-          name="rating.comfort"
-          control={control}
-          render={({ field }) => (
-            <StarRating
-              field={field}
-              icon={<ThumbUp fontSize="medium" />}
-              label="Comfort"
-              value={field.value || 0}
-              onChange={field.onChange}
-              error={errors?.rating?.comfort}
-            />
-          )}
-        />
+      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 1 }}>
+        <Box
+          className="grid grid-cols-1 gap-6 rounded-lg border border-gray-300 bg-gray-50 p-4"
+          sx={{ width: "100%", height: "100%" }}
+        >
+          {/* Comfort Rating */}
+          <Controller
+            name="rating.comfort"
+            control={control}
+            render={({ field }) => (
+              <StarRating
+                field={field}
+                icon={<ThumbUp fontSize="medium" />}
+                label="Comfort"
+                value={field.value || 0}
+                onChange={field.onChange}
+                error={errors?.rating?.comfort}
+              />
+            )}
+          />
 
-        {/* Style Rating */}
-        <Controller
-          name="rating.style"
-          control={control}
-          render={({ field }) => (
-            <StarRating
-              field={field}
-              icon={<AutoAwesome fontSize="medium" />}
-              label="Style"
-              value={field.value || 0}
-              onChange={field.onChange}
-              error={errors?.rating?.style}
-            />
-          )}
-        />
+          {/* Style Rating */}
+          <Controller
+            name="rating.style"
+            control={control}
+            render={({ field }) => (
+              <StarRating
+                field={field}
+                icon={<AutoAwesome fontSize="medium" />}
+                label="Style"
+                value={field.value || 0}
+                onChange={field.onChange}
+                error={errors?.rating?.style}
+              />
+            )}
+          />
 
-        {/* Support Rating */}
-        <Controller
-          name="rating.support"
-          control={control}
-          render={({ field }) => (
-            <StarRating
-              field={field}
-              icon={<Handshake fontSize="medium" />}
-              label="Support"
-              value={field.value || 0}
-              onChange={field.onChange}
-              error={errors?.rating?.support}
-            />
-          )}
-        />
-      </Box>
+          {/* Support Rating */}
+          <Controller
+            name="rating.support"
+            control={control}
+            render={({ field }) => (
+              <StarRating
+                field={field}
+                icon={<Handshake fontSize="medium" />}
+                label="Support"
+                value={field.value || 0}
+                onChange={field.onChange}
+                error={errors?.rating?.support}
+              />
+            )}
+          />
+        </Box>
 
-      {/* Purpose Categories - Full Width */}
-      <Box className="mt-4 rounded-lg border border-gray-300 bg-gray-50 p-4">
-        <Controller
-          name="rating.purpose"
-          control={control}
-          render={({ field }) => <PurposeChipInput field={field} error={errors?.rating?.purpose} />}
-        />
+        {/* Purpose Categories - Full Width */}
+        <Box className="rounded-lg border border-gray-300 bg-gray-50 p-4" sx={{ width: "100%", height: "100%" }}>
+          <Controller
+            name="rating.purpose"
+            control={control}
+            render={({ field }) => <PurposeChipInput field={field} error={errors?.rating?.purpose} />}
+          />
+        </Box>
       </Box>
 
       {/* Overall rating error */}
