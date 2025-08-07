@@ -62,6 +62,11 @@ export default function SidebarDashboard() {
             <ImageIcon sx={{ mr: 1 }} /> Master Banner
           </NavLink>
         </li>
+        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
+          <NavLink to="/master-panduan-ukuran" className="w-full text-white">
+            <ImageIcon sx={{ mr: 1 }} /> Panduan Ukuran
+          </NavLink>
+        </li>
       </ul>
 
       <div className="mt-auto">

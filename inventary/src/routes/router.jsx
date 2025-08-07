@@ -20,6 +20,7 @@ const MasterKat = lazy(() => import("../pages/MasterKat"));
 const MasterUnit = lazy(() => import("../pages/MasterUnit"));
 const MasterTipe = lazy(() => import("../pages/MasterTipe"));
 const MasterBanner = lazy(() => import("../pages/MasterBanner"));
+const MasterPanduanUkuran = lazy(() => import("../pages/MasterPanduanUkuran"));
 
 export const router = createBrowserRouter([
   {
@@ -84,6 +85,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingFallback />}>
             <MasterBanner />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/master-panduan-ukuran",
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <MasterPanduanUkuran />
           </Suspense>
         ),
       },
