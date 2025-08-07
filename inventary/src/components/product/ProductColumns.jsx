@@ -426,6 +426,12 @@ export const createProductColumns = (filterOptions, refetch) => {
       filterable: true,
       filterOperators: createFilterOperators("marketplace"),
       renderCell: (params) => {
+        const marketplace = params.row.marketplace;
+        if (!marketplace || typeof marketplace !== "object" || Object.keys(marketplace).length <= 0) {
+          console.log("no marketplace", marketplace);
+          return <div className="text-sm text-gray-400">No marketplace</div>;
+        }
+
         return (
           <Box sx={{ display: "flex", height: "100%", gap: 1, alignItems: "center", alignContent: "center" }}>
             {Object.keys(params.row.marketplace).map((key) => (
