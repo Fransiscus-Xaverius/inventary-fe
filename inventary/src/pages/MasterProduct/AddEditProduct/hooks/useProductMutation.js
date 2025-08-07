@@ -60,7 +60,7 @@ export default function useProductMutation({ isEdit, artikel, onSuccess }) {
         harga_diskon: Number(data.harga_diskon),
         rating: JSON.stringify(data.rating),
         marketplace: formatMarketplace(data.marketplace),
-        offline: JSON.stringify(formatOffline(data.offline)),
+        offline: formatOffline(data.offline),
         tanggal_produk: formatDateForApi(data.tanggal_produk),
         tanggal_terima: formatDateForApi(data.tanggal_terima),
         status: data.status ? data.status.toLowerCase() : "",
