@@ -45,7 +45,9 @@ export const formatDateForApi = (dateValue) => {
 };
 
 export const formatMarketplace = (marketplace) => {
-  if (!marketplace) return {};
+  if (!marketplace || !Array.isArray(marketplace) || marketplace.length === 0) {
+    return "";
+  }
   const marketplaceObject = {};
   marketplace.forEach((item) => {
     if (item.key && item.value) {
@@ -61,8 +63,10 @@ export const getColorById = (colors, colorId) => {
 };
 
 export const formatOffline = (offline) => {
-  if (!offline || !Array.isArray(offline)) return [];
-  return (
+  if (!offline || !Array.isArray(offline) || offline.length === 0) {
+    return "";
+  }
+  return JSON.stringify(
     offline
       .map((item) => ({
         name: item.name?.trim(),
