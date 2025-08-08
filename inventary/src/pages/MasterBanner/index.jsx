@@ -237,9 +237,7 @@ export default function MasterBanner() {
         headerName: "Gambar",
         width: 150,
         renderCell: (params) => {
-          // const hostUrl = process.env.BACKEND_URL;
-          const hostUrl = "http://localhost:8080";
-          const imageUrl = `${hostUrl}${params.row.image_url}`;
+          const imageUrl = `${params.row.image_url}`;
           return (
             <div>
               <img src={imageUrl} alt="Banner" width={100} height={100} />

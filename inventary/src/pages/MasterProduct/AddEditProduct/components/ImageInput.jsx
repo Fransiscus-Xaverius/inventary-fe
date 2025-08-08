@@ -20,7 +20,7 @@ export default function ImageInput({
       return URL.createObjectURL(watchedImages[index]);
     }
     if (isEdit && watchedImageUrls?.[index]) {
-      return `${import.meta.env.VITE_BACKEND_URL}${watchedImageUrls[index]}`;
+      return `${watchedImageUrls[index]}`;
     }
     return null;
   };
@@ -66,7 +66,7 @@ export default function ImageInput({
       {multiple && (
         <div className="mt-2 flex flex-wrap gap-2">
           {(!isEdit ? watchedImages?.slice(1) : watchedImageUrls?.slice(1))?.map((image, index) => {
-            const src = !isEdit ? URL.createObjectURL(image) : `${import.meta.env.VITE_BACKEND_URL}${image}`;
+            const src = !isEdit ? URL.createObjectURL(image) : `${image}`;
 
             return <img key={index} src={src} alt={`Preview ${index}`} className="h-32 w-32 object-cover" />;
           })}

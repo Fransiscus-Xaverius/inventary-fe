@@ -238,9 +238,7 @@ export const createProductColumns = (filterOptions, refetch) => {
       headerName: "Gambar",
       renderCell: (params) => {
         if (!params.row.gambar) return <div>No image</div>;
-        // const hostUrl = process.env.BACKEND_URL;
-        const hostUrl = "http://localhost:8080";
-        const imageUrl = `${hostUrl}${params.row.gambar[0]}`;
+        const imageUrl = `${params.row.gambar[0]}`;
         return (
           <div className="flex h-full w-full items-center justify-center p-2">
             <img src={imageUrl} alt="Product" className="h-full w-full rounded-md object-contain" />

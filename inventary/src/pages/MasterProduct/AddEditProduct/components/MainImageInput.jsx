@@ -30,7 +30,7 @@ export default function MainImageInput({
       }
       // If no new images but has existing images, show existing main image
       if (mainImageUrl) {
-        return `${import.meta.env.VITE_BACKEND_URL}${mainImageUrl}`;
+        return `${mainImageUrl}`;
       }
     } else {
       // In add mode, show from gambar array

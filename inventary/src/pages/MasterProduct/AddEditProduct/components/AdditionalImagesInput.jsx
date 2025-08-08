@@ -41,7 +41,7 @@ export default function AdditionalImagesInput({
       }
       // If no new images but has existing images, show existing additional images
       if (additionalImageUrls[imageIndex]) {
-        return `${import.meta.env.VITE_BACKEND_URL}${additionalImageUrls[imageIndex]}`;
+        return `${additionalImageUrls[imageIndex]}`;
       }
     } else {
       // In add mode, show from gambar array

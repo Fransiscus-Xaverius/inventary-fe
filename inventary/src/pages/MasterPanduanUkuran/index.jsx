@@ -28,7 +28,7 @@ export default function MasterPanduanUkuran() {
   });
 
   const checkImageExists = () => {
-    const url = `http://localhost:8080/uploads/panduan/1.png?t=${new Date().getTime()}`;
+    const url = `uploads/panduan/1.png?t=${new Date().getTime()}`;
     const img = new Image();
     img.src = url;
     img.onload = () => {
