@@ -429,7 +429,7 @@ export const createProductColumns = (filterOptions, refetch) => {
         const marketplace = params.row.marketplace;
         if (!marketplace || typeof marketplace !== "object" || Object.keys(marketplace).length <= 0) {
           console.log("no marketplace", marketplace);
-          return <div className="text-sm text-gray-400">No marketplace</div>;
+          return <div className="flex h-full w-full items-center text-sm text-gray-400">No marketplace</div>;
         }
 
         return (
