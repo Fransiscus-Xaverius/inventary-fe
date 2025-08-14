@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
+    base: "/admin/",
     plugins: [react()],
     server: {
       proxy: {
@@ -17,6 +18,19 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        "/uploads": {
+          target: env.VITE_BACKEND_URL || "http://localhost:8080",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+      // This makes the server accessible externally
+      host: true,
+      hmr: {
+        // Use plain WS when served via Caddy over HTTP; Caddy will proxy upgrades
+        protocol: "ws",
+        // Ensure the client connects back to port 80 (Caddy), not 5173 directly
+        clientPort: 80,
       },
     },
     test: {

@@ -22,80 +22,85 @@ const MasterTipe = lazy(() => import("../pages/MasterTipe"));
 const MasterBanner = lazy(() => import("../pages/MasterBanner"));
 const MasterPanduanUkuran = lazy(() => import("../pages/MasterPanduanUkuran"));
 
-export const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: (
-      <AuthLayout>
-        <Login />
-      </AuthLayout>
-    ),
-  },
-  {
-    path: "/register",
-    element: (
-      <AuthLayout>
-        <Register />
-      </AuthLayout>
-    ),
-  },
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/login",
+      element: (
+        <AuthLayout>
+          <Login />
+        </AuthLayout>
+      ),
+    },
+    {
+      path: "/register",
+      element: (
+        <AuthLayout>
+          <Register />
+        </AuthLayout>
+      ),
+    },
 
+    {
+      path: "/",
+      element: <MainLayout />,
+      children: [
+        {
+          path: "/",
+          element: <Dashboard />,
+        },
+        {
+          path: "/master-product",
+          element: <MasterProduct />,
+        },
+        {
+          path: "/addEdit-product",
+          element: <AddEditProduct />,
+        },
+        {
+          path: "/addEdit-product/:artikel",
+          element: <AddEditProduct />,
+        },
+        {
+          path: "/master-color",
+          element: <MasterColor />,
+        },
+        {
+          path: "/master-grup",
+          element: <MasterGrup />,
+        },
+        {
+          path: "/master-kat",
+          element: <MasterKat />,
+        },
+        {
+          path: "/master-unit",
+          element: <MasterUnit />,
+        },
+        {
+          path: "/master-tipe",
+          element: <MasterTipe />,
+        },
+        {
+          path: "/master-banner",
+          element: (
+            <Suspense fallback={<LoadingFallback />}>
+              <MasterBanner />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/master-panduan-ukuran",
+          element: (
+            <Suspense fallback={<LoadingFallback />}>
+              <MasterPanduanUkuran />
+            </Suspense>
+          ),
+        },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <MainLayout />,
-    children: [
-      {
-        path: "/",
-        element: <Dashboard />,
-      },
-      {
-        path: "/master-product",
-        element: <MasterProduct />,
-      },
-      {
-        path: "/addEdit-product",
-        element: <AddEditProduct />,
-      },
-      {
-        path: "/addEdit-product/:artikel",
-        element: <AddEditProduct />,
-      },
-      {
-        path: "/master-color",
-        element: <MasterColor />,
-      },
-      {
-        path: "/master-grup",
-        element: <MasterGrup />,
-      },
-      {
-        path: "/master-kat",
-        element: <MasterKat />,
-      },
-      {
-        path: "/master-unit",
-        element: <MasterUnit />,
-      },
-      {
-        path: "/master-tipe",
-        element: <MasterTipe />,
-      },
-      {
-        path: "/master-banner",
-        element: (
-          <Suspense fallback={<LoadingFallback />}>
-            <MasterBanner />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/master-panduan-ukuran",
-        element: (
-          <Suspense fallback={<LoadingFallback />}>
-            <MasterPanduanUkuran />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-]);
+    basename: "/admin",
+  }
+);
