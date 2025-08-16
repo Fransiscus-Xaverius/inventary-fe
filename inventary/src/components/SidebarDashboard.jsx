@@ -8,6 +8,7 @@ import GroupIcon from "@mui/icons-material/Group";
 import CategoryIcon from "@mui/icons-material/Category";
 import BuildIcon from "@mui/icons-material/Build";
 import ImageIcon from "@mui/icons-material/Image";
+import EmailIcon from "@mui/icons-material/Email";
 
 import { AuthContext } from "../contexts/AuthContext";
 
@@ -65,6 +66,11 @@ export default function SidebarDashboard() {
         <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
           <NavLink to="/master-panduan-ukuran" className="w-full text-white">
             <ImageIcon sx={{ mr: 1 }} /> Panduan Ukuran
+          </NavLink>
+        </li>
+        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
+          <NavLink to="/master-newsletter" className="w-full text-white">
+            <EmailIcon sx={{ mr: 1 }} /> Newsletter
           </NavLink>
         </li>
       </ul>
