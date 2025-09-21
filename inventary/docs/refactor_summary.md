@@ -1,11 +1,13 @@
 # Refactor Summary (September 21, 2025)
 
 ## Goal
+
 Merapikan struktur logic, mengurangi duplikasi, dan memisahkan concern antara UI, business logic, dan konfigurasi.
 
 ## Perubahan Utama
 
 ### 1. Banner Module
+
 - Dipisahkan konstanta & schema dari `AddEditBannerModal.jsx` ke folder modular:
   - `pages/MasterBanner/banner/constants.js`
   - `pages/MasterBanner/banner/schema.js`
@@ -17,16 +19,19 @@ Merapikan struktur logic, mengurangi duplikasi, dan memisahkan concern antara UI
 - Image handling (validasi ratio, resolusi, ukuran, preview) diekstrak ke custom hook `useBannerImage`.
 
 ### 2. API Abstraction
+
 - Ditambahkan `src/utils/apiClient.js` berbasis Axios.
 - Otomatis menambahkan header Authorization jika token tersedia.
 - Terpusat pada `baseURL` dari `VITE_BACKEND_URL` (fallback ke `http://localhost:8080`).
 
 ### 3. Refactor Register Page
+
 - Mengganti penggunaan `fetch` manual dengan `apiClient.post()`.
 - Menambahkan error handling lebih robust (`err.response?.data?.message`).
 - Tetap mempertahankan alur login setelah registrasi.
 
 ## Struktur Baru (Ringkas)
+
 ```
 src/
   pages/
@@ -41,11 +46,13 @@ src/
 ```
 
 ## Manfaat
+
 - File modal banner lebih ringkas dan mudah dirawat.
 - Validasi dan aturan file upload bisa digunakan ulang jika nanti ada modul image lain.
 - API call menjadi konsisten dan mudah di-extend (misal: refresh token, global error logger).
 
 ## Rekomendasi Refactor Lanjutan
+
 1. Product Module:
    - Pecah `AddEditProductForm.jsx` (722 lines) menjadi bagian-bagian:
      - `components/fields/` (Input kelompok: general info, pricing, metadata)
@@ -92,20 +99,23 @@ src/
    - Snapshot test untuk `AddEditBannerModal` open vs edit mode.
 
 ## Cara Pakai apiClient
-```js
-import apiClient from '@/utils/apiClient';
 
-apiClient.get('/api/example');
-apiClient.post('/api/items', { name: 'Item' });
+```js
+import apiClient from "@/utils/apiClient";
+
+apiClient.get("/api/example");
+apiClient.post("/api/items", { name: "Item" });
 ```
 
 ## Next Steps (Disarankan)
-| Prioritas | Task | Estimasi |
-|-----------|------|----------|
-| Tinggi | Pecah AddEditProductForm | 1-2 hari |
-| Sedang | Refactor useApiRequest | 0.5 hari |
-| Sedang | Tambah authService | 0.5 hari |
-| Rendah | Testing awal hooks | 0.5 hari |
+
+| Prioritas | Task                     | Estimasi |
+| --------- | ------------------------ | -------- |
+| Tinggi    | Pecah AddEditProductForm | 1-2 hari |
+| Sedang    | Refactor useApiRequest   | 0.5 hari |
+| Sedang    | Tambah authService       | 0.5 hari |
+| Rendah    | Testing awal hooks       | 0.5 hari |
 
 ---
+
 Dibuat otomatis oleh tooling refactor untuk dokumentasi internal.

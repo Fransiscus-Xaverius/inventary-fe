@@ -28,7 +28,8 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
   const { showSuccess, showError } = useNotification();
 
   // Image handling extracted to custom hook
-  const { selectedFile, imagePreview, fileError, handleFileChange, resetImage, setFileError, setImagePreview } = useBannerImage(setValue);
+  const { selectedFile, imagePreview, fileError, handleFileChange, resetImage, setFileError, setImagePreview } =
+    useBannerImage(setValue);
 
   const {
     control,

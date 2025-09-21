@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 // Base URL from Vite env (fallback to localhost)
-const baseURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const baseURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 const apiClient = axios.create({
   baseURL,
@@ -10,7 +10,7 @@ const apiClient = axios.create({
 
 // Attach auth token if exists
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem("authToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
