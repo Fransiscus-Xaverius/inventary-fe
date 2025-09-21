@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -20,42 +20,15 @@ import { useForm, Controller } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
 import Joi from "joi";
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const ASPECT_RATIO_TOLERANCE = 0.1;
-const ALLOWED_ASPECT_RATIOS = [
-  { ratio: 16 / 9, label: "16:9" },
-  { ratio: 16 / 10, label: "16:10" },
-];
-const MIN_RESOLUTION = { width: 1280, height: 720 };
-
-// Validation schema with Joi
-const bannerSchema = Joi.object({
-  title: Joi.string().required().messages({
-    "string.empty": "Title tidak boleh kosong",
-    "any.required": "Title harus diisi",
-  }),
-  description: Joi.string().allow("").optional(),
-  cta_text: Joi.string().allow("").optional(),
-  cta_link: Joi.string().uri().allow("").optional().messages({
-    "string.uri": "CTA Link harus berupa URL yang valid",
-  }),
-  image_url: Joi.string().allow("").optional(),
-  order_index: Joi.number().integer().min(1).required().messages({
-    "number.base": "Urutan harus berupa angka",
-    "number.integer": "Urutan harus berupa bilangan bulat",
-    "number.min": "Urutan tidak boleh kurang dari 1",
-    "any.required": "Urutan harus diisi",
-  }),
-  is_active: Joi.boolean().required(),
-});
+import { bannerSchema } from "./banner/schema";
+import { useBannerImage } from "./banner/useBannerImage";
 
 export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess }) {
   const isEditing = !!bannerId;
   const { showSuccess, showError } = useNotification();
 
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [fileError, setFileError] = useState(null);
+  // Image handling extracted to custom hook
+  const { selectedFile, imagePreview, fileError, handleFileChange, resetImage, setFileError, setImagePreview } = useBannerImage(setValue);
 
   const {
     control,
@@ -101,7 +74,7 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
       });
       setImagePreview(data?.image_url ? `http://localhost:8080${data.image_url}` : null);
     }
-  }, [isEditing, bannerResponse, reset]);
+  }, [isEditing, bannerResponse, reset, setImagePreview]);
 
   useEffect(() => {
     if (!open) {
@@ -114,67 +87,11 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
         order_index: 1,
         is_active: true,
       });
-      setSelectedFile(null);
-      setImagePreview(null);
-      setFileError(null);
+      resetImage();
     }
-  }, [open, reset]);
+  }, [open, reset, resetImage]);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        setFileError("File size cannot exceed 20MB.");
-        setSelectedFile(null);
-        setImagePreview(null);
-        setValue("image_url", "");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const imageAspectRatio = img.width / img.height;
-          const isValidAspectRatio = ALLOWED_ASPECT_RATIOS.some(
-            (ar) => Math.abs(imageAspectRatio - ar.ratio) <= ASPECT_RATIO_TOLERANCE
-          );
-          const isValidResolution = img.width >= MIN_RESOLUTION.width || img.height >= MIN_RESOLUTION.height;
-
-          if (!isValidAspectRatio) {
-            const allowedLabels = ALLOWED_ASPECT_RATIOS.map((ar) => ar.label).join(", ");
-            setFileError(`Invalid aspect ratio. Allowed ratios are around ${allowedLabels}.`);
-            setSelectedFile(null);
-            setImagePreview(null);
-            setValue("image_url", "");
-            return;
-          }
-
-          if (!isValidResolution) {
-            setFileError(
-              `Image resolution must be at least ${MIN_RESOLUTION.width}px wide or ${MIN_RESOLUTION.height}px high.`
-            );
-            setSelectedFile(null);
-            setImagePreview(null);
-            setValue("image_url", "");
-            return;
-          }
-
-          setFileError(null);
-          setSelectedFile(file);
-          setImagePreview(URL.createObjectURL(file));
-          setValue("image_url", file.name);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setSelectedFile(null);
-      setImagePreview(null);
-      setValue("image_url", "");
-      setFileError(null);
-    }
-  };
+  // File change handler now provided by hook
 
   const onSubmit = (data) => {
     if (fileError) {

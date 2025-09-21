@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AnimatedLogo from "../components/AnimatedLogo";
 
 import { AuthContext } from "../contexts/AuthContext";
+import apiClient from "../utils/apiClient";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -27,29 +28,17 @@ function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-        }),
+      const { data } = await apiClient.post(`/api/auth/register`, {
+        username,
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
-      // Use auth context to login
       login(data.token, data.user, data.expires_at);
       navigate("/");
     } catch (err) {
-      setError(err.message || "Failed to create account");
+      const message = err.response?.data?.message || err.message || "Failed to create account";
+      setError(message);
     } finally {
       setLoading(false);
     }
