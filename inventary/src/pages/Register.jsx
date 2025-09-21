@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import AnimatedLogo from "../components/AnimatedLogo";
 
 import { AuthContext } from "../contexts/AuthContext";
-import apiClient from "../utils/apiClient";
+import useApiRequest from "../hooks/useApiRequest";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -12,11 +12,17 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
+  // Setup mutation hook for registration
+  const { mutate: registerMutate, isLoading: isRegistering } = useApiRequest({
+    url: "/api/auth/register",
+    method: "POST",
+    requiresAuth: false,
+  });
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
@@ -25,23 +31,20 @@ function Register() {
       return;
     }
 
-    setLoading(true);
-
-    try {
-      const { data } = await apiClient.post(`/api/auth/register`, {
-        username,
-        email,
-        password,
-      });
-
-      login(data.token, data.user, data.expires_at);
-      navigate("/");
-    } catch (err) {
-      const message = err.response?.data?.message || err.message || "Failed to create account";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+    registerMutate(
+      { username, email, password },
+      {
+        onSuccess: (data) => {
+          // Assume API returns { token, user, expires_at }
+            login(data.token, data.user, data.expires_at);
+            navigate("/");
+        },
+        onError: (err) => {
+          const message = err.response?.data?.message || err.message || "Failed to create account";
+          setError(message);
+        },
+      }
+    );
   };
 
   return (
@@ -125,10 +128,10 @@ function Register() {
         <div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isRegistering}
             className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            {loading ? "Creating account..." : "Sign up"}
+            {isRegistering ? "Creating account..." : "Sign up"}
           </button>
         </div>
 

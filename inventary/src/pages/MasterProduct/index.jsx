@@ -119,8 +119,32 @@ export default function MasterProduct() {
   const rows = useMemo(() => {
     const data = productResponse?.data || {};
     const products = data?.items || [];
-    return products.map((prod) => ({ ...prod }));
-  }, [productResponse]);
+    // Ensure each row has a stable unique identifier.
+    // Backend may not always supply a `no` field; fall back to artikel or generated index.
+    return products.map((prod, idx) => {
+      const fallbackNo = offsetParam + idx + 1; // 1-based running number across pages
+      return {
+        // Provide an internal id used by DataGrid (not shown unless a column uses it)
+        id: prod.id || prod.artikel || prod.no || `row-${offsetParam}-${idx}`,
+        no: prod.no ?? fallbackNo,
+        ...prod,
+      };
+    });
+  }, [productResponse, offsetParam]);
+
+  // Debug log if no rows while we do have a response payload
+  useEffect(() => {
+    if ((rows?.length ?? 0) === 0 && productResponse) {
+      // Only log the high-level keys to avoid spamming console with large payloads
+      console.debug("MasterProduct: Empty rows derived from response keys:", Object.keys(productResponse || {}));
+      console.debug(
+        "MasterProduct: Raw response data keys:",
+        productResponse?.data && typeof productResponse.data === "object"
+          ? Object.keys(productResponse.data)
+          : typeof productResponse
+      );
+    }
+  }, [rows, productResponse]);
 
   // Count for pagination
   const rowCount = useMemo(() => {
@@ -369,7 +393,8 @@ export default function MasterProduct() {
           rows={rows}
           columns={columns}
           rowCount={rowCount}
-          getRowId={(p) => p.no}
+          // Use multiple fallbacks for row id to avoid blank grid when specific field is absent
+          getRowId={(p) => p.id || p.no || p.artikel}
           loading={isLoading}
           initialState={{
             pagination: {

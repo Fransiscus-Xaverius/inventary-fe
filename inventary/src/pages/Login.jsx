@@ -4,47 +4,37 @@ import { Link, useNavigate } from "react-router-dom";
 import AnimatedLogo from "../components/AnimatedLogo";
 
 import { AuthContext } from "../contexts/AuthContext";
+import useApiRequest from "../hooks/useApiRequest";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  const handleSubmit = async (e) => {
+  const { mutate: loginMutate, isLoading: isLoggingIn } = useApiRequest({
+    url: "/api/auth/login",
+    method: "POST",
+    requiresAuth: false,
+  });
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
-
-    try {
-      const response = await fetch(`/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    loginMutate(
+      { username, password },
+      {
+        onSuccess: (data) => {
+          login(data.token, data.user, data.expires_at);
+          navigate("/");
         },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        onError: (err) => {
+          const msg = err.response?.data?.message || "Invalid username or password";
+          setError(msg);
+        },
       }
-
-      // Use the auth context to login
-      login(data.token, data.user, data.expires_at);
-      navigate("/");
-    } catch (error) {
-      setError("Invalid username or password");
-      error.message;
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (
@@ -119,10 +109,10 @@ function Login() {
         <div>
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoggingIn}
             className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {isLoggingIn ? "Signing in..." : "Sign in"}
           </button>
         </div>
 
