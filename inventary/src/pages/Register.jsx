@@ -36,8 +36,8 @@ function Register() {
       {
         onSuccess: (data) => {
           // Assume API returns { token, user, expires_at }
-            login(data.token, data.user, data.expires_at);
-            navigate("/");
+          login(data.token, data.user, data.expires_at);
+          navigate("/");
         },
         onError: (err) => {
           const message = err.response?.data?.message || err.message || "Failed to create account";
