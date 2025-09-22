@@ -20,7 +20,6 @@ import useProductSorting from "../../hooks/useProductSorting";
 import { useNotification } from "../../hooks/useNotification";
 
 import DeleteConfirmationModal from "../../components/ui/DeleteConfirmationModal";
-import SidebarDashboard from "../../components/SidebarDashboard";
 import DataGridComponent from "../../components/ui/DataGrid";
 
 import AddEditBannerModal from "./AddEditBannerModal";
