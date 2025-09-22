@@ -1,12 +1,5 @@
-import PropTypes from "prop-types";
-import {
-  DataGrid,
-  GridPagination,
-  GridToolbarContainer,
-  GridToolbarQuickFilter,
-} from "@mui/x-data-grid";
+import { DataGrid, GridPagination, GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
-import { useCallback } from "react";
 
 export default function DataGridComponent({
   columns,
@@ -40,13 +33,10 @@ export default function DataGridComponent({
         paginationModel={paginationModel}
         onPaginationModelChange={onPaginationModelChange}
         pageSizeOptions={[10, 25, 50, 100]}
-
         filterMode="server"
-
         sortingMode="server"
         sortModel={sortModel}
         onSortModelChange={onSortModelChange}
-
         density="compact"
         disableRowSelectionOnClick
         resetPageOnSortFilter
@@ -104,10 +94,6 @@ export default function DataGridComponent({
   );
 }
 
-DataGridComponent.propTypes = {
+DataGridComponent.propTypes = {};
 
-};
-
-DataGridComponent.defaultProps = {
-
-};
+DataGridComponent.defaultProps = {};

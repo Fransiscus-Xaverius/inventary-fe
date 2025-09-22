@@ -5,13 +5,13 @@ import axios from "axios";
  *
  * Example GET request
  * const { data, isLoading, error } = useApiRequest({
- *   url: "/api/products",
+ *   url: "/api/admin/products",
  *   queryKey: ["products"]
  * });
  *
  * Example POST request
  * const { mutate, isLoading, error } = useApiRequest({
- *   url: "/api/products",
+ *   url: "/api/admin/products",
  *   method: "POST",
  *   body: { name: "New Product", price: 100 }
  * });

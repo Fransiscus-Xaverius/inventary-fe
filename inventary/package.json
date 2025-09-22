@@ -4,10 +4,24 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "cross-env NODE_ENV=development vite",
+    "build": "cross-env NODE_ENV=production vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css}\"",
+    "prepare": "husky",
+    "test": "vitest"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npx lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -19,13 +33,15 @@
     "@tanstack/react-query": "^5.74.11",
     "autoprefixer": "^10.4.21",
     "axios": "^1.9.0",
+    "dotenv": "^17.2.0",
     "joi": "^17.13.3",
     "lodash": "^4.17.21",
     "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.3",
-    "react-router-dom": "^7.5.3"
+    "react-router-dom": "^7.5.3",
+    "notistack": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -33,11 +49,20 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
     "eslint": "^9.22.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.4.1",
+    "vitest": "^1.5.3",
+    "jsdom": "^24.0.0"
   }
 }

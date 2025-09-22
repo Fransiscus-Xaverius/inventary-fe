@@ -54,10 +54,7 @@ const DeleteConfirmationModal = ({
 
       <DialogContent sx={{ pt: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <WarningAmberIcon
-            color="warning"
-            sx={{ fontSize: 40, mr: 2 }}
-          />
+          <WarningAmberIcon color="warning" sx={{ fontSize: 40, mr: 2 }} />
           <DialogContentText component="div">
             <Typography variant="body1" fontWeight={500}>
               {message}
