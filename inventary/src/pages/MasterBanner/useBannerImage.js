@@ -7,11 +7,14 @@ export function useBannerImage(setValue) {
   const [fileError, setFileError] = useState(null);
 
   const resetImage = useCallback(() => {
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
     setSelectedFile(null);
     setImagePreview(null);
     setFileError(null);
     setValue && setValue("image_url", "");
-  }, [setValue]);
+  }, [setValue, imagePreview]);
 
   const validateAndSetImage = useCallback(
     (file) => {
@@ -20,15 +23,17 @@ export function useBannerImage(setValue) {
         return;
       }
 
+      setFileError(null);
+
       if (file.size > MAX_FILE_SIZE) {
         setFileError("File size cannot exceed 20MB.");
-        resetImage();
         return;
       }
 
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
+
         img.onload = () => {
           const imageAspectRatio = img.width / img.height;
           const isValidAspectRatio = ALLOWED_ASPECT_RATIOS.some(
@@ -39,7 +44,6 @@ export function useBannerImage(setValue) {
           if (!isValidAspectRatio) {
             const allowedLabels = ALLOWED_ASPECT_RATIOS.map((ar) => ar.label).join(", ");
             setFileError(`Invalid aspect ratio. Allowed ratios are around ${allowedLabels}.`);
-            resetImage();
             return;
           }
 
@@ -47,17 +51,26 @@ export function useBannerImage(setValue) {
             setFileError(
               `Image resolution must be at least ${MIN_RESOLUTION.width}px wide or ${MIN_RESOLUTION.height}px high.`
             );
-            resetImage();
             return;
           }
 
-          setFileError(null);
+          const previewUrl = URL.createObjectURL(file);
+          setImagePreview(previewUrl);
           setSelectedFile(file);
-          setImagePreview(URL.createObjectURL(file));
           setValue && setValue("image_url", file.name);
         };
+
+        img.onerror = () => {
+          setFileError("Failed to load image. Please try another file.");
+        };
+
         img.src = e.target.result;
       };
+
+      reader.onerror = () => {
+        setFileError("Failed to read the file. Please try again.");
+      };
+
       reader.readAsDataURL(file);
     },
     [resetImage, setValue]
