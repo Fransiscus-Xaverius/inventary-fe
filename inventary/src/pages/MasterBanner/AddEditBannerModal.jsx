@@ -28,10 +28,6 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
   const isEditing = !!bannerId;
   const { showSuccess, showError } = useNotification();
 
-  // Image handling extracted to custom hook
-  const { selectedFile, imagePreview, fileError, handleFileChange, resetImage, setFileError, setImagePreview } =
-    useBannerImage(setValue);
-
   const {
     control,
     handleSubmit,
@@ -50,6 +46,9 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
       is_active: true,
     },
   });
+
+  const { selectedFile, imagePreview, fileError, handleFileChange, resetImage, setFileError, setImagePreview } =
+    useBannerImage(setValue);
 
   const { response: bannerResponse, isLoading: isLoadingBanner } = useApiRequest({
     url: isEditing ? `/api/admin/banners/${bannerId}` : null,
@@ -92,8 +91,6 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
       resetImage();
     }
   }, [open, reset, resetImage]);
-
-  // File change handler now provided by hook
 
   const onSubmit = (data) => {
     if (fileError) {
@@ -238,7 +235,17 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
                   disabled={isSubmitDisabled}
                 />
                 <label htmlFor="raised-button-file">
-                  <Button variant="outlined" component="span" disabled={isSubmitDisabled}>
+                  <Button
+                    variant="outlined"
+                    component="span"
+                    disabled={isSubmitDisabled}
+                    sx={{
+                      cursor: isSubmitDisabled ? "not-allowed" : "pointer",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
+                    }}
+                  >
                     Upload Gambar
                   </Button>
                 </label>
@@ -261,6 +268,14 @@ export default function AddEditBannerModal({ open, onClose, bannerId, onSuccess 
                         maxWidth: "100%",
                         height: "auto",
                         maxHeight: "200px",
+                        display: "block",
+                        border: "1px solid #ddd",
+                        borderRadius: "4px",
+                        padding: "4px",
+                      }}
+                      onError={(e) => {
+                        console.error("Error loading image preview");
+                        setImagePreview(null);
                       }}
                     />
                   </Box>

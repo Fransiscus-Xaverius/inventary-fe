@@ -18,62 +18,58 @@ export default function SidebarDashboard() {
   return (
     <div className="flex h-full flex-col bg-gray-800 p-4 text-white">
       <h2 className="mb-6 text-xl font-semibold">Admin Dashboard</h2>
-      <ul className="space-y-2">
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/" className="w-full text-white">
+      <div className="space-y-2">
+        <NavLink to="/" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <DashboardIcon sx={{ mr: 1 }} /> Dashboard
-          </NavLink>
-        </li>
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-product" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-product" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <Inventory2Icon sx={{ mr: 1 }} /> Master Products
-          </NavLink>
-        </li>
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-color" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-color" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <ColorLensIcon sx={{ mr: 1 }} /> Master Color
-          </NavLink>
-        </li>
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-grup" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-grup" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <GroupIcon sx={{ mr: 1 }} /> Master Grup
-          </NavLink>
-        </li>
-
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-kat" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-kat" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <CategoryIcon sx={{ mr: 1 }} /> Master Kat
-          </NavLink>
-        </li>
-
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-unit" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-unit" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <BuildIcon sx={{ mr: 1 }} /> Master Unit
-          </NavLink>
-        </li>
-
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-tipe" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-tipe" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <BuildIcon sx={{ mr: 1 }} /> Master Tipe
-          </NavLink>
-        </li>
-
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-banner" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-banner" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <ImageIcon sx={{ mr: 1 }} /> Master Banner
-          </NavLink>
-        </li>
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-panduan-ukuran" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-panduan-ukuran" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <ImageIcon sx={{ mr: 1 }} /> Panduan Ukuran
-          </NavLink>
-        </li>
-        <li className="cursor-pointer rounded p-2 hover:bg-gray-700">
-          <NavLink to="/master-newsletter" className="w-full text-white">
+          </div>
+        </NavLink>
+        <NavLink to="/master-newsletter" className="block w-full text-white">
+          <div className="cursor-pointer rounded p-2 hover:bg-gray-700">
             <EmailIcon sx={{ mr: 1 }} /> Newsletter
-          </NavLink>
-        </li>
-      </ul>
+          </div>
+        </NavLink>
+      </div>
 
       <div className="mt-auto">
         <Button
