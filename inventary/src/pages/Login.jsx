@@ -100,9 +100,9 @@ function Login() {
           </div>
 
           <div className="text-sm">
-            <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+            {/* <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
               Forgot your password?
-            </a>
+            </a> */}
           </div>
         </div>
 
@@ -117,12 +117,12 @@ function Login() {
         </div>
 
         <div className="text-center text-sm">
-          <p className="text-gray-600">
+          {/* <p className="text-gray-600">
             Don't have an account?{" "}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
               Sign up
             </Link>
-          </p>
+          </p> */}
         </div>
       </form>
     </div>

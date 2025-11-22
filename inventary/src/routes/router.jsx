@@ -33,14 +33,14 @@ export const router = createBrowserRouter(
         </AuthLayout>
       ),
     },
-    {
-      path: "/register",
-      element: (
-        <AuthLayout>
-          <Register />
-        </AuthLayout>
-      ),
-    },
+    // {
+    //   path: "/register",
+    //   element: (
+    //     <AuthLayout>
+    //       <Register />
+    //     </AuthLayout>
+    //   ),
+    // },
 
     {
       path: "/",
