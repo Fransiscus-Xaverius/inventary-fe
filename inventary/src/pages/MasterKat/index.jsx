@@ -191,7 +191,7 @@ export default function MasterKat() {
   });
 
   const { mutate: deleteKat, isLoading: isDeleteLoading } = useApiRequest({
-    url: deleteDialog.item ? `/api/kats/${deleteDialog.item.id}` : "",
+    url: deleteDialog.item ? `/api/admin/kats/${deleteDialog.item.id}` : "",
     method: "DELETE",
   });
 
