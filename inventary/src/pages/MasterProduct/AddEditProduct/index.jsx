@@ -8,9 +8,9 @@ import AddEditProductForm from "./components/AddEditProductForm";
  * Handles routing, layout, and success navigation.
  */
 export default function AddEditProductPage() {
-  const { artikel } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const isEdit = !!artikel;
+  const isEdit = !!id;
 
   const handleSuccess = () => {
     navigate("/master-product");
@@ -24,7 +24,7 @@ export default function AddEditProductPage() {
         </Typography>
       </div>
 
-      <AddEditProductForm artikel={artikel} onSuccess={handleSuccess} />
+      <AddEditProductForm productId={id} onSuccess={handleSuccess} />
     </div>
   );
 }

@@ -123,12 +123,12 @@ export const createProductColumns = (filterOptions, refetch) => {
 
           // API mutation for deletion
           const { mutate: deleteProduct, isLoading: isDeleteLoading } = useApiRequest({
-            url: deleteDialog.item ? `/api/admin/products/${deleteDialog.item.artikel}` : "",
+            url: deleteDialog.item ? `/api/admin/products/${deleteDialog.item.id}` : "",
             method: "DELETE",
           });
 
           const handleEdit = () => {
-            navigate(`/addEdit-product/${params.row.artikel}`);
+            navigate(`/addEdit-product/${params.row.id}`);
           };
 
           const openDeleteDialog = (item) => {
@@ -155,7 +155,8 @@ export const createProductColumns = (filterOptions, refetch) => {
             setIsDeleting(true);
             deleteProduct(null, {
               onSuccess: () => {
-                showSuccess(`Product "${deleteDialog.item.artikel}" deleted successfully`);
+                const productLabel = deleteDialog.item?.artikel || deleteDialog.item?.nama || deleteDialog.item?.id;
+                showSuccess(`Product "${productLabel}" deleted successfully`);
                 refetch(); // Refresh the data after deletion
                 closeDeleteDialog();
               },
@@ -223,7 +224,7 @@ export const createProductColumns = (filterOptions, refetch) => {
                 onConfirm={handleDeleteConfirm}
                 title="Delete Product"
                 message="Are you sure you want to delete this product?"
-                itemName={deleteDialog.item?.artikel}
+                itemName={deleteDialog.item?.artikel || deleteDialog.item?.nama || deleteDialog.item?.id}
                 isLoading={isDeleting || isDeleteLoading}
               />
             </>
