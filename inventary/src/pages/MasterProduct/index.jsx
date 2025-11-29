@@ -125,7 +125,7 @@ export default function MasterProduct() {
       const fallbackNo = offsetParam + idx + 1; // 1-based running number across pages
       return {
         // Provide an internal id used by DataGrid (not shown unless a column uses it)
-        id: prod.id || prod.artikel || prod.no || `row-${offsetParam}-${idx}`,
+        id: prod.no || prod.artikel || prod.no || `row-${offsetParam}-${idx}`,
         no: prod.no ?? fallbackNo,
         ...prod,
       };

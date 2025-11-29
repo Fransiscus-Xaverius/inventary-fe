@@ -3,17 +3,17 @@ import { useEffect, useMemo } from "react";
 import useApiRequest from "../../../../hooks/useApiRequest";
 
 /**
- * Fetch a single product by artikel when in edit mode.
+ * Fetch a single product by id when in edit mode.
  *
- * @param {string | undefined} artikel – product identifier (may be undefined for add mode)
+ * @param {string | undefined} productId – product identifier (may be undefined for add mode)
  * @returns {object} { product, isLoading, error }
  */
-export default function useProductQuery(artikel, options, setSelectedColors, reset) {
-  const isEdit = Boolean(artikel);
+export default function useProductQuery(productId, options, setSelectedColors, reset) {
+  const isEdit = Boolean(productId);
 
   const { response, isLoading, error, refetch } = useApiRequest({
-    url: `/api/admin/products/${artikel}`,
-    queryKey: ["product", artikel],
+    url: `/api/admin/products/${productId}`,
+    queryKey: ["product", productId],
     enableQuery: isEdit,
   });
 

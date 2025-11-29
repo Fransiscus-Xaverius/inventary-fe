@@ -22,8 +22,8 @@ import useProductMutation from "../hooks/useProductMutation";
 import { getColorById, STATUSES } from "../helpers";
 import useProductSchema from "../validation";
 
-export default function AddEditProductForm({ artikel, onSuccess }) {
-  const isEdit = !!artikel;
+export default function AddEditProductForm({ productId, onSuccess }) {
+  const isEdit = !!productId;
 
   // State for color picker modal
   const [colorModalOpen, setColorModalOpen] = useState(false);
@@ -75,7 +75,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
 
   // Fetch product data for edit mode
   const { isLoading: isProductLoading, error: productError } = useProductQuery(
-    artikel,
+    productId,
     options,
     setSelectedColors,
     reset
@@ -88,7 +88,7 @@ export default function AddEditProductForm({ artikel, onSuccess }) {
     error: mutationError,
   } = useProductMutation({
     isEdit,
-    artikel,
+    productId,
     onSuccess,
   });
 

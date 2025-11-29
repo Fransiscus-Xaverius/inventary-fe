@@ -7,14 +7,14 @@ import { formatMarketplace, formatOffline, formatDateForApi, parseGambar } from 
  * Wrap POST / PUT product submission with notistack notifications.
  *
  * @param {boolean} isEdit – true when updating existing product
- * @param {string} artikel  – artikel id used for PUT endpoint
+ * @param {string} productId  – product id used for PUT endpoint
  * @returns {object} { submit, isLoading, error }
  */
-export default function useProductMutation({ isEdit, artikel, onSuccess }) {
+export default function useProductMutation({ isEdit, productId, onSuccess }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const { mutate, isLoading, error } = useApiRequest({
-    url: isEdit ? `/api/admin/products/${artikel}` : "/api/admin/products",
+    url: isEdit ? `/api/admin/products/${productId}` : "/api/admin/products",
     method: isEdit ? "PUT" : "POST",
   });
 
