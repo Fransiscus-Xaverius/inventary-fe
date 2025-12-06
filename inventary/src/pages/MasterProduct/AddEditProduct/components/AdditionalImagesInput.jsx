@@ -1,6 +1,12 @@
 import { useState, useRef } from "react";
 import { Controller } from "react-hook-form";
-import { MAX_FILE_SIZE } from "../helpers";
+import {
+  MAX_FILE_SIZE,
+  MIN_IMAGE_RESOLUTION,
+  ALLOWED_ASPECT_RATIOS,
+  ASPECT_RATIO_TOLERANCE,
+  validateImageAttributes,
+} from "../helpers";
 
 /**
  * Additional images input component (gambar[1] to gambar[9])
@@ -17,6 +23,8 @@ export default function AdditionalImagesInput({
 }) {
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const fileInputRefs = useRef([]);
+  const allowedRatioText = ALLOWED_ASPECT_RATIOS.map((ratio) => ratio.label).join(", ");
+  const ratioToleranceText = `${Math.round(ASPECT_RATIO_TOLERANCE * 100)}%`;
 
   // Get additional images (excluding main image at index 0)
   const additionalImages = watchedImages?.slice(1) || [];
@@ -52,7 +60,7 @@ export default function AdditionalImagesInput({
     return null;
   };
 
-  const handleFileValidation = (file) => {
+  const handleFileValidation = async (file) => {
     if (file.size > MAX_FILE_SIZE) {
       setError("gambar", { message: "File size cannot exceed 20MB." });
       return false;
@@ -61,11 +69,17 @@ export default function AdditionalImagesInput({
       setError("gambar", { message: "Please select a valid image file." });
       return false;
     }
+    const validationResult = await validateImageAttributes(file);
+    if (!validationResult.valid) {
+      setError("gambar", { message: validationResult.error });
+      return false;
+    }
     return true;
   };
 
-  const handleFileSelection = (file, index) => {
-    if (!handleFileValidation(file)) return;
+  const handleFileSelection = async (file, index) => {
+    const isValid = await handleFileValidation(file);
+    if (!isValid) return;
 
     if (isEdit) {
       // In edit mode, when user uploads any new image, discard all existing images
@@ -98,20 +112,20 @@ export default function AdditionalImagesInput({
     setDragOverIndex(null);
   };
 
-  const handleDrop = (e, index) => {
+  const handleDrop = async (e, index) => {
     e.preventDefault();
     setDragOverIndex(null);
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
-      handleFileSelection(files[0], index);
+      await handleFileSelection(files[0], index);
     }
   };
 
-  const handleFileInputChange = (e, index) => {
+  const handleFileInputChange = async (e, index) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleFileSelection(file, index);
+      await handleFileSelection(file, index);
     }
   };
 
@@ -245,6 +259,10 @@ export default function AdditionalImagesInput({
       {/* Info text */}
       <p className="mt-2 text-xs text-gray-500">
         You can upload up to 9 additional images. New slots will appear as you add images.
+      </p>
+      <p className="text-xs text-gray-500">
+        Min {MIN_IMAGE_RESOLUTION.width}x{MIN_IMAGE_RESOLUTION.height}, aspect ratios {allowedRatioText} ±
+        {ratioToleranceText}
       </p>
 
       {/* Error message */}

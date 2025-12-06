@@ -1,5 +1,12 @@
 // Constants
 export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+export const MIN_IMAGE_RESOLUTION = { width: 512, height: 512 };
+export const ALLOWED_ASPECT_RATIOS = [
+  { label: "1:1", value: 1 },
+  { label: "5:4", value: 1.25 },
+  { label: "4:5", value: 0.8 },
+];
+export const ASPECT_RATIO_TOLERANCE = 0.1; // 10%
 export const STATUSES = ["active", "inactive", "discontinued"];
 export const MARKETPLACE_OPTIONS = ["tokopedia", "shopee", "lazada", "tiktok", "bukalapak"];
 // export const OFFLINE_MAP_TYPES = ["google-map", "waze", "apple-maps", "custom"];
@@ -91,4 +98,61 @@ export const parseGambar = (gambar) => {
     }
   });
   return gambarObject;
+};
+
+export const getImageDimensions = (file) =>
+  new Promise((resolve, reject) => {
+    const imageUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(imageUrl);
+      resolve({ width: img.naturalWidth || img.width, height: img.naturalHeight || img.height });
+    };
+
+    img.onerror = (error) => {
+      URL.revokeObjectURL(imageUrl);
+      reject(error);
+    };
+
+    img.src = imageUrl;
+  });
+
+export const validateImageAttributes = async (file) => {
+  try {
+    const { width, height } = await getImageDimensions(file);
+
+    if (width < MIN_IMAGE_RESOLUTION.width || height < MIN_IMAGE_RESOLUTION.height) {
+      return {
+        valid: false,
+        error: `Image resolution must be at least ${MIN_IMAGE_RESOLUTION.width}x${MIN_IMAGE_RESOLUTION.height}.`,
+      };
+    }
+
+    const aspectRatio = width / height;
+    const closestRatioMatch = ALLOWED_ASPECT_RATIOS.reduce((closest, ratio) => {
+      const diff = Math.abs(aspectRatio - ratio.value);
+      if (!closest || diff < closest.diff) {
+        return { ratio, diff };
+      }
+      return closest;
+    }, null);
+
+    const withinTolerance =
+      closestRatioMatch &&
+      Math.abs(aspectRatio - closestRatioMatch.ratio.value) / closestRatioMatch.ratio.value <= ASPECT_RATIO_TOLERANCE;
+
+    if (!withinTolerance) {
+      const allowedLabels = ALLOWED_ASPECT_RATIOS.map((ratio) => ratio.label).join(", ");
+      return {
+        valid: false,
+        error: `Image aspect ratio must be close to ${allowedLabels} (±${ASPECT_RATIO_TOLERANCE * 100}%).`,
+      };
+    }
+
+    return { valid: true, dimensions: { width, height }, matchedRatio: closestRatioMatch?.ratio };
+  } catch (error) {
+    console.error("Failed to validate image dimensions", error);
+    return { valid: false, error: "Unable to read image dimensions. Please try another file." };
+  }
 };

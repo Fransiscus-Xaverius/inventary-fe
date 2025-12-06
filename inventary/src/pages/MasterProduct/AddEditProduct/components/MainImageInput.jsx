@@ -1,6 +1,12 @@
 import { useState, useRef } from "react";
 import { Controller } from "react-hook-form";
-import { MAX_FILE_SIZE } from "../helpers";
+import {
+  MAX_FILE_SIZE,
+  MIN_IMAGE_RESOLUTION,
+  ALLOWED_ASPECT_RATIOS,
+  ASPECT_RATIO_TOLERANCE,
+  validateImageAttributes,
+} from "../helpers";
 
 /**
  * Main image input component with drag-and-drop functionality
@@ -20,6 +26,8 @@ export default function MainImageInput({
 
   const mainImage = watchedImages?.[0];
   const mainImageUrl = watchedImageUrls?.[0];
+  const allowedRatioText = ALLOWED_ASPECT_RATIOS.map((ratio) => ratio.label).join(", ");
+  const ratioToleranceText = `${Math.round(ASPECT_RATIO_TOLERANCE * 100)}%`;
 
   const getImagePreview = () => {
     // In edit mode, prioritize new images from gambar over existing images from image_url
@@ -41,7 +49,7 @@ export default function MainImageInput({
     return null;
   };
 
-  const handleFileValidation = (file) => {
+  const handleFileValidation = async (file) => {
     if (file.size > MAX_FILE_SIZE) {
       setError("gambar", { message: "File size cannot exceed 20MB." });
       return false;
@@ -50,11 +58,18 @@ export default function MainImageInput({
       setError("gambar", { message: "Please select a valid image file." });
       return false;
     }
+
+    const validationResult = await validateImageAttributes(file);
+    if (!validationResult.valid) {
+      setError("gambar", { message: validationResult.error });
+      return false;
+    }
     return true;
   };
 
-  const handleFileSelection = (file) => {
-    if (!handleFileValidation(file)) return;
+  const handleFileSelection = async (file) => {
+    const isValid = await handleFileValidation(file);
+    if (!isValid) return;
 
     // In edit mode, when user uploads a new image, discard all existing images
     if (isEdit) {
@@ -81,20 +96,20 @@ export default function MainImageInput({
     setIsDragOver(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = async (e) => {
     e.preventDefault();
     setIsDragOver(false);
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
-      handleFileSelection(files[0]);
+      await handleFileSelection(files[0]);
     }
   };
 
-  const handleFileInputChange = (e) => {
+  const handleFileInputChange = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleFileSelection(file);
+      await handleFileSelection(file);
     }
   };
 
@@ -160,7 +175,13 @@ export default function MainImageInput({
                   />
                 </svg>
                 <p className="text-center text-sm text-gray-600">Click to select or drag image here</p>
-                <p className="text-xs text-gray-400">PNG, JPG up to 20MB</p>
+                <div className="text-center text-xs text-gray-400">
+                  <p>PNG, JPG up to 20MB</p>
+                  <p>
+                    Min {MIN_IMAGE_RESOLUTION.width}x{MIN_IMAGE_RESOLUTION.height}, aspect ratios {allowedRatioText} ±
+                    {ratioToleranceText}
+                  </p>
+                </div>
               </div>
             ) : (
               // Image preview state
