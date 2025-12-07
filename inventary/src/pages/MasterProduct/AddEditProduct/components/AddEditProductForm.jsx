@@ -715,7 +715,7 @@ export default function AddEditProductForm({ productId, onSuccess }) {
         onSave={handleColorSave}
       />
 
-      <DevTool control={control} />
+      {/* <DevTool control={control} /> */}
     </div>
   );
 }
