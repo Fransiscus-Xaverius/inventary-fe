@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useSnackbar } from "notistack";
 import useApiRequest from "../../../../hooks/useApiRequest";
-import { formatMarketplace, formatOffline, formatDateForApi, parseGambar } from "../helpers";
+import { formatMarketplace, formatOffline, formatDateForApi, transformImagesForSubmission } from "../helpers";
 
 /**
  * Wrap POST / PUT product submission with notistack notifications.
@@ -43,6 +43,10 @@ export default function useProductMutation({ isEdit, productId, onSuccess }) {
   // Form submission handler
   const onSubmit = useCallback(
     (data) => {
+      // Transform unified images array for backend submission
+      // This creates metadata (JSON) + individual file fields
+      const { metadata: imagesMetadata, files: imageFiles } = transformImagesForSubmission(data.images);
+
       // Process data for API submission
       const processedData = {
         artikel: data.artikel,
@@ -64,21 +68,27 @@ export default function useProductMutation({ isEdit, productId, onSuccess }) {
         tanggal_produk: formatDateForApi(data.tanggal_produk),
         tanggal_terima: formatDateForApi(data.tanggal_terima),
         status: data.status ? data.status.toLowerCase() : "",
-        // status: data.status,
         supplier: data.supplier,
         diupdate_oleh: data.diupdate_oleh,
-        ...parseGambar(data.gambar),
+        // Images metadata: JSON string describing the final array structure
+        // See helpers.js transformImagesForSubmission for API contract details
+        images_metadata: JSON.stringify(imagesMetadata),
       };
 
-      let submissionData;
-
       const formData = new FormData();
+
+      // Add all processed data fields
       Object.keys(processedData).forEach((key) => {
         formData.append(key, processedData[key]);
       });
-      submissionData = formData;
 
-      submit(submissionData, {
+      // Add image files (new uploads)
+      // These are keyed as images_new_0, images_new_1, etc.
+      Object.keys(imageFiles).forEach((key) => {
+        formData.append(key, imageFiles[key]);
+      });
+
+      submit(formData, {
         onSuccess: () => {
           onSuccess?.();
         },

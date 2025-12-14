@@ -6,62 +6,58 @@ import {
   ALLOWED_ASPECT_RATIOS,
   ASPECT_RATIO_TOLERANCE,
   validateImageAttributes,
+  getImagePreviewUrl,
+  setImageAtIndex,
+  setMainImageToNull,
+  isDeletedImageSlot,
 } from "../helpers";
 
 /**
  * Main image input component with drag-and-drop functionality
  * Displays as a square with dotted border initially, then shows preview with controls
+ *
+ * Uses unified images array where:
+ * - Index 0 is the main image
+ * - Can be a URL string (existing) or File object (new upload) or null (deleted)
  */
 export default function MainImageInput({
   control,
   setValue,
   setError,
-  watchedImages = [],
-  watchedImageUrls = [],
-  isEdit = false,
+  watchedImages = [], // Unified images array
   errors = {},
 }) {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
 
-  const mainImage = watchedImages?.[0];
-  const mainImageUrl = watchedImageUrls?.[0];
+  const mainImage = watchedImages?.[0]; // Can be URL string, File, or null
   const allowedRatioText = ALLOWED_ASPECT_RATIOS.map((ratio) => ratio.label).join(", ");
   const ratioToleranceText = `${Math.round(ASPECT_RATIO_TOLERANCE * 100)}%`;
 
-  const getImagePreview = () => {
-    // In edit mode, prioritize new images from gambar over existing images from image_url
-    if (isEdit) {
-      // If user has uploaded new images, show the new main image
-      if (mainImage && mainImage instanceof File) {
-        return URL.createObjectURL(mainImage);
-      }
-      // If no new images but has existing images, show existing main image
-      if (mainImageUrl) {
-        return `${mainImageUrl}`;
-      }
-    } else {
-      // In add mode, show from gambar array
-      if (mainImage && mainImage instanceof File) {
-        return URL.createObjectURL(mainImage);
-      }
+  /**
+   * Get the preview URL for the main image
+   * Uses the helper function to handle both URL strings and File objects
+   */
+  const getPreviewUrl = () => {
+    if (isDeletedImageSlot(mainImage)) {
+      return null; // Main image was deleted, show empty slot
     }
-    return null;
+    return getImagePreviewUrl(mainImage);
   };
 
   const handleFileValidation = async (file) => {
     if (file.size > MAX_FILE_SIZE) {
-      setError("gambar", { message: "File size cannot exceed 20MB." });
+      setError("images", { message: "File size cannot exceed 20MB." });
       return false;
     }
     if (!file.type.startsWith("image/")) {
-      setError("gambar", { message: "Please select a valid image file." });
+      setError("images", { message: "Please select a valid image file." });
       return false;
     }
 
     const validationResult = await validateImageAttributes(file);
     if (!validationResult.valid) {
-      setError("gambar", { message: validationResult.error });
+      setError("images", { message: validationResult.error });
       return false;
     }
     return true;
@@ -71,19 +67,10 @@ export default function MainImageInput({
     const isValid = await handleFileValidation(file);
     if (!isValid) return;
 
-    // In edit mode, when user uploads a new image, discard all existing images
-    if (isEdit) {
-      setValue("image_url", [], { shouldValidate: true }); // Clear existing images
-      setValue("gambar", [file], { shouldValidate: true }); // Set only the new main image
-    } else {
-      // In add mode, update the gambar array normally
-      const currentImages = watchedImages || [];
-      const updated = [...currentImages];
-      updated[0] = file; // Main image is always at index 0
-      setValue("gambar", updated, { shouldValidate: true });
-    }
-
-    setError("gambar", { message: null });
+    // Set the new file at index 0 (main image)
+    const updatedImages = setImageAtIndex(watchedImages, 0, file);
+    setValue("images", updatedImages, { shouldValidate: true });
+    setError("images", { message: null });
   };
 
   const handleDragOver = (e) => {
@@ -113,21 +100,14 @@ export default function MainImageInput({
     }
   };
 
+  /**
+   * Handle removing the main image
+   * Sets index 0 to null (user must fill before saving)
+   */
   const handleRemoveImage = () => {
-    if (isEdit) {
-      // In edit mode, if we're showing existing images (from image_url), clear them
-      // If we're showing new images (from gambar), clear them too
-      setValue("image_url", [], { shouldValidate: true });
-      setValue("gambar", [], { shouldValidate: true });
-    } else {
-      // In add mode, remove from gambar array normally
-      const currentImages = watchedImages || [];
-      const updated = [...currentImages];
-      updated[0] = undefined; // Remove main image at index 0
-      // Filter out undefined values to clean up the array
-      const filtered = updated.filter((img) => img !== undefined);
-      setValue("gambar", filtered, { shouldValidate: true });
-    }
+    // Set main image to null (keep other images)
+    const updatedImages = setMainImageToNull(watchedImages);
+    setValue("images", updatedImages, { shouldValidate: true });
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -138,14 +118,15 @@ export default function MainImageInput({
     fileInputRef.current?.click();
   };
 
-  const hasImage = getImagePreview();
+  const previewUrl = getPreviewUrl();
+  const hasImage = previewUrl !== null;
 
   return (
     <div className="flex w-fit flex-col">
       <label className="mb-2 text-sm font-medium text-gray-700">Main Image *</label>
 
       <Controller
-        name="gambar"
+        name="images"
         control={control}
         render={() => (
           <>
@@ -186,11 +167,7 @@ export default function MainImageInput({
             ) : (
               // Image preview state
               <div className="relative">
-                <img
-                  src={getImagePreview()}
-                  alt="Main product image"
-                  className="h-48 w-48 rounded-lg object-cover shadow-md"
-                />
+                <img src={previewUrl} alt="Main product image" className="h-48 w-48 rounded-lg object-cover shadow-md" />
 
                 {/* Remove button */}
                 <button
@@ -223,7 +200,7 @@ export default function MainImageInput({
       />
 
       {/* Error message */}
-      {errors.gambar && <p className="mt-1 text-sm text-red-600">{errors.gambar.message}</p>}
+      {errors.images && <p className="mt-1 text-sm text-red-600">{errors.images.message}</p>}
     </div>
   );
 }

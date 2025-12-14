@@ -31,6 +31,10 @@ export default function useProductQuery(productId, options, setSelectedColors, r
 
     const stringify = (id) => id?.toString() || "";
 
+    // Convert product.gambar (array of URLs from backend) to unified images array
+    // In edit mode, all images start as URL strings (existing images)
+    const imagesFromBackend = Array.isArray(product.gambar) ? product.gambar : [];
+
     const valuesToReset = {
       artikel: product.artikel || "",
       nama: product.nama || "",
@@ -48,7 +52,8 @@ export default function useProductQuery(productId, options, setSelectedColors, r
       rating: product.rating || { comfort: 0, style: 0, support: 0, purpose: [] },
       marketplace: product.marketplace || [],
       offline: product.offline || [],
-      image_url: product.gambar || [],
+      // Unified images array: URL strings for existing images
+      images: imagesFromBackend,
       tanggal_produk: product.tanggal_produk ? product.tanggal_produk.split("T")[0] : "",
       tanggal_terima: product.tanggal_terima ? product.tanggal_terima.split("T")[0] : "",
       status: product.status ? product.status.toLowerCase() : "active",

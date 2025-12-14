@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import Joi from "joi";
 
-import { STATUSES, MARKETPLACE_OPTIONS } from "./helpers";
+import { STATUSES, MARKETPLACE_OPTIONS, isExistingImageUrl, isNewImageFile } from "./helpers";
 
 // Size pattern validator for EU sizes or ranges (e.g., 30 or 30-38)
 const sizePattern = Joi.string().pattern(/^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$/);
@@ -153,68 +153,58 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
             "array.min": "Tambahkan minimal satu toko offline.",
             "array.unique": "Nama toko offline harus unik.",
           }),
-        gambar: Joi.array()
+        // Unified images array: can contain URL strings (existing) or File objects (new uploads)
+        // Index 0 is the main image (required), indices 1-9 are additional images
+        images: Joi.array()
           .max(10)
           .custom((value, helpers) => {
-            // If not edit mode, validate that all items are File objects
-            if (!isEdit) {
-              if (!value || value.length <= 0) {
-                return helpers.error("any.required");
-              }
-            }
-
-            // Check if all items are File objects
-            if (!Array.isArray(value)) {
+            // Check if array exists and is valid
+            if (!value || !Array.isArray(value)) {
               return helpers.error("array.base");
             }
 
-            // If array is not empty, validate that all items are File objects
-            if (value.length > 0) {
-              for (let item of value) {
-                if (!(item instanceof File)) {
-                  return helpers.error("gambar.invalidFile");
-                }
+            // Check if at least one image exists
+            if (value.length === 0) {
+              return helpers.error("images.required");
+            }
+
+            // Check if main image (index 0) exists and is not null
+            const mainImage = value[0];
+            if (mainImage === null || mainImage === undefined) {
+              return helpers.error("images.mainRequired");
+            }
+
+            // Validate that main image is either a valid URL or File
+            if (!isExistingImageUrl(mainImage) && !isNewImageFile(mainImage)) {
+              return helpers.error("images.invalidEntry");
+            }
+
+            // Validate all entries in the array
+            for (let i = 0; i < value.length; i++) {
+              const entry = value[i];
+
+              // Check for null/undefined (gaps) - shouldn't happen for index 1+ due to shifting
+              if (entry === null || entry === undefined) {
+                return helpers.error("images.hasGaps");
+              }
+
+              // Each entry must be either a valid URL string or a File object
+              if (!isExistingImageUrl(entry) && !isNewImageFile(entry)) {
+                return helpers.error("images.invalidEntry");
               }
             }
 
             return value;
           })
-          .optional()
+          .required()
           .messages({
-            "any.required": "Gambar tidak boleh kosong",
-            "array.base": "Gambar harus berupa array",
-            "array.max": "Maksimal 10 gambar yang diizinkan",
-            "gambar.invalidFile": "Semua item harus berupa file yang valid",
-          }),
-        image_url: Joi.array()
-          .custom((value, helpers) => {
-            const data = helpers.state.ancestors[0];
-            const gambar = data.gambar;
-
-            if (isEdit && (!value || !Array.isArray(value) || value.length <= 0)) {
-              if (!Array.isArray(gambar) || gambar.length <= 0) {
-                return helpers.error("any.required");
-              }
-            }
-
-            if (isEdit && value && value.length > 0) {
-              for (let item of value) {
-                if (!item.startsWith("/")) {
-                  return helpers.error("image_url.invalidUrl");
-                }
-              }
-            }
-
-            if (isEdit && gambar && gambar.length > 0) {
-              return undefined;
-            }
-
-            return value;
-          })
-          .optional()
-          .messages({
-            "any.required": "Image URL tidak boleh kosong",
-            "image_url.invalidUrl": "URL harus diawali dengan /",
+            "any.required": "At least one image is required.",
+            "array.base": "Images must be an array.",
+            "array.max": "Maximum 10 images allowed.",
+            "images.required": "At least one image is required.",
+            "images.mainRequired": "Main image is required.",
+            "images.hasGaps": "Please fill all empty image slots.",
+            "images.invalidEntry": "All images must be valid files or URLs.",
           }),
         tanggal_produk: Joi.date().iso().allow("").optional(),
         tanggal_terima: Joi.date().iso().allow("").optional(),
@@ -284,8 +274,8 @@ export default function useProductSchema({ isEdit, setSelectedColors }) {
         },
       ],
       offline: [],
-      gambar: [],
-      image_url: [],
+      // Unified images array: can contain URL strings (existing) or File objects (new uploads)
+      images: [],
       tanggal_produk: "2025-01-01",
       tanggal_terima: "2025-01-01",
       status: "active",
