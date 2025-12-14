@@ -66,9 +66,9 @@ export default function AddEditProductForm({ productId, onSuccess }) {
     name: "offline",
   });
 
-  // Watch form values for file handling
-  const watchedImages = watch("gambar");
-  const watchedImageUrls = watch("image_url");
+  // Watch the unified images array
+  // This array contains both URL strings (existing images) and File objects (new uploads)
+  const watchedImages = watch("images");
 
   // Fetch master options (colors, grups, etc.)
   const { options, isLoading: isOptionsLoading, error: optionsError } = useMasterOptions();
@@ -660,12 +660,6 @@ export default function AddEditProductForm({ productId, onSuccess }) {
         {/* Rating Input */}
         <RatingInput control={control} errors={errors} />
 
-        <Controller
-          name="image_url"
-          control={control}
-          render={({ field }) => <input {...field} type="hidden" id="image_url" />}
-        />
-
         {/* Main Image */}
         <div className="md:col-span-1">
           <MainImageInput
@@ -673,8 +667,6 @@ export default function AddEditProductForm({ productId, onSuccess }) {
             setValue={setValue}
             setError={setError}
             watchedImages={watchedImages}
-            watchedImageUrls={watchedImageUrls}
-            isEdit={isEdit}
             errors={errors}
           />
         </div>
@@ -686,8 +678,6 @@ export default function AddEditProductForm({ productId, onSuccess }) {
             setValue={setValue}
             setError={setError}
             watchedImages={watchedImages}
-            watchedImageUrls={watchedImageUrls}
-            isEdit={isEdit}
             errors={errors}
           />
         </div>
@@ -715,7 +705,7 @@ export default function AddEditProductForm({ productId, onSuccess }) {
         onSave={handleColorSave}
       />
 
-      <DevTool control={control} />
+      {/* <DevTool control={control} /> */}
     </div>
   );
 }

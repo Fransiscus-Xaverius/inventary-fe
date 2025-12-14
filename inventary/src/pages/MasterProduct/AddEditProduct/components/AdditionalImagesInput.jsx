@@ -6,19 +6,31 @@ import {
   ALLOWED_ASPECT_RATIOS,
   ASPECT_RATIO_TOLERANCE,
   validateImageAttributes,
+  getImagePreviewUrl,
+  removeAdditionalImage,
+  addImageToEnd,
+  isExistingImageUrl,
+  isNewImageFile,
 } from "../helpers";
 
 /**
- * Additional images input component (gambar[1] to gambar[9])
+ * Additional images input component (images[1] to images[9])
  * Shows progressive image selection buttons up to 9 additional images
+ *
+ * Uses unified images array where:
+ * - Index 0 is the main image (handled by MainImageInput)
+ * - Indices 1-9 are additional images
+ * - Each can be a URL string (existing) or File object (new upload)
+ *
+ * Behavior:
+ * - Deleting shifts remaining images backward (no gaps)
+ * - New images are only added to the end of the array
  */
 export default function AdditionalImagesInput({
   control,
   setValue,
   setError,
-  watchedImages = [],
-  watchedImageUrls = [],
-  isEdit = false,
+  watchedImages = [], // Unified images array
   errors = {},
 }) {
   const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -27,79 +39,52 @@ export default function AdditionalImagesInput({
   const ratioToleranceText = `${Math.round(ASPECT_RATIO_TOLERANCE * 100)}%`;
 
   // Get additional images (excluding main image at index 0)
+  // These are the images from index 1 onwards in the unified array
   const additionalImages = watchedImages?.slice(1) || [];
-  const additionalImageUrls = watchedImageUrls?.slice(1) || [];
 
-  // Count only the actual additional images that exist (not empty slots)
-  const actualAdditionalImageCount = isEdit
-    ? Math.max(
-        additionalImages.filter((img) => img instanceof File).length, // New images
-        additionalImageUrls.filter((url) => url && url.trim() !== "").length // Existing images
-      )
-    : additionalImages.filter((img) => img instanceof File).length;
+  // Count actual additional images that exist (URL strings or File objects)
+  const actualAdditionalImageCount = additionalImages.filter(
+    (img) => isExistingImageUrl(img) || isNewImageFile(img)
+  ).length;
 
-  const getImagePreview = (index) => {
-    const imageIndex = index; // index for additional images array
-
-    // In edit mode, prioritize new images from gambar over existing images from image_url
-    if (isEdit) {
-      // If user has uploaded new images, show the new additional images
-      if (additionalImages[imageIndex] && additionalImages[imageIndex] instanceof File) {
-        return URL.createObjectURL(additionalImages[imageIndex]);
-      }
-      // If no new images but has existing images, show existing additional images
-      if (additionalImageUrls[imageIndex]) {
-        return `${additionalImageUrls[imageIndex]}`;
-      }
-    } else {
-      // In add mode, show from gambar array
-      if (additionalImages[imageIndex] && additionalImages[imageIndex] instanceof File) {
-        return URL.createObjectURL(additionalImages[imageIndex]);
-      }
-    }
-    return null;
+  /**
+   * Get the preview URL for an additional image at the given display index
+   * @param {number} displayIndex - Index within the additional images (0-based, not including main image)
+   */
+  const getPreviewUrl = (displayIndex) => {
+    const image = additionalImages[displayIndex];
+    return getImagePreviewUrl(image);
   };
 
   const handleFileValidation = async (file) => {
     if (file.size > MAX_FILE_SIZE) {
-      setError("gambar", { message: "File size cannot exceed 20MB." });
+      setError("images", { message: "File size cannot exceed 20MB." });
       return false;
     }
     if (!file.type.startsWith("image/")) {
-      setError("gambar", { message: "Please select a valid image file." });
+      setError("images", { message: "Please select a valid image file." });
       return false;
     }
     const validationResult = await validateImageAttributes(file);
     if (!validationResult.valid) {
-      setError("gambar", { message: validationResult.error });
+      setError("images", { message: validationResult.error });
       return false;
     }
     return true;
   };
 
-  const handleFileSelection = async (file, index) => {
+  /**
+   * Handle adding a new image to the end of the array
+   * This is called when clicking on an empty slot
+   */
+  const handleFileSelection = async (file) => {
     const isValid = await handleFileValidation(file);
     if (!isValid) return;
 
-    if (isEdit) {
-      // In edit mode, when user uploads any new image, discard all existing images
-      setValue("image_url", [], { shouldValidate: true }); // Clear existing images
-
-      // Start fresh with new images
-      const newImages = [];
-      const actualIndex = index + 1; // Additional images start at index 1 (index 0 is main image)
-      newImages[actualIndex] = file;
-      setValue("gambar", newImages, { shouldValidate: true });
-    } else {
-      // In add mode, update the gambar array normally
-      const currentImages = watchedImages || [];
-      const updated = [...currentImages];
-      const actualIndex = index + 1; // Additional images start at index 1 (index 0 is main image)
-      updated[actualIndex] = file;
-      setValue("gambar", updated, { shouldValidate: true });
-    }
-
-    setError("gambar", { message: null });
+    // Add the new file to the end of the images array
+    const updatedImages = addImageToEnd(watchedImages, file);
+    setValue("images", updatedImages, { shouldValidate: true });
+    setError("images", { message: null });
   };
 
   const handleDragOver = (e, index) => {
@@ -112,59 +97,50 @@ export default function AdditionalImagesInput({
     setDragOverIndex(null);
   };
 
-  const handleDrop = async (e, index) => {
+  const handleDrop = async (e, displayIndex) => {
     e.preventDefault();
     setDragOverIndex(null);
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
-      await handleFileSelection(files[0], index);
+      // Only allow adding to the empty slot (last position)
+      // If dropping on an existing image, ignore it
+      const hasImage = getPreviewUrl(displayIndex) !== null;
+      if (!hasImage) {
+        await handleFileSelection(files[0]);
+      }
     }
   };
 
-  const handleFileInputChange = async (e, index) => {
+  const handleFileInputChange = async (e, displayIndex) => {
     const file = e.target.files?.[0];
     if (file) {
-      await handleFileSelection(file, index);
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    if (isEdit) {
-      // In edit mode, we need to check if we're removing from new images or existing images
-      const actualIndex = index + 1;
-
-      // If there are new images in gambar, remove from there
-      if (additionalImages[index] && additionalImages[index] instanceof File) {
-        const currentImages = watchedImages || [];
-        const updated = [...currentImages];
-        updated[actualIndex] = undefined;
-        const filtered = updated.filter((img, i) => i === 0 || img !== undefined);
-        setValue("gambar", filtered, { shouldValidate: true });
-      } else {
-        // If removing existing image, clear all existing images (switching to edit mode)
-        setValue("image_url", [], { shouldValidate: true });
-        setValue("gambar", [], { shouldValidate: true });
+      // Only allow adding to the empty slot
+      const hasImage = getPreviewUrl(displayIndex) !== null;
+      if (!hasImage) {
+        await handleFileSelection(file);
       }
-    } else {
-      // In add mode, remove from gambar array normally
-      const currentImages = watchedImages || [];
-      const updated = [...currentImages];
-      const actualIndex = index + 1; // Additional images start at index 1 (index 0 is main image)
-      updated[actualIndex] = undefined; // Remove the image at this index
-      // Filter out undefined values to clean up the array, but preserve main image at index 0
-      const filtered = updated.filter((img, i) => i === 0 || img !== undefined);
-      setValue("gambar", filtered, { shouldValidate: true });
-    }
-
-    if (fileInputRefs.current[index]) {
-      fileInputRefs.current[index].value = "";
     }
   };
 
-  const handleChangeImage = (index) => {
-    fileInputRefs.current[index]?.click();
+  /**
+   * Handle removing an additional image
+   * The actual array index is displayIndex + 1 (since index 0 is main image)
+   * Removing shifts all subsequent images backward
+   */
+  const handleRemoveImage = (displayIndex) => {
+    const actualIndex = displayIndex + 1; // Account for main image at index 0
+    const updatedImages = removeAdditionalImage(watchedImages, actualIndex);
+    setValue("images", updatedImages, { shouldValidate: true });
+
+    if (fileInputRefs.current[displayIndex]) {
+      fileInputRefs.current[displayIndex].value = "";
+    }
   };
+
+  // Note: "Change" functionality is removed for additional images
+  // Users must delete and re-add in the new position
+  // This simplifies the UX and maintains array integrity
 
   // Determine how many slots to show
   // Always show exactly: (number of actual additional images) + 1 empty slot
@@ -177,32 +153,34 @@ export default function AdditionalImagesInput({
       <label className="mb-2 text-sm font-medium text-gray-700">Additional Images (up to 9)</label>
 
       <div className="grid grid-cols-3 gap-4 md:grid-cols-4 lg:grid-cols-5">
-        {Array.from({ length: slotsToShow }, (_, index) => {
-          const hasImage = getImagePreview(index);
+        {Array.from({ length: slotsToShow }, (_, displayIndex) => {
+          const previewUrl = getPreviewUrl(displayIndex);
+          const hasImage = previewUrl !== null;
+          const isEmptySlot = !hasImage;
 
           return (
             <Controller
-              key={index}
-              name="gambar"
+              key={displayIndex}
+              name="images"
               control={control}
               render={() => (
                 <div className="relative">
                   <input
-                    ref={(el) => (fileInputRefs.current[index] = el)}
+                    ref={(el) => (fileInputRefs.current[displayIndex] = el)}
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileInputChange(e, index)}
+                    onChange={(e) => handleFileInputChange(e, displayIndex)}
                     className="hidden"
                   />
 
-                  {!hasImage ? (
-                    // Empty slot - show add button
+                  {isEmptySlot ? (
+                    // Empty slot - show add button (only the last slot is empty)
                     <div
-                      onClick={() => fileInputRefs.current[index]?.click()}
-                      onDragOver={(e) => handleDragOver(e, index)}
+                      onClick={() => fileInputRefs.current[displayIndex]?.click()}
+                      onDragOver={(e) => handleDragOver(e, displayIndex)}
                       onDragLeave={handleDragLeave}
-                      onDrop={(e) => handleDrop(e, index)}
-                      className={`flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-indigo-400 hover:bg-gray-100 ${dragOverIndex === index ? "border-indigo-500 bg-indigo-50" : ""} `}
+                      onDrop={(e) => handleDrop(e, displayIndex)}
+                      className={`flex h-32 w-32 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-indigo-400 hover:bg-gray-100 ${dragOverIndex === displayIndex ? "border-indigo-500 bg-indigo-50" : ""} `}
                     >
                       <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -218,15 +196,15 @@ export default function AdditionalImagesInput({
                     // Image preview
                     <div className="relative">
                       <img
-                        src={getImagePreview(index)}
-                        alt={`Additional image ${index + 1}`}
+                        src={previewUrl}
+                        alt={`Additional image ${displayIndex + 1}`}
                         className="h-32 w-32 rounded-lg object-cover shadow-md"
                       />
 
                       {/* Remove button */}
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(index)}
+                        onClick={() => handleRemoveImage(displayIndex)}
                         className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600"
                         title="Remove image"
                       >
@@ -239,14 +217,10 @@ export default function AdditionalImagesInput({
                         </svg>
                       </button>
 
-                      {/* Change button */}
-                      <button
-                        type="button"
-                        onClick={() => handleChangeImage(index)}
-                        className="absolute bottom-1 left-1 rounded bg-black bg-opacity-70 px-1 py-0.5 text-xs text-white hover:bg-opacity-80"
-                      >
-                        Change
-                      </button>
+                      {/* Position indicator */}
+                      <div className="absolute bottom-1 left-1 rounded bg-black bg-opacity-60 px-1.5 py-0.5 text-xs text-white">
+                        #{displayIndex + 1}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -265,8 +239,10 @@ export default function AdditionalImagesInput({
         {ratioToleranceText}
       </p>
 
-      {/* Error message */}
-      {errors.gambar && <p className="mt-1 text-sm text-red-600">{errors.gambar.message}</p>}
+      {/* Error message - only show here if not shown in MainImageInput */}
+      {errors.images && !errors.images.message?.includes("Main image") && (
+        <p className="mt-1 text-sm text-red-600">{errors.images.message}</p>
+      )}
     </div>
   );
 }
