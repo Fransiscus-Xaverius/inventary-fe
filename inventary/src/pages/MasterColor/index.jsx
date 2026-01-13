@@ -3,6 +3,7 @@ import { Typography, TextField, InputAdornment, Box, Tooltip, IconButton } from 
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useQueryClient } from "@tanstack/react-query";
 
 import useApiRequest from "../../hooks/useApiRequest";
 import useProductPagination from "../../hooks/useProductPagination";
@@ -102,6 +103,7 @@ const columns = [
 ];
 
 export default function MasterColor() {
+  const queryClient = useQueryClient();
   const [searchInputValue, setSearchInputValue] = useState("");
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
@@ -208,6 +210,7 @@ export default function MasterColor() {
     deleteColor(null, {
       onSuccess: () => {
         showSuccess(`Color "${deleteDialog.item.nama}" deleted successfully`);
+        queryClient.invalidateQueries({ queryKey: ["colors"], exact: false });
         refetch(); // Refresh the data after deletion
         closeDeleteDialog();
       },
@@ -223,6 +226,7 @@ export default function MasterColor() {
 
   // Handle color save success
   const handleColorSaveSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["colors"], exact: false });
     refetch(); // Refresh the colors data
   };
 

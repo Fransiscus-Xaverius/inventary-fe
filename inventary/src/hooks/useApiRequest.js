@@ -34,6 +34,7 @@ export default function useApiRequest({
   options = {},
   headers = {},
   enableQuery = true,
+  enabled,
   requiresAuth = true,
 }) {
   const authToken = requiresAuth ? localStorage.getItem("authToken") : null;
@@ -47,16 +48,21 @@ export default function useApiRequest({
 
   // For GET requests, use useQuery
   // Call useQuery unconditionally
+  const urlIsValid = typeof url === "string" && url.length > 0;
+  const queryEnabled = (enabled ?? enableQuery) && isGetRequest && urlIsValid;
+
   const query = useQuery({
     queryFn: () =>
-      axios
-        .get(url, {
-          headers: defaultHeaders,
-        })
-        .then((res) => res.data),
+      urlIsValid
+        ? axios
+            .get(url, {
+              headers: defaultHeaders,
+            })
+            .then((res) => res.data)
+        : Promise.reject(new Error("Missing request URL")),
     queryKey: queryKey.length ? queryKey : [url],
-    enabled: enableQuery && isGetRequest,
-    cacheTime: 0,
+    enabled: queryEnabled,
+    gcTime: 0,
     staleTime: 1,
     ...options,
   });
