@@ -100,7 +100,11 @@ export default function ColorPickerModal({ open, onClose, colors = [], selectedC
                       const selectionsStr = colorSelections.map((v) => String(v));
 
                       // Show color if it's the current selection or not selected in other dropdowns
-                      return colorId === selectedIdStr || !selectionsStr.includes(colorId) || selectionsStr.indexOf(colorId) === index;
+                      return (
+                        colorId === selectedIdStr ||
+                        !selectionsStr.includes(colorId) ||
+                        selectionsStr.indexOf(colorId) === index
+                      );
                     })
                     .map((color) => (
                       <MenuItem key={color.id} value={String(color.id)}>
