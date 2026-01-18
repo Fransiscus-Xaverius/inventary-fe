@@ -1,5 +1,14 @@
 import { useState } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Button } from "@mui/material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  FormControl,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 /**
@@ -11,6 +20,15 @@ export default function ColorPickerModal({ open, onClose, colors = [], selectedC
     // Initialize with current selections or empty array with one dropdown
     return selectedColors.length > 0 ? [...selectedColors] : [""];
   });
+
+  const menuProps = {
+    PaperProps: {
+      sx: {
+        maxHeight: 320,
+        overflowY: "auto",
+      },
+    },
+  };
 
   const handleColorSelectionChange = (index, colorId) => {
     const newSelections = [...colorSelections];
@@ -39,7 +57,7 @@ export default function ColorPickerModal({ open, onClose, colors = [], selectedC
   };
 
   const getColorById = (colorId) => {
-    return colors.find((color) => color.id === parseInt(colorId));
+    return colors.find((color) => String(color.id) === String(colorId));
   };
 
   return (
@@ -62,26 +80,39 @@ export default function ColorPickerModal({ open, onClose, colors = [], selectedC
         <div className="flex flex-col space-y-3">
           {colorSelections.map((selectedId, index) => (
             <div key={index} className="flex items-center space-x-2">
-              <select
-                value={selectedId}
-                onChange={(e) => handleColorSelectionChange(index, e.target.value)}
-                className="flex-1 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">Pilih warna</option>
-                {colors
-                  .filter(
-                    (color) =>
+              <FormControl fullWidth size="small">
+                <Select
+                  value={selectedId}
+                  onChange={(e) => handleColorSelectionChange(index, e.target.value)}
+                  displayEmpty
+                  MenuProps={menuProps}
+                  renderValue={(value) => {
+                    if (!value) return "Pilih warna";
+                    const color = getColorById(value);
+                    return color?.nama ?? "Pilih warna";
+                  }}
+                >
+                  <MenuItem value="">Pilih warna</MenuItem>
+                  {colors
+                    .filter((color) => {
+                      const colorId = String(color.id);
+                      const selectedIdStr = String(selectedId);
+                      const selectionsStr = colorSelections.map((v) => String(v));
+
                       // Show color if it's the current selection or not selected in other dropdowns
-                      color.id === selectedId ||
-                      !colorSelections.includes(color.id) ||
-                      colorSelections.indexOf(color.id) === index
-                  )
-                  .map((color) => (
-                    <option key={color.id} value={color.id}>
-                      {color.nama}
-                    </option>
-                  ))}
-              </select>
+                      return (
+                        colorId === selectedIdStr ||
+                        !selectionsStr.includes(colorId) ||
+                        selectionsStr.indexOf(colorId) === index
+                      );
+                    })
+                    .map((color) => (
+                      <MenuItem key={color.id} value={String(color.id)}>
+                        {color.nama}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
 
               {/* Color preview */}
               {selectedId && (

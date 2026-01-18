@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import useApiRequest from "../../../../hooks/useApiRequest";
 
 /**
@@ -9,10 +11,38 @@ import useApiRequest from "../../../../hooks/useApiRequest";
 export default function useMasterOptions() {
   // Colors
   const {
-    response: colorsRes,
+    data: colors,
     isLoading: isColorsLoading,
     error: colorsError,
-  } = useApiRequest({ url: "/api/admin/colors", queryKey: ["colors"] });
+  } = useQuery({
+    queryKey: ["colors", "all"],
+    staleTime: 1,
+    gcTime: 0,
+    queryFn: async () => {
+      const authToken = localStorage.getItem("authToken");
+      const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+
+      const pageSize = 50;
+      let offset = 0;
+      const allColors = [];
+
+      while (true) {
+        const res = await axios
+          .get(`/api/admin/colors?offset=${offset}&limit=${pageSize}`, {
+            headers,
+          })
+          .then((r) => r.data);
+
+        const pageColors = res?.data?.colors ?? [];
+        allColors.push(...pageColors);
+
+        if (pageColors.length < pageSize) break;
+        offset += pageSize;
+      }
+
+      return allColors;
+    },
+  });
 
   // Grup
   const {
@@ -50,7 +80,7 @@ export default function useMasterOptions() {
   } = useApiRequest({ url: "/api/admin/tipes", queryKey: ["tipes"] });
 
   // Memoise transformed option arrays so referential identity stays stable.
-  const colors = useMemo(() => colorsRes?.data?.colors ?? [], [colorsRes]);
+  const colorsMemo = useMemo(() => colors ?? [], [colors]);
   const grups = useMemo(() => grupsRes?.data?.grups ?? [], [grupsRes]);
   const units = useMemo(() => unitsRes?.data?.units ?? [], [unitsRes]);
   const kats = useMemo(() => katsRes?.data?.kats ?? [], [katsRes]);
@@ -65,14 +95,14 @@ export default function useMasterOptions() {
 
   const options = useMemo(
     () => ({
-      colors,
+      colors: colorsMemo,
       grups,
       units,
       kats,
       genders,
       tipes,
     }),
-    [colors, grups, units, kats, genders, tipes]
+    [colorsMemo, grups, units, kats, genders, tipes]
   );
 
   return {
